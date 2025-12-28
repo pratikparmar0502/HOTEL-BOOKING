@@ -1,3 +1,5 @@
+import { useState, useContext } from "react";
+// --- Aapke saare original imports (images aur icons) same rahenge ---
 import nature1 from "../../assets/hotel-image/nature-1.jpg";
 import nature2 from "../../assets/hotel-image/nature-2.jpg";
 import nature3 from "../../assets/hotel-image/nature-3.jpg";
@@ -29,7 +31,25 @@ import royal4 from "../../assets/hotel-image/royal-4.jpg";
 import royal5 from "../../assets/hotel-image/royal-5.jpg";
 import royal6 from "../../assets/hotel-image/royal-6.jpg";
 
-import { useContext } from "react";
+import {
+  Forest,
+  Apartment,
+  Waves,
+  Favorite,
+  Castle,
+  AllInclusive,
+  LocationOn,
+  CalendarMonth,
+  Close,
+  Wifi,
+  LocalParking,
+  Pool,
+  Coffee,
+  Star,
+  AccountCircle,
+  InfoOutlined,
+} from "@mui/icons-material";
+
 import natureHero from "../../assets/nature-hero.avif";
 import royalHero from "../../assets/royal-hero.avif";
 import urbanHero from "../../assets/urban-hero.avif";
@@ -42,7 +62,6 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Chip,
   Stack,
   Divider,
   Box,
@@ -51,13 +70,35 @@ import {
   Container,
   TextField,
   InputAdornment,
+  Dialog,
+  DialogContent,
+  IconButton,
+  AppBar,
+  Toolbar,
 } from "@mui/material";
-import { LocationOn, CalendarMonth } from "@mui/icons-material";
+
 import { MoodContext } from "../../context/MoodContext.jsx";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+
+const moods = [
+  { id: "default", label: "All Stays", icon: <AllInclusive /> },
+  { id: "nature", label: "Nature", icon: <Forest /> },
+  { id: "urban", label: "Urban", icon: <Apartment /> },
+  { id: "ocean", label: "Ocean", icon: <Waves /> },
+  { id: "romantic", label: "Romantic", icon: <Favorite /> },
+  { id: "royal", label: "Royal", icon: <Castle /> },
+];
 
 const Home = () => {
-  const { mood } = useContext(MoodContext);
+  const { mood, setMood } = useContext(MoodContext);
+  const [open, setOpen] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState(null);
+
+  const handleOpen = (hotel) => {
+    setSelectedHotel(hotel);
+    setOpen(true);
+  };
+  const handleClose = () => setOpen(false);
 
   const moodImages = {
     nature: natureHero,
@@ -66,6 +107,31 @@ const Home = () => {
     romantic: romanticHero,
     royal: royalHero,
     default: defaultHero,
+  };
+
+  const getLogoIcon = () => {
+    const iconColor = getMoodColor(mood); // Dynamic color
+    const iconStyle = {
+      mr: 1,
+      fontSize: "2rem",
+      color: iconColor,
+      transition: "0.5s all",
+    };
+
+    switch (mood) {
+      case "nature":
+        return <Forest sx={iconStyle} />;
+      case "urban":
+        return <Apartment sx={iconStyle} />;
+      case "ocean":
+        return <Waves sx={iconStyle} />;
+      case "romantic":
+        return <Favorite sx={iconStyle} />;
+      case "royal":
+        return <Castle sx={iconStyle} />;
+      default:
+        return <AllInclusive sx={iconStyle} />;
+    }
   };
 
   const hotelData = {
@@ -77,6 +143,7 @@ const Home = () => {
         img: nature1,
         loc: "Gulmarg, Kashmir",
         rating: 4.8,
+        desc: "A serene escape into the lush green pine forests of Kashmir.",
       },
       {
         id: 2,
@@ -85,6 +152,7 @@ const Home = () => {
         img: nature2,
         loc: "Munnar, Kerala",
         rating: 4.5,
+        desc: "Breathtaking views of tea gardens and misty mountains.",
       },
       {
         id: 3,
@@ -93,6 +161,7 @@ const Home = () => {
         img: nature3,
         loc: "Kasol, Himachal",
         rating: 4.7,
+        desc: "Riverside eco-friendly cabins for true nature lovers.",
       },
       {
         id: 4,
@@ -101,6 +170,7 @@ const Home = () => {
         img: nature4,
         loc: "Dharamshala, India",
         rating: 4.3,
+        desc: "Experience the tranquility of the Himalayas.",
       },
       {
         id: 5,
@@ -109,6 +179,7 @@ const Home = () => {
         img: nature5,
         loc: "Coorg, Karnataka",
         rating: 4.6,
+        desc: "A luxurious stay hidden within coffee plantations.",
       },
       {
         id: 6,
@@ -117,6 +188,7 @@ const Home = () => {
         img: nature6,
         loc: "Rishikesh, Uttarakhand",
         rating: 4.4,
+        desc: "Peaceful stay right on the banks of the holy Ganges.",
       },
     ],
     urban: [
@@ -127,6 +199,7 @@ const Home = () => {
         img: urban1,
         loc: "South Bombay, Mumbai",
         rating: 4.9,
+        desc: "Luxury sky-high living in the heart of the business district.",
       },
       {
         id: 8,
@@ -135,6 +208,7 @@ const Home = () => {
         img: urban2,
         loc: "Cyber Hub, Gurgaon",
         rating: 4.2,
+        desc: "Modern amenities for the tech-savvy urban traveler.",
       },
       {
         id: 9,
@@ -143,6 +217,7 @@ const Home = () => {
         img: urban3,
         loc: "Indiranagar, Bangalore",
         rating: 4.6,
+        desc: "Chic boutique hotel surrounded by the best cafes.",
       },
       {
         id: 10,
@@ -151,6 +226,7 @@ const Home = () => {
         img: urban4,
         loc: "Banjara Hills, Hyderabad",
         rating: 4.1,
+        desc: "Industrial design meets city convenience.",
       },
       {
         id: 11,
@@ -159,6 +235,7 @@ const Home = () => {
         img: urban5,
         loc: "New Town, Kolkata",
         rating: 4.7,
+        desc: "Vibrant stay in the growing tech hub of Kolkata.",
       },
       {
         id: 12,
@@ -167,6 +244,7 @@ const Home = () => {
         img: urban6,
         loc: "Downtown, Dubai",
         rating: 4.8,
+        desc: "World-class luxury with views of the Dubai skyline.",
       },
     ],
     ocean: [
@@ -177,6 +255,7 @@ const Home = () => {
         img: ocean1,
         loc: "North Goa, India",
         rating: 4.7,
+        desc: "Premium beach access and sundowner parties.",
       },
       {
         id: 14,
@@ -185,6 +264,7 @@ const Home = () => {
         img: ocean2,
         loc: "Havelock Island, Andaman",
         rating: 4.5,
+        desc: "Sleep right above the ocean with private water access.",
       },
       {
         id: 15,
@@ -193,6 +273,7 @@ const Home = () => {
         img: ocean3,
         loc: "Varkala, Kerala",
         rating: 4.4,
+        desc: "Clifftop resort with an infinity view of the Arabian sea.",
       },
       {
         id: 16,
@@ -201,6 +282,7 @@ const Home = () => {
         img: ocean4,
         loc: "Maldives",
         rating: 4.9,
+        desc: "The ultimate island paradise for luxury and privacy.",
       },
       {
         id: 17,
@@ -209,6 +291,7 @@ const Home = () => {
         img: ocean5,
         loc: "Pondicherry, India",
         rating: 4.2,
+        desc: "Peaceful vibes and French-inspired coastal living.",
       },
       {
         id: 18,
@@ -217,6 +300,7 @@ const Home = () => {
         img: ocean6,
         loc: "Gokarna, Karnataka",
         rating: 4.6,
+        desc: "Untouched beaches and total tranquility.",
       },
     ],
     romantic: [
@@ -227,6 +311,7 @@ const Home = () => {
         img: romantic1,
         loc: "Lake Pichola, Udaipur",
         rating: 4.9,
+        desc: "Romantic palace stay with candlelit lake-view dinners.",
       },
       {
         id: 20,
@@ -235,6 +320,7 @@ const Home = () => {
         img: romantic2,
         loc: "Nainital, Uttarakhand",
         rating: 4.8,
+        desc: "Cozy rooms for the perfect couple's retreat.",
       },
       {
         id: 21,
@@ -243,6 +329,7 @@ const Home = () => {
         img: romantic3,
         loc: "Dal Lake, Srinagar",
         rating: 4.6,
+        desc: "Traditional houseboats for a unique romantic experience.",
       },
       {
         id: 22,
@@ -251,6 +338,7 @@ const Home = () => {
         img: romantic4,
         loc: "Ooty, Tamil Nadu",
         rating: 4.5,
+        desc: "Charming stay amidst the Nilgiri hills.",
       },
       {
         id: 23,
@@ -259,6 +347,7 @@ const Home = () => {
         img: romantic5,
         loc: "Alleppey, Kerala",
         rating: 4.7,
+        desc: "Private backwater escapes for couples.",
       },
       {
         id: 24,
@@ -267,6 +356,7 @@ const Home = () => {
         img: romantic6,
         loc: "Shimla, Himachal",
         rating: 4.4,
+        desc: "Mountain views and fireplace nights.",
       },
     ],
     royal: [
@@ -277,6 +367,7 @@ const Home = () => {
         img: royal1,
         loc: "Jodhpur, Rajasthan",
         rating: 5.0,
+        desc: "Experience Rajasthan's royalty in a true heritage palace.",
       },
       {
         id: 26,
@@ -285,6 +376,7 @@ const Home = () => {
         img: royal2,
         loc: "Udaipur, Rajasthan",
         rating: 4.8,
+        desc: "Vintage luxury with modern comforts.",
       },
       {
         id: 27,
@@ -293,6 +385,7 @@ const Home = () => {
         img: royal3,
         loc: "Jaipur, Rajasthan",
         rating: 4.9,
+        desc: "Stay in the heart of the Pink City like a King.",
       },
       {
         id: 28,
@@ -301,6 +394,7 @@ const Home = () => {
         img: royal4,
         loc: "Gwalior, Madhya Pradesh",
         rating: 4.6,
+        desc: "Rich history and grand hospitality.",
       },
       {
         id: 29,
@@ -309,6 +403,7 @@ const Home = () => {
         img: royal5,
         loc: "Lucknow, Uttar Pradesh",
         rating: 4.7,
+        desc: "Nawabi style meets colonial grandeur.",
       },
       {
         id: 30,
@@ -317,8 +412,26 @@ const Home = () => {
         img: royal6,
         loc: "Mysore, Karnataka",
         rating: 4.8,
+        desc: "Classic luxury near the iconic Mysore Palace.",
       },
     ],
+  };
+
+  const getMoodColor = (currentMood) => {
+    switch (currentMood) {
+      case "nature":
+        return "#2e7d32"; // Green
+      case "urban":
+        return "#d32f2f"; // Red/Modern
+      case "ocean":
+        return "#0288d1"; // Light Blue
+      case "romantic":
+        return "#d81b60"; // Pink/Rose
+      case "royal":
+        return "#ffa000"; // Gold/Amber
+      default:
+        return "#1976d2"; // Default Blue
+    }
   };
 
   const displayedHotels =
@@ -335,6 +448,148 @@ const Home = () => {
 
   return (
     <Box>
+      {/* --- INTEGRATED STICKY NAVBAR & MOOD SELECTOR --- */}
+      <AppBar
+        position="sticky"
+        elevation={0}
+        sx={{
+          bgcolor: "white",
+          color: "black",
+          borderBottom: "1px solid #eee",
+        }}
+      >
+        <Container maxWidth="xl">
+          {/* Top Row: Brand & Links */}
+          <Toolbar
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              px: "0 !important",
+              minHeight: "64px",
+            }}
+          >
+            <Box
+              onClick={() => setMood("default")}
+              sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={mood}
+                  initial={{ rotate: -180, opacity: 0, scale: 0.5 }}
+                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                  exit={{ rotate: 180, opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.4, ease: "backOut" }}
+                  style={{ display: "flex", alignItems: "center" }}
+                >
+                  {getLogoIcon()}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* STAYFLOW TEXT WITH DYNAMIC COLOR */}
+              <Typography
+                variant="h5"
+                fontWeight="900"
+                component={motion.span} // Motion component banaya
+                animate={{ color: getMoodColor(mood) }} // Color mood ke hisaab se change hoga
+                transition={{ duration: 0.5 }} // Smooth transition
+                sx={{
+                  ml: 0.5,
+                  letterSpacing: "-1px",
+                  textTransform: "uppercase", // Professional look ke liye uppercase
+                }}
+              >
+                Stayflow
+              </Typography>
+            </Box>
+            <Stack
+              direction="row"
+              spacing={4}
+              sx={{ display: { xs: "none", md: "flex" } }}
+            >
+              <Typography
+                fontWeight="600"
+                sx={{ cursor: "pointer", "&:hover": { color: "primary.main" } }}
+              >
+                Explore
+              </Typography>
+              <Typography
+                fontWeight="600"
+                sx={{ cursor: "pointer", "&:hover": { color: "primary.main" } }}
+              >
+                Destinations
+              </Typography>
+              <Typography
+                fontWeight="600"
+                sx={{ cursor: "pointer", "&:hover": { color: "primary.main" } }}
+              >
+                My Bookings
+              </Typography>
+            </Stack>
+
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Button
+                size="small"
+                variant="text"
+                sx={{
+                  color: "black",
+                  fontWeight: "bold",
+                  textTransform: "none",
+                }}
+              >
+                Log in
+              </Button>
+              <IconButton color="inherit">
+                <AccountCircle />
+              </IconButton>
+            </Stack>
+          </Toolbar>
+
+          {/* Bottom Row: Original Mood Selector Icons */}
+          <Box sx={{ py: 1, borderTop: "1px solid #f9f9f9" }}>
+            <Stack
+              direction="row"
+              spacing={4}
+              justifyContent="center"
+              sx={{
+                overflowX: "auto",
+                pb: 1,
+                "&::-webkit-scrollbar": { display: "none" },
+              }}
+            >
+              {moods.map((m) => (
+                <Box
+                  key={m.id}
+                  onClick={() => setMood(m.id)}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    minWidth: "80px",
+                    color: mood === m.id ? "primary.main" : "text.secondary",
+                    borderBottom:
+                      mood === m.id ? "2px solid" : "2px solid transparent",
+                    transition: "0.3s",
+                    opacity: mood === m.id ? 1 : 0.7,
+                    "&:hover": { color: "primary.main", opacity: 1 },
+                  }}
+                >
+                  {m.icon}
+                  <Typography
+                    variant="caption"
+                    fontWeight="bold"
+                    sx={{ mt: 0.5 }}
+                  >
+                    {m.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+        </Container>
+      </AppBar>
+
+      {/* --- HERO SECTION --- */}
       <Box
         sx={{
           height: "90vh",
@@ -365,7 +620,6 @@ const Home = () => {
           <Typography variant="h5" sx={{ mb: 6, opacity: 0.9 }}>
             Book unique hotels and vibrant spaces around the world.
           </Typography>
-
           <Box
             sx={{
               backgroundColor: "white",
@@ -423,6 +677,7 @@ const Home = () => {
         </Container>
       </Box>
 
+      {/* --- HOTEL GRID --- */}
       <Container sx={{ py: 10 }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           {mood === "default"
@@ -435,7 +690,11 @@ const Home = () => {
           Handpicked spaces that match your current vibe.
         </Typography>
 
-        <Grid container spacing={4} sx={{ width: "100%" }}>
+        <Grid
+          container
+          spacing={4}
+          sx={{ width: "100%", margin: "0 auto", justifyContent: "center" }}
+        >
           {displayedHotels.map((hotel, index) => (
             <Grid
               item
@@ -443,37 +702,36 @@ const Home = () => {
               sm={6}
               md={4}
               key={hotel.id}
-              sx={{ display: "flex", justifyContent: "center" }}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                flexBasis: {
+                  md: "calc(33.33% - 32px)",
+                  sm: "calc(50% - 24px)",
+                  xs: "100%",
+                },
+              }}
             >
               <Box
                 component={motion.div}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                style={{ maxWidth: "100%", width: "350px", display: "flex" }}
+                whileHover={{ y: -10 }}
+                transition={{ duration: 0.3 }}
+                sx={{ width: "100%", maxWidth: "360px" }}
               >
                 <Card
                   sx={{
-                    height: "100%",
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    borderRadius: "24px",
+                    borderRadius: "28px",
                     overflow: "hidden",
-                    boxShadow: "0px 10px 25px rgba(0,0,0,0.05)",
-                    transition: "0.3s",
-                    "&:hover": {
-                      transform: "translateY(-12px)",
-                      boxShadow: "0px 20px 40px rgba(0,0,0,0.12)",
-                    },
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(0,0,0,0.04)",
+                    bgcolor: "background.paper",
                   }}
                 >
+                  {/* IMAGE SECTION */}
                   <Box
                     sx={{
                       position: "relative",
-                      width: "100%",
-                      height: "250px",
+                      height: "220px",
                       overflow: "hidden",
                     }}
                   >
@@ -485,68 +743,121 @@ const Home = () => {
                         height: "100%",
                         width: "100%",
                         objectFit: "cover",
-                        objectPosition: "center",
-                        transition: "transform 0.5s ease-in-out",
-                        "&:hover": {
-                          transform: "scale(1.1)",
-                        },
+                        transition: "0.6s ease",
+                        "&:hover": { transform: "scale(1.08)" },
                       }}
                     />
-                    <Chip
-                      label={hotel.loc}
+                    {/* Rating Badge on Image */}
+                    <Box
                       sx={{
                         position: "absolute",
-                        top: 16,
-                        left: 16,
-                        zIndex: 2,
+                        top: 15,
+                        right: 15,
                         bgcolor: "rgba(255,255,255,0.9)",
-                        fontWeight: "bold",
-                        backdropFilter: "blur(5px)",
+                        backdropFilter: "blur(4px)",
+                        px: 1.2,
+                        py: 0.5,
+                        borderRadius: "12px",
+                        display: "flex",
+                        alignItems: "center",
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                       }}
-                    />
+                    >
+                      <Star
+                        sx={{ color: "#FFB300", fontSize: "0.9rem", mr: 0.3 }}
+                      />
+                      <Typography variant="caption" fontWeight="900">
+                        {hotel.rating}
+                      </Typography>
+                    </Box>
                   </Box>
-                  <CardContent sx={{ p: 3, flexGrow: 1 }}>
+
+                  {/* CONTENT SECTION */}
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography
+                      variant="h6"
+                      fontWeight="800"
+                      noWrap
+                      sx={{ mb: 0.5 }}
+                    >
+                      {hotel.name}
+                    </Typography>
+
                     <Stack
                       direction="row"
-                      justifyContent="space-between"
-                      alignItems="start"
+                      alignItems="center"
+                      spacing={0.5}
+                      sx={{ mb: 2, opacity: 0.7 }}
                     >
-                      <Typography variant="h6" fontWeight="bold">
-                        {hotel.name}
-                      </Typography>
-                      <Typography variant="subtitle2" fontWeight="bold">
-                        ⭐ {hotel.rating}
+                      <LocationOn sx={{ fontSize: "1rem" }} />
+                      <Typography variant="caption" fontWeight="500">
+                        {hotel.loc}
                       </Typography>
                     </Stack>
-                    <Divider sx={{ my: 2 }} />
+
                     <Stack
                       direction="row"
                       justifyContent="space-between"
                       alignItems="center"
+                      sx={{ mt: 2 }}
                     >
                       <Box>
                         <Typography
                           variant="h6"
-                          color="primary"
-                          fontWeight="800"
+                          fontWeight="900"
+                          sx={{ color: getMoodColor(mood) }}
                         >
-                          ₹ {hotel.price}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          per night
+                          ₹
+                          {Number(
+                            hotel.price.toString().replace(/,/g, "")
+                          ).toLocaleString("en-IN")}
+                          <Box
+                            component="span"
+                            sx={{
+                              fontSize: "0.75rem",
+                              color: "text.secondary",
+                              ml: 0.5,
+                            }}
+                          >
+                            /night
+                          </Box>
                         </Typography>
                       </Box>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        sx={{
-                          borderRadius: "10px",
-                          textTransform: "none",
-                          px: 3,
-                        }}
-                      >
-                        Details
-                      </Button>
+
+                      {/* BUTTONS UI CHANGE */}
+                      <Stack direction="row" spacing={1}>
+                        {/* Detailed Button - Clean Icon Style */}
+                        <IconButton
+                          onClick={() => handleOpen(hotel)}
+                          sx={{
+                            border: "1px solid #eee",
+                            borderRadius: "12px",
+                            color: "text.secondary",
+                            "&:hover": { bgcolor: "#f5f5f5" },
+                          }}
+                        >
+                          <InfoOutlined fontSize="small" />
+                        </IconButton>
+
+                        {/* Main Book Button */}
+                        <Button
+                          variant="contained"
+                          disableElevation
+                          sx={{
+                            borderRadius: "12px",
+                            textTransform: "none",
+                            fontWeight: "bold",
+                            px: 3,
+                            bgcolor: getMoodColor(mood),
+                            "&:hover": {
+                              bgcolor: getMoodColor(mood),
+                              filter: "brightness(0.9)",
+                            },
+                          }}
+                        >
+                          Book
+                        </Button>
+                      </Stack>
                     </Stack>
                   </CardContent>
                 </Card>
@@ -555,6 +866,88 @@ const Home = () => {
           ))}
         </Grid>
       </Container>
+
+      {/* --- POPUP MODAL --- */}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="md"
+        fullWidth
+        sx={{ borderRadius: "20px" }}
+      >
+        {selectedHotel && (
+          <DialogContent sx={{ p: 0, position: "relative" }}>
+            <IconButton
+              onClick={handleClose}
+              sx={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                bgcolor: "white",
+                zIndex: 10,
+              }}
+            >
+              <Close />
+            </IconButton>
+            <Grid container>
+              <Grid item xs={12} md={6}>
+                <Box
+                  component="img"
+                  src={selectedHotel.img}
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    minHeight: "350px",
+                    objectFit: "cover",
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6} sx={{ p: 4 }}>
+                <Typography variant="h4" fontWeight="bold" gutterBottom>
+                  {selectedHotel.name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{ mb: 2 }}
+                >
+                  📍 {selectedHotel.loc} | ⭐ {selectedHotel.rating} Rating
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 3, color: "#444" }}>
+                  {selectedHotel.desc}
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  sx={{ mb: 1 }}
+                >
+                  Included Amenities:
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+                  <Wifi color="primary" /> <Pool color="primary" />{" "}
+                  <Coffee color="primary" /> <LocalParking color="primary" />
+                </Stack>
+                <Divider sx={{ my: 2 }} />
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="h5" color="primary" fontWeight="bold">
+                    ₹ {selectedHotel.price}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    sx={{ borderRadius: "10px", px: 4 }}
+                  >
+                    Book Now
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+          </DialogContent>
+        )}
+      </Dialog>
     </Box>
   );
 };
