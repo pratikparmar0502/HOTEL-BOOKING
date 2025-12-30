@@ -1164,204 +1164,521 @@ const Home = () => {
           </Box>
         </Fade>
       </Modal>
-      {/* --- LUXURY FOOTER SECTION (STAYEASE BRANDING) --- */}
+      {/* --- DYNAMIC MOOD FOOTER --- */}
       <Box
         component="footer"
         sx={{
-          bgcolor: "#111",
+          bgcolor: "#0a0a0a",
+          background: "linear-gradient(180deg, #0a0a0a 0%, #050505 100%)",
           color: "#fff",
-          pt: 12,
-          pb: 6,
+          pt: { xs: 10, md: 16 },
+          pb: { xs: 8, md: 10 },
           position: "relative",
           overflow: "hidden",
-          mt: 10,
+          mt: 15,
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "1px",
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+          },
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "1px",
+            background: `linear-gradient(90deg, transparent, ${getMoodColor(
+              mood
+            )}30, transparent)`,
+          },
         }}
       >
-        {/* Background Large Watermark Text */}
-        <Typography
+        {/* Animated Background Elements - Mood based colors */}
+        <Box
           sx={{
             position: "absolute",
-            top: -10,
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: { xs: "6rem", md: "15rem" },
-            fontWeight: "900",
-            color: "rgba(255, 255, 255, 0.03)",
-            whiteSpace: "nowrap",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+        radial-gradient(circle at 15% 20%, ${getMoodColor(
+          mood
+        )}05 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, ${getMoodColor(
+          mood
+        )}03 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, transparent 0%, #0a0a0a 70%)
+      `,
             pointerEvents: "none",
             zIndex: 0,
-            textTransform: "uppercase",
-            letterSpacing: "10px",
           }}
-        >
-          STAY EASE
-        </Typography>
+        />
+
+        {/* Floating Elements - Mood color */}
+        {[1, 2, 3].map((i) => (
+          <Box
+            key={i}
+            sx={{
+              position: "absolute",
+              width: i * 100,
+              height: i * 100,
+              borderRadius: "50%",
+              background: `radial-gradient(circle, ${getMoodColor(
+                mood
+              )}02 0%, transparent 70%)`,
+              top: `${20 * i}%`,
+              left: `${10 * i}%`,
+              filter: "blur(40px)",
+              opacity: 0.1,
+              zIndex: 0,
+              animation: `float ${6 + i * 2}s ease-in-out infinite`,
+              animationDelay: `${i * 1}s`,
+              "@keyframes float": {
+                "0%, 100%": { transform: "translateY(0px) translateX(0px)" },
+                "50%": { transform: "translateY(-20px) translateX(20px)" },
+              },
+            }}
+          />
+        ))}
 
         <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
           <Grid
             container
-            spacing={4}
-            justifyContent="space-between" // Isse charo boxes ke beech barabar space rahega
+            spacing={{ xs: 6, md: 8 }}
+            justifyContent="space-between"
           >
-            {/* 1. Brand Section */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Box sx={{ mb: 4 }}>
-                <Typography
-                  variant="h5"
-                  fontWeight="900"
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    letterSpacing: "1px",
-                  }}
-                >
-                  STAY<span style={{ color: getMoodColor(mood) }}>EASE</span>
-                </Typography>
+            {/* Brand Section */}
+            <Grid item xs={12} md={4}>
+              <Box sx={{ mb: 5 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  {getLogoIcon()}
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: "900",
+                      fontFamily: "'Playfair Display', serif",
+                      letterSpacing: "-1px",
+                      background: `linear-gradient(45deg, #fff, ${getMoodColor(
+                        mood
+                      )})`,
+                      backgroundClip: "text",
+                      WebkitBackgroundClip: "text",
+                      color: "transparent",
+                    }}
+                  >
+                    StayFlow
+                  </Typography>
+                </Box>
+
                 <Typography
                   variant="caption"
                   sx={{
                     color: "#666",
                     letterSpacing: "3px",
-                    fontWeight: "700",
+                    fontWeight: "600",
+                    textTransform: "uppercase",
+                    display: "block",
+                    mb: 3,
                   }}
                 >
-                  PREMIUM STAYS
+                  Curated Experiences Since 2023
                 </Typography>
-              </Box>
 
-              <Typography
-                variant="body2"
-                sx={{ color: "#888", mb: 4, lineHeight: 1.8 }}
-              >
-                Feel free to reach out if you want to collaborate with us, or
-                chat.
-              </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#888",
+                    mb: 4,
+                    lineHeight: 1.8,
+                    fontSize: "0.95rem",
+                    maxWidth: "380px",
+                  }}
+                >
+                  We don't just book stays, we craft experiences. Each property
+                  is handpicked to match your mood, ensuring memories that last
+                  a lifetime.
+                </Typography>
 
-              <Typography
-                variant="subtitle2"
-                fontWeight="700"
-                sx={{ mb: 2, textTransform: "uppercase" }}
-              >
-                Follow Us
-              </Typography>
-              <Stack direction="row" spacing={1.5}>
-                {[Twitter, Facebook, YouTube, Instagram].map((Icon, index) => (
-                  <IconButton
-                    key={index}
-                    size="small"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.05)",
-                      color: "white",
-                      "&:hover": { bgcolor: getMoodColor(mood) },
-                    }}
-                  >
-                    <Icon fontSize="inherit" />
-                  </IconButton>
-                ))}
-              </Stack>
-            </Grid>
-
-            {/* 2. Service Links */}
-            <Grid item xs={6} sm={6} md={2}>
-              <Typography variant="subtitle1" sx={{ mb: 4, fontWeight: "700" }}>
-                Service
-              </Typography>
-              <Stack spacing={2}>
-                {[
-                  "Store Directory",
-                  "Top Hotels",
-                  "Quick Links",
-                  "Insights",
-                ].map((text) => (
+                {/* Newsletter Subscription */}
+                <Box sx={{ mb: 5 }}>
                   <Typography
-                    key={text}
                     variant="body2"
-                    sx={{
-                      color:
-                        text === "Quick Links" ? getMoodColor(mood) : "#777",
-                      cursor: "pointer",
-                      "&:hover": { color: "#fff" },
-                    }}
+                    sx={{ color: "#aaa", mb: 2, fontWeight: "500" }}
                   >
-                    {text}
+                    Join our exclusive travel community
                   </Typography>
-                ))}
-              </Stack>
-            </Grid>
-
-            {/* 3. Company Links */}
-            <Grid item xs={6} sm={6} md={2}>
-              <Typography variant="subtitle1" sx={{ mb: 4, fontWeight: "700" }}>
-                Company
-              </Typography>
-              <Stack spacing={2}>
-                {["Home", "About Us", "Services", "Career", "Contact"].map(
-                  (text) => (
-                    <Typography
-                      key={text}
-                      variant="body2"
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <TextField
+                      placeholder="Your email address"
+                      size="small"
+                      variant="outlined"
                       sx={{
-                        color: "#777",
-                        cursor: "pointer",
-                        "&:hover": { color: "#fff" },
+                        flex: 1,
+                        "& .MuiOutlinedInput-root": {
+                          bgcolor: "rgba(255,255,255,0.05)",
+                          color: "#fff",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: "10px",
+                          fontSize: "0.9rem",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            borderColor: `${getMoodColor(mood)}50`,
+                          },
+                          "&.Mui-focused": {
+                            borderColor: getMoodColor(mood),
+                            boxShadow: `0 0 0 2px ${getMoodColor(mood)}20`,
+                          },
+                        },
+                        "& .MuiInputBase-input::placeholder": {
+                          color: "#666",
+                        },
+                      }}
+                    />
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{
+                        bgcolor: getMoodColor(mood),
+                        color: "#fff",
+                        px: 3,
+                        borderRadius: "10px",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          bgcolor: getMoodColor(mood),
+                          filter: "brightness(1.2)",
+                          transform: "translateY(-2px)",
+                          boxShadow: `0 8px 25px ${getMoodColor(mood)}50`,
+                        },
                       }}
                     >
-                      {text}
-                    </Typography>
-                  )
-                )}
-              </Stack>
+                      Join
+                    </Button>
+                  </Box>
+                </Box>
+
+                {/* Social Links - Mood color on hover */}
+                <Stack direction="row" spacing={2}>
+                  {[
+                    { icon: <Twitter />, name: "Twitter" },
+                    { icon: <Instagram />, name: "Instagram" },
+                    { icon: <Facebook />, name: "Facebook" },
+                    { icon: <YouTube />, name: "YouTube" },
+                  ].map((social, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        position: "relative",
+                        "&:hover .social-tooltip": {
+                          opacity: 1,
+                          transform: "translateY(0)",
+                        },
+                      }}
+                    >
+                      <IconButton
+                        sx={{
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          color: "#888",
+                          transition: "all 0.4s ease",
+                          bgcolor: "rgba(255,255,255,0.03)",
+                          "&:hover": {
+                            bgcolor: getMoodColor(mood),
+                            borderColor: getMoodColor(mood),
+                            transform: "translateY(-4px) scale(1.1)",
+                            color: "#fff",
+                            boxShadow: `0 8px 20px ${getMoodColor(mood)}40`,
+                          },
+                        }}
+                      >
+                        {social.icon}
+                      </IconButton>
+                      <Box
+                        className="social-tooltip"
+                        sx={{
+                          position: "absolute",
+                          bottom: "100%",
+                          left: "50%",
+                          transform: "translateX(-50%) translateY(10px)",
+                          bgcolor: "#111",
+                          color: "#fff",
+                          px: 2,
+                          py: 1,
+                          borderRadius: "6px",
+                          fontSize: "0.75rem",
+                          whiteSpace: "nowrap",
+                          opacity: 0,
+                          transition: "all 0.3s ease",
+                          mb: 1,
+                          border: `1px solid ${getMoodColor(mood)}30`,
+                          "&::after": {
+                            content: '""',
+                            position: "absolute",
+                            top: "100%",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            border: "4px solid transparent",
+                            borderTopColor: "#111",
+                          },
+                        }}
+                      >
+                        Follow on {social.name}
+                      </Box>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
             </Grid>
 
-            {/* 4. Contact Details */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Box sx={{ mb: 4 }}>
+            {/* Quick Links Grids - Hover with mood color */}
+            {[
+              {
+                title: "MOODS",
+                items: [
+                  "Nature Retreats",
+                  "Urban Escapes",
+                  "Ocean Views",
+                  "Romantic Stays",
+                  "Royal Heritage",
+                ],
+              },
+              {
+                title: "SERVICES",
+                items: [
+                  "Concierge",
+                  "Airport Transfers",
+                  "Private Chef",
+                  "Spa & Wellness",
+                  "Event Planning",
+                ],
+              },
+              {
+                title: "COMPANY",
+                items: [
+                  "About Us",
+                  "Careers",
+                  "Press",
+                  "Sustainability",
+                  "Investors",
+                ],
+              },
+            ].map((section, idx) => (
+              <Grid item xs={6} md={2.5} key={section.title}>
                 <Typography
-                  variant="subtitle1"
-                  sx={{ mb: 2, fontWeight: "700" }}
+                  variant="subtitle2"
+                  sx={{
+                    mb: 4,
+                    fontWeight: "700",
+                    color: "#fff",
+                    textTransform: "uppercase",
+                    fontSize: "0.8rem",
+                    letterSpacing: "1px",
+                    position: "relative",
+                    pb: 2,
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      width: "40px",
+                      height: "2px",
+                      background: `linear-gradient(90deg, ${getMoodColor(
+                        mood
+                      )}, transparent)`,
+                      transition: "all 0.3s ease",
+                    },
+                    "&:hover::after": {
+                      width: "60px",
+                      background: `linear-gradient(90deg, ${getMoodColor(
+                        mood
+                      )}, ${getMoodColor(mood)}80)`,
+                    },
+                  }}
                 >
-                  New York
+                  {section.title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#777" }}>
-                  2464 Royal Ln. Mesa, New Jersey 45463
-                </Typography>
-              </Box>
-              <Box>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ mb: 2, fontWeight: "700" }}
-                >
-                  London
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#777" }}>
-                  {" "}
-                  (229) 555-0109{" "}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#777" }}>
-                  {" "}
-                  info@stayease.com{" "}
-                </Typography>
-              </Box>
-            </Grid>
+                <Stack spacing={2.5}>
+                  {section.items.map((item) => (
+                    <Box
+                      key={item}
+                      sx={{
+                        position: "relative",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          transform: "translateX(8px)",
+                          "& .link-text": {
+                            color: getMoodColor(mood),
+                          },
+                          "& .link-arrow": {
+                            opacity: 1,
+                            transform: "translateX(0)",
+                            color: getMoodColor(mood),
+                          },
+                        },
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        className="link-text"
+                        sx={{
+                          color: "#888",
+                          fontWeight: "400",
+                          fontSize: "0.9rem",
+                          display: "flex",
+                          alignItems: "center",
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        <Box
+                          className="link-arrow"
+                          sx={{
+                            opacity: 0,
+                            transform: "translateX(-5px)",
+                            transition: "all 0.3s ease",
+                            mr: 1,
+                          }}
+                        >
+                          →
+                        </Box>
+                        {item}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Grid>
+            ))}
           </Grid>
-
-          {/* Bottom Line */}
           <Box
             sx={{
-              mt: 10,
               pt: 4,
               borderTop: "1px solid rgba(255,255,255,0.05)",
-              textAlign: "center",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 3,
             }}
           >
             <Typography
-              variant="caption"
-              sx={{ color: "#444", letterSpacing: "1px" }}
+              variant="body2"
+              sx={{
+                color: "#666",
+                fontSize: "0.9rem",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
             >
-              © 2025 STAYEASE LUXURY GROUP. ALL RIGHTS RESERVED.
+              © 2026 StayFlow. All rights reserved.
+              <Box
+                component="span"
+                sx={{
+                  color: getMoodColor(mood),
+                  transition: "all 0.3s ease",
+                  cursor: "pointer",
+                  "&:hover": {
+                    filter: "brightness(1.3)",
+                    textShadow: `0 0 10px ${getMoodColor(mood)}40`,
+                  },
+                }}
+              >
+                Crafted with ❤️
+              </Box>
+              for travelers worldwide.
             </Typography>
+
+            <Stack direction="row" spacing={3} alignItems="center">
+              {["Privacy Policy", "Terms of Service", "Cookie Policy"].map(
+                (item) => (
+                  <Box key={item} sx={{ position: "relative" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#888",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                        position: "relative",
+                        "&:hover": {
+                          color: getMoodColor(mood),
+                          transform: "translateY(-2px)",
+                          "&::after": {
+                            width: "100%",
+                          },
+                        },
+                        "&::after": {
+                          content: '""',
+                          position: "absolute",
+                          bottom: -2,
+                          left: 0,
+                          width: "0%",
+                          height: "1px",
+                          background: getMoodColor(mood),
+                          transition: "width 0.3s ease",
+                        },
+                      }}
+                    >
+                      {item}
+                    </Typography>
+                  </Box>
+                )
+              )}
+            </Stack>
           </Box>
+          {/* <Box
+            sx={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              transform: "translateY(-50%)",
+              mr: { xs: 2, md: 0 },
+            }}
+          >
+            <IconButton
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              sx={{
+                bgcolor: getMoodColor(mood),
+                color: "#fff",
+                border: "3px solid #0a0a0a",
+                width: "48px",
+                height: "48px",
+                transition: "all 0.4s ease",
+                position: "relative",
+                overflow: "hidden",
+                "&:hover": {
+                  bgcolor: "#fff",
+                  color: getMoodColor(mood),
+                  transform: "translateY(-5px)",
+                  boxShadow: `0 10px 30px ${getMoodColor(mood)}60`,
+                  "&::before": {
+                    transform: "translateX(100%)",
+                  },
+                },
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  background:
+                    "linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent)",
+                  transform: "translateX(-100%)",
+                  transition: "transform 0.6s ease",
+                },
+              }}
+            >
+              ↑
+            </IconButton>
+          </Box> */}
         </Container>
       </Box>
     </Box>
