@@ -416,7 +416,7 @@ const Home = () => {
       },
       {
         id: 29,
-        name: "Victoria’s Dynasty Suites",
+        name: "Victoria's Dynasty Suites",
         price: "340",
         img: royal5,
         loc: "Lucknow, Uttar Pradesh",
@@ -435,15 +435,8 @@ const Home = () => {
     ],
   };
 
-  // ------------------------------------------------------------
-  // UPDATED LOGIC HERE:
-  // 1. Agar mood Default hai aur Search khaali hai -> Trending dikhao
-  // 2. Agar mood Default hai aur Search active hai -> Sabme dhoondo (Flattened Array)
-  // 3. Agar Specific mood hai -> Usi mood me dhoondo
-  // ------------------------------------------------------------
-
+  // Logic for displaying hotels
   let hotelsToSearch = [];
-
   const trendingHotels = [
     hotelData.nature[0],
     hotelData.urban[0],
@@ -457,16 +450,12 @@ const Home = () => {
   ];
 
   if (mood === "default") {
-    // Agar search box mein text hai, toh poore database mein se filter karo
     if (searchQuery.trim().length > 0) {
-      // Object.values(hotelData).flat() saare arrays ko ek array bana deta hai
       hotelsToSearch = Object.values(hotelData).flat();
     } else {
-      // Search nahi hai, toh trending dikhao
       hotelsToSearch = trendingHotels;
     }
   } else {
-    // Specific Mood selected
     hotelsToSearch = hotelData[mood] || [];
   }
 
@@ -477,10 +466,11 @@ const Home = () => {
   );
 
   return (
-    <Box>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#fafafa" }}>
+      {/* Header */}
       <AppBar
         position="sticky"
-        elevation={0}
+        elevation={1}
         sx={{
           bgcolor: "white",
           color: "black",
@@ -488,14 +478,7 @@ const Home = () => {
         }}
       >
         <Container maxWidth="xl">
-          <Toolbar
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              px: "0 !important",
-              minHeight: "64px",
-            }}
-          >
+          <Toolbar sx={{ justifyContent: "space-between", px: "0 !important" }}>
             <Box
               onClick={() => setMood("default")}
               sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
@@ -506,7 +489,6 @@ const Home = () => {
                   initial={{ rotate: -180, opacity: 0, scale: 0.5 }}
                   animate={{ rotate: 0, opacity: 1, scale: 1 }}
                   exit={{ rotate: 180, opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.4 }}
                   style={{ display: "flex", alignItems: "center" }}
                 >
                   {getLogoIcon()}
@@ -531,33 +513,19 @@ const Home = () => {
               spacing={4}
               sx={{ display: { xs: "none", md: "flex" } }}
             >
-              <Typography
-                fontWeight="600"
-                sx={{
-                  cursor: "pointer",
-                  "&:hover": { color: getMoodColor(mood) },
-                }}
-              >
-                Explore
-              </Typography>
-              <Typography
-                fontWeight="600"
-                sx={{
-                  cursor: "pointer",
-                  "&:hover": { color: getMoodColor(mood) },
-                }}
-              >
-                Destinations
-              </Typography>
-              <Typography
-                fontWeight="600"
-                sx={{
-                  cursor: "pointer",
-                  "&:hover": { color: getMoodColor(mood) },
-                }}
-              >
-                My Bookings
-              </Typography>
+              {["Explore", "Destinations", "My Bookings"].map((item) => (
+                <Typography
+                  key={item}
+                  fontWeight="600"
+                  sx={{
+                    cursor: "pointer",
+                    transition: "color 0.3s",
+                    "&:hover": { color: getMoodColor(mood) },
+                  }}
+                >
+                  {item}
+                </Typography>
+              ))}
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
               <Button
@@ -575,6 +543,8 @@ const Home = () => {
               </IconButton>
             </Stack>
           </Toolbar>
+
+          {/* Mood Tabs */}
           <Box sx={{ py: 1, borderTop: "1px solid #f9f9f9" }}>
             <Stack
               direction="row"
@@ -621,10 +591,11 @@ const Home = () => {
           </Box>
         </Container>
       </AppBar>
+
       {/* Hero Section */}
       <Box
         sx={{
-          height: "80vh",
+          height: { xs: "60vh", md: "80vh" },
           backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${
             moodImages[mood] || moodImages.default
           })`,
@@ -637,9 +608,13 @@ const Home = () => {
       >
         <Container maxWidth="md" sx={{ textAlign: "center", color: "white" }}>
           <Typography
-            variant="h2"
+            variant="h1"
             fontWeight="900"
-            sx={{ textShadow: "2px 2px 10px rgba(0,0,0,0.5)" }}
+            sx={{
+              fontSize: { xs: "2.6rem", md: "4rem" },
+              textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
+              mb: 2,
+            }}
           >
             Find Your Perfect{" "}
             {mood === "default"
@@ -651,7 +626,7 @@ const Home = () => {
           <Typography
             variant="h6"
             sx={{
-              mt: 2,
+              mb: 4,
               fontWeight: 400,
               opacity: 0.9,
               textShadow: "1px 1px 8px rgba(0,0,0,0.4)",
@@ -673,16 +648,19 @@ const Home = () => {
             {mood === "royal" &&
               "Experience grand hospitality and live like royalty in heritage palaces."}
           </Typography>
+
+          {/* Search Box */}
           <Box
             sx={{
               bgcolor: "white",
               borderRadius: "50px",
               p: 1,
-              mt: 4,
               display: "flex",
               alignItems: "center",
               boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
               flexWrap: { xs: "wrap", md: "nowrap" },
+              maxWidth: "800px",
+              mx: "auto",
             }}
           >
             <TextField
@@ -710,6 +688,8 @@ const Home = () => {
                 px: 5,
                 py: 1.5,
                 textTransform: "none",
+                fontWeight: "bold",
+                fontSize: "1rem",
                 "&:hover": {
                   bgcolor: getMoodColor(mood),
                   filter: "brightness(0.9)",
@@ -722,16 +702,17 @@ const Home = () => {
         </Container>
       </Box>
 
+      {/* Main Content */}
       <Container sx={{ py: 10 }}>
-        <Box sx={{ textAlign: "center", mb: 6 }}>
-          {/* Main Title - Centered */}
+        {/* Section Title */}
+        <Box sx={{ textAlign: "center", mb: 8 }}>
           <Typography
-            variant="h3"
+            variant="h2"
             fontWeight="900"
             sx={{
-              // letterSpacing: "1px",
               mb: 2,
               color: "#1a1a1a",
+              fontSize: { xs: "2rem", md: "2.5rem" },
             }}
           >
             {mood === "default" && searchQuery.length === 0
@@ -743,7 +724,6 @@ const Home = () => {
                 } Getaways`}
           </Typography>
 
-          {/* Niche ki 2 lines ki Description - Centered */}
           <Typography
             variant="body1"
             sx={{
@@ -752,6 +732,7 @@ const Home = () => {
               mx: "auto",
               lineHeight: 1.6,
               fontSize: "1.1rem",
+              mb: 3,
             }}
           >
             {mood === "default"
@@ -759,19 +740,18 @@ const Home = () => {
               : `Handpicked selection of the finest ${mood} properties, ensuring a stay that matches your lifestyle and desires.`}
           </Typography>
 
-          {/* Ek choti underline decoration (Optional - looks good) */}
           <Box
             sx={{
               width: "60px",
               height: "4px",
               bgcolor: getMoodColor(mood),
               mx: "auto",
-              mt: 3,
               borderRadius: "2px",
             }}
           />
         </Box>
 
+        {/* No Results Message */}
         {displayedHotels.length === 0 && (
           <Box
             component={motion.div}
@@ -810,11 +790,8 @@ const Home = () => {
           </Box>
         )}
 
-        <Grid
-          container
-          spacing={4}
-          sx={{ mt: 2, display: "flex", justifyContent: "center" }}
-        >
+        {/* Hotel Cards Grid */}
+        <Grid container spacing={4} sx={{ justifyContent: "center" }}>
           {displayedHotels.map((hotel) => (
             <Grid item xs={12} sm={6} md={4} key={hotel.id}>
               <Box
@@ -828,6 +805,9 @@ const Home = () => {
                     overflow: "hidden",
                     boxShadow: "0 12px 40px rgba(0,0,0,0.06)",
                     border: "1px solid rgba(0,0,0,0.04)",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   <Box sx={{ position: "relative", height: "220px" }}>
@@ -862,7 +842,14 @@ const Home = () => {
                     </Box>
                   </Box>
 
-                  <CardContent sx={{ p: 2.5 }}>
+                  <CardContent
+                    sx={{
+                      p: 2.5,
+                      flexGrow: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
                     {/* Hotel Name */}
                     <Typography variant="h6" fontWeight="800" noWrap>
                       {hotel.name}
@@ -873,25 +860,24 @@ const Home = () => {
                       direction="row"
                       alignItems="center"
                       spacing={0.5}
-                      sx={{ color: "text.secondary", mb: 2 }}
+                      sx={{ color: "text.secondary", mb: 2, mt: 1 }}
                     >
                       <LocationOn sx={{ fontSize: "0.9rem" }} />
                       <Typography variant="caption" fontWeight="600">
                         {hotel.loc}
                       </Typography>
                     </Stack>
-                    {/* Price aur Wishlist ka Main Container */}
+
+                    {/* Price and Wishlist */}
                     <Box
                       sx={{
-                        mb: 2,
                         display: "flex",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        justifyContent: "space-between", // Ye sabse zaroori hai right mein bhejne ke liye
-                        width: "100%", // Poori width lega tabhi space-between kaam karega
-                        px: 0.5,
+                        mb: 2,
+                        mt: "auto",
                       }}
                     >
-                      {/* Left Side: Price */}
                       <Box sx={{ display: "flex", alignItems: "baseline" }}>
                         <Typography
                           variant="h5"
@@ -912,7 +898,7 @@ const Home = () => {
                         </Typography>
                       </Box>
 
-                      {/* Right Side: Wishlist Button */}
+                      {/* Wishlist Button */}
                       <Box
                         component="button"
                         onClick={(e) => {
@@ -937,8 +923,6 @@ const Home = () => {
                           borderRadius: "20px",
                           border: `1px solid ${getMoodColor(mood)}`,
                           transition: "0.3s",
-                          // Isse ye hamesha container ke end (right) mein push hoga
-                          alignSelf: "center",
                           "&:hover": { bgcolor: `${getMoodColor(mood)}10` },
                         }}
                       >
@@ -965,10 +949,11 @@ const Home = () => {
                         </Typography>
                       </Box>
                     </Box>
-                    <Divider sx={{ mb: 2, opacity: 0.6 }} />
 
-                    {/* Line 2: Buttons Section */}
-                    <Stack direction="row" spacing={2} alignItems="center">
+                    <Divider sx={{ my: 2, opacity: 0.6 }} />
+
+                    {/* Buttons */}
+                    <Stack direction="row" spacing={2}>
                       <Button
                         fullWidth
                         variant="outlined"
@@ -1013,6 +998,7 @@ const Home = () => {
           ))}
         </Grid>
       </Container>
+
       {/* Hotel Details Modal */}
       <Modal
         open={open}
@@ -1039,26 +1025,20 @@ const Home = () => {
           >
             {selectedHotel ? (
               <>
-                {/* 1. Image Section with Fix */}
                 <Box
                   sx={{ position: "relative", height: 280, bgcolor: "#eee" }}
                 >
                   <img
-                    // Yahan check kijiye ki aapke data mein 'image' hi likha hai na?
                     src={
                       selectedHotel.image ||
                       selectedHotel.img ||
-                      "https://via.placeholder.com/600x400?text=No+Image+Available"
+                      "https://via.placeholder.com/600x400"
                     }
                     alt={selectedHotel.name}
                     style={{
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
-                    }}
-                    onError={(e) => {
-                      e.target.src =
-                        "https://via.placeholder.com/600x400?text=Image+Not+Found";
                     }}
                   />
                   <IconButton
@@ -1069,14 +1049,12 @@ const Home = () => {
                       right: 15,
                       bgcolor: "rgba(255,255,255,0.9)",
                       "&:hover": { bgcolor: "white" },
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     }}
                   >
                     <Close />
                   </IconButton>
                 </Box>
 
-                {/* 2. Content Section */}
                 <Box sx={{ p: 4 }}>
                   <Typography variant="h4" fontWeight="900" sx={{ mb: 1 }}>
                     {selectedHotel.name}
@@ -1103,11 +1081,10 @@ const Home = () => {
                     color="text.secondary"
                     sx={{ mb: 3, lineHeight: 1.7 }}
                   >
-                    {selectedHotel.desc ||
-                      "Experience world-class hospitality in this beautiful location. Perfect for your next getaway."}
+                    {selectedHotel.desc}
                   </Typography>
 
-                  {/* Price & Book Footer */}
+                  {/* Price & Book */}
                   <Box
                     sx={{
                       display: "flex",
@@ -1146,7 +1123,6 @@ const Home = () => {
                         borderRadius: "15px",
                         fontWeight: "bold",
                         textTransform: "none",
-                        fontSize: "1.1rem",
                         "&:hover": {
                           bgcolor: getMoodColor(mood),
                           filter: "brightness(0.9)",
@@ -1164,6 +1140,7 @@ const Home = () => {
           </Box>
         </Fade>
       </Modal>
+
       {/* --- DYNAMIC MOOD FOOTER --- */}
       <Box
         component="footer"
@@ -1277,20 +1254,6 @@ const Home = () => {
                     StayFlow
                   </Typography>
                 </Box>
-
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: "#666",
-                    letterSpacing: "3px",
-                    fontWeight: "600",
-                    textTransform: "uppercase",
-                    display: "block",
-                    mb: 3,
-                  }}
-                >
-                  Curated Experiences Since 2023
-                </Typography>
 
                 <Typography
                   variant="body2"
@@ -1557,6 +1520,89 @@ const Home = () => {
               </Grid>
             ))}
           </Grid>
+
+          {/* Awards & Recognition - Mood color hover */}
+          {/* <Box
+            sx={{
+              mt: 10,
+              pt: 5,
+              borderTop: "1px solid rgba(255,255,255,0.05)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{ color: "#666", mb: 3, letterSpacing: "2px" }}
+            >
+              AWARD-WINNING SERVICE
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: 4,
+                mb: 6,
+              }}
+            >
+              {[
+                { label: "Best Luxury Platform 2024", icon: "🏆" },
+                { label: "Travelers' Choice", icon: "⭐" },
+                { label: "5-Star Service", icon: "✨" },
+                { label: "Sustainable Travel", icon: "🌿" },
+              ].map((award) => (
+                <Box
+                  key={award.label}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    p: 2,
+                    borderRadius: "12px",
+                    "&:hover": {
+                      transform: "translateY(-5px)",
+                      bgcolor: `${getMoodColor(mood)}10`,
+                      border: `1px solid ${getMoodColor(mood)}20`,
+                      "& .award-icon": {
+                        transform: "scale(1.2)",
+                        filter: `drop-shadow(0 0 8px ${getMoodColor(mood)}40)`,
+                      },
+                      "& .award-label": {
+                        color: getMoodColor(mood),
+                      },
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    className="award-icon"
+                    sx={{ transition: "all 0.3s ease" }}
+                  >
+                    {award.icon}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    className="award-label"
+                    sx={{
+                      color: "#888",
+                      maxWidth: "120px",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {award.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box> */}
+
+          {/* Bottom Bar - Mood color hover */}
           <Box
             sx={{
               pt: 4,
@@ -1633,6 +1679,8 @@ const Home = () => {
               )}
             </Stack>
           </Box>
+
+          {/* Back to Top Button - Mood color */}
           {/* <Box
             sx={{
               position: "absolute",
