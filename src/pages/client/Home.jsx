@@ -441,12 +441,9 @@ const Home = () => {
     hotelData.nature[0],
     hotelData.urban[0],
     hotelData.ocean[0],
-    hotelData.royal[0],
     hotelData.romantic[0],
+    hotelData.royal[0],
     hotelData.urban[1],
-    hotelData.nature[1],
-    hotelData.ocean[1],
-    hotelData.royal[1],
   ];
 
   if (mood === "default") {
@@ -1140,6 +1137,67 @@ const Home = () => {
           </Box>
         </Fade>
       </Modal>
+
+      {/* Why Choose Us Section - Add before hotel cards */}
+      <Container sx={{ py: 8, textAlign: "center" }}>
+        <Typography variant="h3" fontWeight="900" sx={{ mb: 6 }}>
+          Why Travelers Choose StayFlow
+        </Typography>
+        <Grid container spacing={4} sx={{ justifyContent: "center" }}>
+          {[
+            {
+              icon: "🏆",
+              title: "Best Price Guarantee",
+              desc: "Find a lower price? We'll match it!",
+            },
+            {
+              icon: "💯",
+              title: "100% Verified Reviews",
+              desc: "Real feedback from real travelers",
+            },
+            {
+              icon: "🔒",
+              title: "Secure Booking",
+              desc: "Your data is protected with encryption",
+            },
+            {
+              icon: "🛡️",
+              title: "Price Match",
+              desc: "Found cheaper? Get 110% difference back",
+            },
+            {
+              icon: "⭐",
+              title: "4.8+ Rating",
+              desc: "Rated excellent by 10,000+ travelers",
+            },
+            {
+              icon: "🎯",
+              title: "Perfect Match",
+              desc: "Mood-based matching for perfect stays",
+            },
+          ].map((item, idx) => (
+            <Grid item xs={6} md={4} key={idx}>
+              <Box
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  bgcolor: `${getMoodColor(mood)}08`,
+                }}
+              >
+                <Typography variant="h2" sx={{ mb: 2 }}>
+                  {item.icon}
+                </Typography>
+                <Typography variant="h6" fontWeight="700" sx={{ mb: 1 }}>
+                  {item.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {item.desc}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
 
       {/* --- DYNAMIC MOOD FOOTER --- */}
       <Box
