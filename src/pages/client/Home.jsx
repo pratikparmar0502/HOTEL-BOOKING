@@ -1,6 +1,9 @@
 import { useState, useContext } from "react";
 import {
   Add,
+  ArrowForward,
+  ArrowRightAlt,
+  Explore,
   Facebook,
   Instagram,
   Twitter,
@@ -36,6 +39,12 @@ import royal3 from "../../assets/hotel-image/royal-3.jpg";
 import royal4 from "../../assets/hotel-image/royal-4.jpg";
 import royal5 from "../../assets/hotel-image/royal-5.jpg";
 import royal6 from "../../assets/hotel-image/royal-6.jpg";
+import destination1 from "../../assets/destination/destination-1.avif";
+import destination2 from "../../assets/destination/destination-2.avif";
+import destination3 from "../../assets/destination/destination-3.avif";
+import destination4 from "../../assets/destination/destination-4.avif";
+import destination5 from "../../assets/destination/destination-5.avif";
+import destination6 from "../../assets/destination/destination-6.avif";
 
 import {
   Forest,
@@ -434,6 +443,51 @@ const Home = () => {
       },
     ],
   };
+
+  const dest = [
+    {
+      name: "Goa Beaches",
+      image: destination1,
+      stays: "240+",
+      color: "#0288d1",
+      description: "Sun beaches & vibrant nightlife",
+    },
+    {
+      name: "Himalayas",
+      image: destination2,
+      stays: "180+",
+      color: "#2e7d32",
+      description: "Majestic peaks & serene valleys",
+    },
+    {
+      name: "Rajasthan",
+      image: destination3,
+      stays: "150+",
+      color: "#ffa000",
+      description: "Royal heritage & desert camps",
+    },
+    {
+      name: "Kerala",
+      image: destination4,
+      stays: "190+",
+      color: "#4caf50",
+      description: "Backwaters & lush greenery",
+    },
+    {
+      name: "Mumbai",
+      image: destination5,
+      stays: "320+",
+      color: "#d32f2f",
+      description: "The city that never sleeps",
+    },
+    {
+      name: "Andaman",
+      image: destination6,
+      stays: "85+",
+      color: "#0288d1",
+      description: "Pristine beaches & coral reefs",
+    },
+  ];
 
   // Logic for displaying hotels
   let hotelsToSearch = [];
@@ -1138,66 +1192,383 @@ const Home = () => {
         </Fade>
       </Modal>
 
-      {/* Why Choose Us Section - Add before hotel cards */}
-      <Container sx={{ py: 8, textAlign: "center" }}>
-        <Typography variant="h3" fontWeight="900" sx={{ mb: 6 }}>
-          Why Travelers Choose StayFlow
-        </Typography>
-        <Grid container spacing={4} sx={{ justifyContent: "center" }}>
+      <Container sx={{ py: { xs: 6, md: 10 } }}>
+        {/* Header */}
+        <Box sx={{ mb: 8, textAlign: "center" }}>
+          <Typography
+            variant="h2"
+            fontWeight="900"
+            sx={{
+              mb: 2,
+              background: `linear-gradient(45deg, #1a1a1a, ${getMoodColor(
+                mood
+              )})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              fontSize: { xs: "2.5rem", md: "3.5rem" },
+            }}
+          >
+            ✨ Top Destinations
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "text.secondary",
+              maxWidth: "600px",
+              mx: "auto",
+              fontWeight: 400,
+              fontSize: { xs: "1.1rem", md: "1.25rem" },
+            }}
+          >
+            Discover the most loved getaways, handpicked for unforgettable
+            experiences
+          </Typography>
+
+          {/* Decorative line */}
+          <Box
+            sx={{
+              width: "100px",
+              height: "4px",
+              background: `linear-gradient(90deg, ${getMoodColor(
+                mood
+              )}, ${getMoodColor(mood)}80, transparent)`,
+              borderRadius: "2px",
+              mx: "auto",
+              mt: 4,
+            }}
+          />
+        </Box>
+        {/* Destinations Grid */}
+        <Grid
+          container
+          spacing={{ xs: 3, md: 4 }}
+          sx={{ justifyContent: "center" }}
+        >
+          {dest.map((item, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Box
+                component={motion.div}
+                whileHover={{ y: -12, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                sx={{
+                  position: "relative",
+                  width: { xs: "280px", sm: "350px" },
+                  height: { xs: "280px", sm: "320px", md: "340px" },
+                  borderRadius: "28px",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  boxShadow: "0 12px 40px rgba(0,0,0,0.08)",
+                  border: "1px solid rgba(0,0,0,0.05)",
+                  background: "#fff",
+                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                  "&:hover": {
+                    boxShadow: `0 24px 60px ${item.color}30`,
+                    borderColor: `${item.color}30`,
+                    "& .destination-img": {
+                      transform: "scale(1.08)",
+                      filter: "brightness(1.1) saturate(1.2)",
+                    },
+                    "& .explore-btn": {
+                      opacity: 1,
+                      transform: "translateY(0)",
+                    },
+                  },
+                }}
+              >
+                {/* Image Container with Perfect Aspect Ratio */}
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
+                  {/* Background Image with Fallback */}
+                  <Box
+                    className="destination-img"
+                    component="img"
+                    src={item.image}
+                    alt={item.name}
+                    onError={(e) => {
+                      e.target.src = `https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&auto=format&fit=crop`;
+                    }}
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                      transition:
+                        "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), filter 0.5s ease",
+                      display: "block",
+                    }}
+                  />
+
+                  {/* Gradient Overlay */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: `linear-gradient(to top, 
+                  rgba(0,0,0,0.9) 0%, 
+                  rgba(0,0,0,0.5) 40%, 
+                  rgba(0,0,0,0.1) 80%)`,
+                    }}
+                  />
+
+                  {/* Badge */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 20,
+                      right: 20,
+                      bgcolor: item.color,
+                      color: "#fff",
+                      px: 2.5,
+                      py: 1,
+                      borderRadius: "50px",
+                      fontSize: "0.8rem",
+                      fontWeight: "bold",
+                      boxShadow: `0 6px 20px ${item.color}50`,
+                      zIndex: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Star sx={{ fontSize: "0.9rem" }} />
+                    {item.stays} Stays
+                  </Box>
+
+                  {/* Content */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      p: { xs: 3, md: 4 },
+                      zIndex: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="h4"
+                      fontWeight="900"
+                      sx={{
+                        color: "#fff",
+                        mb: 1.5,
+                        fontSize: { xs: "1.75rem", md: "2rem" },
+                        textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {item.name}
+                    </Typography>
+
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: "rgba(255,255,255,0.9)",
+                        mb: 3,
+                        fontSize: { xs: "1rem", md: "1.1rem" },
+                        textShadow: "0 1px 6px rgba(0,0,0,0.4)",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {item.description}
+                    </Typography>
+
+                    {/* Explore Button (Hidden by default) */}
+                    <Button
+                      className="explore-btn"
+                      variant="contained"
+                      sx={{
+                        bgcolor: item.color,
+                        color: "#fff",
+                        px: 3,
+                        py: 1.2,
+                        borderRadius: "50px",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        fontSize: "0.95rem",
+                        opacity: 0,
+                        transform: "translateY(0)",
+                        transition: "all 0.3s ease 0.1s",
+                        boxShadow: `0 8px 25px ${item.color}50`,
+                        "&:hover": {
+                          bgcolor: item.color,
+                          filter: "brightness(1.1)",
+                          boxShadow: `0 12px 35px ${item.color}70`,
+                        },
+                      }}
+                      endIcon={<ArrowForward sx={{ fontSize: "1rem" }} />}
+                    >
+                      Explore Stays
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+        {/* View All Button */}
+        <Box sx={{ textAlign: "center", mt: 8 }}>
+          <Button
+            variant="outlined"
+            sx={{
+              borderColor: getMoodColor(mood),
+              color: getMoodColor(mood),
+              px: 5,
+              py: 1.8,
+              borderRadius: "50px",
+              fontWeight: "bold",
+              textTransform: "none",
+              fontSize: "1.1rem",
+              borderWidth: "2px",
+              "&:hover": {
+                borderColor: getMoodColor(mood),
+                backgroundColor: `${getMoodColor(mood)}10`,
+                transform: "translateY(-3px)",
+                boxShadow: `0 12px 30px ${getMoodColor(mood)}20`,
+              },
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+            endIcon={<ArrowForward sx={{ fontSize: "1.2rem" }} />}
+          >
+            View All Destinations
+          </Button>
+        </Box>
+      </Container>
+
+      {/* Why Choose Us Section */}
+      {/* <Container sx={{ py: { xs: 8, md: 12 } }}>
+        <Box sx={{ textAlign: "center", mb: 8 }}>
+          <Typography
+            variant="h2"
+            fontWeight="900"
+            sx={{
+              mb: 3,
+              fontSize: { xs: "2.5rem", md: "3.5rem" },
+              background: `linear-gradient(45deg, ${getMoodColor(
+                mood
+              )}, #1a1a1a)`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            ❓ Why Choose StayFlow?
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "text.secondary",
+              maxWidth: "700px",
+              mx: "auto",
+              fontWeight: 400,
+              fontSize: { xs: "1.1rem", md: "1.25rem" },
+              lineHeight: 1.6,
+            }}
+          >
+            We're not just another booking platform. Here's what makes us
+            different.
+          </Typography>
+        </Box>
+
+        <Grid container spacing={4}>
           {[
             {
               icon: "🏆",
               title: "Best Price Guarantee",
-              desc: "Find a lower price? We'll match it!",
+              description:
+                "Find a lower price elsewhere? We'll match it and give you 110% back!",
+              color: "#FFB300",
             },
             {
               icon: "💯",
-              title: "100% Verified Reviews",
-              desc: "Real feedback from real travelers",
+              title: "100% Verified Stays",
+              description:
+                "Every property personally verified for quality, safety, and amenities.",
+              color: "#4CAF50",
             },
             {
               icon: "🔒",
-              title: "Secure Booking",
-              desc: "Your data is protected with encryption",
-            },
-            {
-              icon: "🛡️",
-              title: "Price Match",
-              desc: "Found cheaper? Get 110% difference back",
+              title: "Secure & Safe Bookings",
+              description:
+                "Bank-level encryption protects your personal and payment information.",
+              color: "#2196F3",
             },
             {
               icon: "⭐",
-              title: "4.8+ Rating",
-              desc: "Rated excellent by 10,000+ travelers",
+              title: "4.8+ Traveler Rating",
+              description:
+                "Rated excellent by 10,000+ travelers for exceptional service.",
+              color: "#FF9800",
             },
             {
               icon: "🎯",
-              title: "Perfect Match",
-              desc: "Mood-based matching for perfect stays",
+              title: "Perfect Mood Matching",
+              description:
+                "AI-powered mood matching finds your ideal stay based on preferences.",
+              color: getMoodColor(mood),
             },
-          ].map((item, idx) => (
-            <Grid item xs={6} md={4} key={idx}>
+            {
+              icon: "🛡️",
+              title: "24/7 Customer Support",
+              description:
+                "Round-the-clock assistance for any queries or emergencies.",
+              color: "#9C27B0",
+            },
+          ].map((feature, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
               <Box
+                component={motion.div}
+                whileHover={{ scale: 1.05, y: -5 }}
                 sx={{
-                  p: 3,
-                  borderRadius: 3,
-                  bgcolor: `${getMoodColor(mood)}08`,
+                  p: 4,
+                  borderRadius: "24px",
+                  background: "linear-gradient(145deg, #ffffff, #f5f5f5)",
+                  border: "1px solid rgba(0,0,0,0.05)",
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.05)",
+                  height: "100%",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    boxShadow: `0 20px 50px ${feature.color}20`,
+                    borderColor: `${feature.color}30`,
+                  },
                 }}
               >
-                <Typography variant="h2" sx={{ mb: 2 }}>
-                  {item.icon}
+                <Typography
+                  variant="h1"
+                  sx={{
+                    fontSize: "4rem",
+                    mb: 2,
+                    lineHeight: 1,
+                  }}
+                >
+                  {feature.icon}
                 </Typography>
-                <Typography variant="h6" fontWeight="700" sx={{ mb: 1 }}>
-                  {item.title}
+                <Typography
+                  variant="h5"
+                  fontWeight="800"
+                  sx={{ mb: 2, color: "#1a1a1a" }}
+                >
+                  {feature.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {item.desc}
+                <Typography
+                  variant="body1"
+                  sx={{ color: "text.secondary", lineHeight: 1.6 }}
+                >
+                  {feature.description}
                 </Typography>
               </Box>
             </Grid>
           ))}
         </Grid>
-      </Container>
+      </Container> */}
 
       {/* --- DYNAMIC MOOD FOOTER --- */}
       <Box
