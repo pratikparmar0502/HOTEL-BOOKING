@@ -4,6 +4,7 @@ import {
   ArrowForward,
   Facebook,
   Instagram,
+  Search,
   Twitter,
   YouTube,
 } from "@mui/icons-material";
@@ -83,6 +84,8 @@ import {
   Toolbar,
   Modal,
   Fade,
+  useScrollTrigger,
+  Paper,
 } from "@mui/material";
 
 import { MoodContext } from "../../context/MoodContext.jsx";
@@ -514,133 +517,13 @@ const Home = () => {
       hotel.loc.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 50,
+  });
+
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#fafafa" }}>
-      {/* Header */}
-      <AppBar
-        position="sticky"
-        elevation={1}
-        sx={{
-          bgcolor: "white",
-          color: "black",
-          borderBottom: "1px solid #eee",
-        }}
-      >
-        <Container maxWidth="xl">
-          <Toolbar sx={{ justifyContent: "space-between", px: "0 !important" }}>
-            <Box
-              onClick={() => setMood("default")}
-              sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={mood}
-                  initial={{ rotate: -180, opacity: 0, scale: 0.5 }}
-                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ rotate: 180, opacity: 0, scale: 0.5 }}
-                  style={{ display: "flex", alignItems: "center" }}
-                >
-                  {getLogoIcon()}
-                </motion.div>
-              </AnimatePresence>
-              <Typography
-                variant="h5"
-                fontWeight="900"
-                component={motion.span}
-                animate={{ color: getMoodColor(mood) }}
-                sx={{
-                  ml: 0.5,
-                  letterSpacing: "-1px",
-                  textTransform: "uppercase",
-                }}
-              >
-                Stayflow
-              </Typography>
-            </Box>
-            <Stack
-              direction="row"
-              spacing={4}
-              sx={{ display: { xs: "none", md: "flex" } }}
-            >
-              {["Explore", "Destinations", "My Bookings"].map((item) => (
-                <Typography
-                  key={item}
-                  fontWeight="600"
-                  sx={{
-                    cursor: "pointer",
-                    transition: "color 0.3s",
-                    "&:hover": { color: getMoodColor(mood) },
-                  }}
-                >
-                  {item}
-                </Typography>
-              ))}
-            </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Button
-                size="small"
-                sx={{
-                  color: "black",
-                  fontWeight: "bold",
-                  textTransform: "none",
-                }}
-              >
-                Log in
-              </Button>
-              <IconButton>
-                <AccountCircle />
-              </IconButton>
-            </Stack>
-          </Toolbar>
-
-          {/* Mood Tabs */}
-          <Box sx={{ py: 1, borderTop: "1px solid #f9f9f9" }}>
-            <Stack
-              direction="row"
-              spacing={4}
-              justifyContent="center"
-              sx={{
-                overflowX: "auto",
-                pb: 1,
-                "&::-webkit-scrollbar": { display: "none" },
-              }}
-            >
-              {moods.map((m) => (
-                <Box
-                  key={m.id}
-                  onClick={() => setMood(m.id)}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    minWidth: "80px",
-                    color:
-                      mood === m.id ? getMoodColor(mood) : "text.secondary",
-                    borderBottom:
-                      mood === m.id
-                        ? `2px solid ${getMoodColor(mood)}`
-                        : "2px solid transparent",
-                    transition: "0.3s",
-                    opacity: mood === m.id ? 1 : 0.7,
-                    "&:hover": { opacity: 1 },
-                  }}
-                >
-                  {m.icon}
-                  <Typography
-                    variant="caption"
-                    fontWeight="bold"
-                    sx={{ mt: 0.5 }}
-                  >
-                    {m.label}
-                  </Typography>
-                </Box>
-              ))}
-            </Stack>
-          </Box>
-        </Container>
-      </AppBar>
-
+    <Box sx={{ bgcolor: "#fafafa" }}>
       {/* Hero Section */}
       <Box
         sx={{
@@ -756,7 +639,7 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Main Content */}
+      {/* Main Content Stays */}
       <Container sx={{ py: 7 }}>
         {/* Section Title */}
         <Box sx={{ textAlign: "center", mb: 8 }}>
