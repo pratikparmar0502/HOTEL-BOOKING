@@ -1,5 +1,10 @@
 import React, { useContext, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import {
   AppBar,
   Toolbar,
@@ -38,6 +43,8 @@ import { MoodContext } from "../../context/MoodContext";
 import { useHistory, useLocation } from "react-router-dom"; // Changed useNavigate to useHistory
 
 const Navbar = () => {
+  const { scrollYProgress } = useScroll();
+  const width = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   const { mood, setMood } = useContext(MoodContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const history = useHistory(); // Changed from useNavigate
@@ -126,9 +133,11 @@ const Navbar = () => {
           >
             {/* Logo Section */}
             <Box
+              component={motion.div}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 setMood("default");
-                handleNavigation("/"); // Changed from navigate()
+                handleNavigation("/");
               }}
               sx={{
                 display: "flex",
@@ -378,6 +387,26 @@ const Navbar = () => {
                 );
               })}
             </Stack>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "3px", // Patli aur premium line
+              overflow: "hidden",
+              bgcolor: alpha(getMoodColor(mood), 0.1), // Halka background track
+            }}
+          >
+            <motion.div
+              style={{
+                width: width, // Ye hamara transform variable hai
+                height: "100%",
+                backgroundColor: getMoodColor(mood),
+                boxShadow: `0 0 10px ${getMoodColor(mood)}`, // Glowing effect
+              }}
+            />
           </Box>
         </Container>
       </AppBar>
