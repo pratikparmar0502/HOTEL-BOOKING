@@ -22,6 +22,8 @@ import {
   Waves,
   YouTube,
 } from "@mui/icons-material";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Footer = () => {
   const { mood, setMood } = useContext(MoodContext);
@@ -29,19 +31,56 @@ const Footer = () => {
   const getMoodColor = (currentMood) => {
     switch (currentMood) {
       case "nature":
-        return "#2e7d32";
+        return "#4CAF50";
       case "urban":
-        return "#d32f2f";
+        return "#FF5252";
       case "ocean":
-        return "#0288d1";
+        return "#29B6F6";
       case "romantic":
-        return "#d81b60";
+        return "#F06292";
       case "royal":
-        return "#ffa000";
+        return "#FFB300";
       default:
-        return "#1976d2";
+        return "#448AFF";
     }
   };
+
+  const showToast = (message, type = "info") => {
+    const toastOptions = {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      style: {
+        background: getMoodColor(mood),
+        color: "#fff",
+        border: `1px solid ${getMoodColor(mood)}`,
+        borderRadius: "8px",
+        fontFamily: "'Roboto', sans-serif",
+      },
+    };
+
+    switch (type) {
+      case "success":
+        toast.success(message, toastOptions);
+        break;
+      case "error":
+        toast.error(message, toastOptions);
+        break;
+      case "warning":
+        toast.warning(message, toastOptions);
+        break;
+      case "info":
+      default:
+        toast.info(message, toastOptions);
+        break;
+    }
+  };
+
   const getLogoIcon = () => {
     const iconStyle = {
       mr: 1,
@@ -67,19 +106,32 @@ const Footer = () => {
 
   return (
     <>
-      {/* --- DYNAMIC MOOD FOOTER --- */}
+      {/* Toast Container - App ke root mein add karna */}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
+      {/* --- DARK FOOTER --- */}
       <Box
         component="footer"
         sx={{
           bgcolor: "#0a0a0a",
-          background: "linear-gradient(180deg, #0a0a0a 0%, #050505 100%)",
-          color: "#fff",
+          color: "#ffffff",
           pt: { xs: 10, md: 12 },
           pb: { xs: 8, md: 8 },
           position: "relative",
           overflow: "hidden",
-          // mt: 8,
-          borderTop: "1px solid rgba(255,255,255,0.08)",
+          transition: "all 0.5s ease",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
           "&::before": {
             content: '""',
             position: "absolute",
@@ -87,8 +139,9 @@ const Footer = () => {
             left: 0,
             right: 0,
             height: "1px",
-            background:
-              "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+            background: `linear-gradient(90deg, transparent, ${getMoodColor(
+              mood
+            )}, transparent)`,
           },
           "&::after": {
             content: '""',
@@ -99,11 +152,11 @@ const Footer = () => {
             height: "1px",
             background: `linear-gradient(90deg, transparent, ${getMoodColor(
               mood
-            )}30, transparent)`,
+            )}50, transparent)`,
           },
         }}
       >
-        {/* Animated Background Elements - Mood based colors */}
+        {/* Animated Background Elements */}
         <Box
           sx={{
             position: "absolute",
@@ -114,10 +167,10 @@ const Footer = () => {
             background: `
         radial-gradient(circle at 15% 20%, ${getMoodColor(
           mood
-        )}05 0%, transparent 40%),
+        )}10 0%, transparent 40%),
         radial-gradient(circle at 85% 80%, ${getMoodColor(
           mood
-        )}03 0%, transparent 40%),
+        )}08 0%, transparent 40%),
         radial-gradient(circle at 50% 50%, transparent 0%, #0a0a0a 70%)
       `,
             pointerEvents: "none",
@@ -125,7 +178,7 @@ const Footer = () => {
           }}
         />
 
-        {/* Floating Elements - Mood color */}
+        {/* Floating Elements */}
         {[1, 2, 3].map((i) => (
           <Box
             key={i}
@@ -136,11 +189,11 @@ const Footer = () => {
               borderRadius: "50%",
               background: `radial-gradient(circle, ${getMoodColor(
                 mood
-              )}02 0%, transparent 70%)`,
+              )}05 0%, transparent 70%)`,
               top: `${20 * i}%`,
               left: `${10 * i}%`,
               filter: "blur(40px)",
-              opacity: 0.1,
+              opacity: 0.2,
               zIndex: 0,
               animation: `float ${6 + i * 2}s ease-in-out infinite`,
               animationDelay: `${i * 1}s`,
@@ -169,9 +222,9 @@ const Footer = () => {
                       fontWeight: "900",
                       fontFamily: "'Playfair Display', serif",
                       letterSpacing: "-1px",
-                      background: `linear-gradient(45deg, #fff, ${getMoodColor(
+                      background: `linear-gradient(45deg, ${getMoodColor(
                         mood
-                      )})`,
+                      )}, #ffffff)`,
                       backgroundClip: "text",
                       WebkitBackgroundClip: "text",
                       color: "transparent",
@@ -184,7 +237,7 @@ const Footer = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#888",
+                    color: "#b0b0b0",
                     mb: 4,
                     lineHeight: 1.8,
                     fontSize: "0.95rem",
@@ -200,7 +253,7 @@ const Footer = () => {
                 <Box sx={{ mb: 5 }}>
                   <Typography
                     variant="body2"
-                    sx={{ color: "#aaa", mb: 2, fontWeight: "500" }}
+                    sx={{ color: "#cccccc", mb: 2, fontWeight: "500" }}
                   >
                     Join our exclusive travel community
                   </Typography>
@@ -213,7 +266,7 @@ const Footer = () => {
                         flex: 1,
                         "& .MuiOutlinedInput-root": {
                           bgcolor: "rgba(255,255,255,0.05)",
-                          color: "#fff",
+                          color: "#ffffff",
                           border: "1px solid rgba(255,255,255,0.1)",
                           borderRadius: "10px",
                           fontSize: "0.9rem",
@@ -223,20 +276,26 @@ const Footer = () => {
                           },
                           "&.Mui-focused": {
                             borderColor: getMoodColor(mood),
-                            boxShadow: `0 0 0 2px ${getMoodColor(mood)}20`,
+                            boxShadow: `0 0 0 2px ${getMoodColor(mood)}30`,
                           },
                         },
                         "& .MuiInputBase-input::placeholder": {
-                          color: "#666",
+                          color: "#888888",
                         },
                       }}
                     />
                     <Button
                       variant="contained"
                       size="small"
+                      onClick={() => {
+                        showToast(
+                          "🎉 Welcome to our travel community!",
+                          "success"
+                        );
+                      }}
                       sx={{
                         bgcolor: getMoodColor(mood),
-                        color: "#fff",
+                        color: "#ffffff",
                         px: 3,
                         borderRadius: "10px",
                         fontWeight: "bold",
@@ -255,7 +314,7 @@ const Footer = () => {
                   </Box>
                 </Box>
 
-                {/* Social Links - Mood color on hover */}
+                {/* Social Links */}
                 <Stack direction="row" spacing={2}>
                   {[
                     { icon: <Twitter />, name: "Twitter" },
@@ -275,12 +334,17 @@ const Footer = () => {
                     >
                       <IconButton
                         component="a"
-                        href="https://twitter.com/stayflow"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          showToast(
+                            `🚀 ${social.name} integration coming soon!`,
+                            "info"
+                          );
+                        }}
                         sx={{
                           border: "1px solid rgba(255,255,255,0.1)",
-                          color: "#888",
+                          color: "#b0b0b0",
                           transition: "all 0.4s ease",
                           bgcolor: "rgba(255,255,255,0.03)",
                           "&:hover": {
@@ -301,8 +365,8 @@ const Footer = () => {
                           bottom: "100%",
                           left: "50%",
                           transform: "translateX(-50%) translateY(10px)",
-                          bgcolor: "#111",
-                          color: "#fff",
+                          bgcolor: "#111111",
+                          color: "#ffffff",
                           px: 2,
                           py: 1,
                           borderRadius: "6px",
@@ -319,7 +383,7 @@ const Footer = () => {
                             left: "50%",
                             transform: "translateX(-50%)",
                             border: "4px solid transparent",
-                            borderTopColor: "#111",
+                            borderTopColor: "#111111",
                           },
                         }}
                       >
@@ -331,7 +395,7 @@ const Footer = () => {
               </Box>
             </Grid>
 
-            {/* Quick Links Grids - Hover with mood color */}
+            {/* Quick Links Grids */}
             {[
               {
                 title: "MOODS",
@@ -370,7 +434,7 @@ const Footer = () => {
                   sx={{
                     mb: 4,
                     fontWeight: "700",
-                    color: "#fff",
+                    color: "#ffffff",
                     textTransform: "uppercase",
                     fontSize: "0.8rem",
                     letterSpacing: "1px",
@@ -419,17 +483,17 @@ const Footer = () => {
                         },
                       }}
                       onClick={() => {
-                        alert(`${item} page is coming soon! 🚀`);
+                        showToast(`🌍 ${item} page is coming soon!`, "info");
                       }}
                     >
                       <Typography
                         component="a"
-                        href={`/${item.toLowerCase().replace(/\s+/g, "-")}`}
+                        href="#"
                         onClick={(e) => e.preventDefault()}
                         variant="body2"
                         className="link-text"
                         sx={{
-                          color: "#888",
+                          color: "#b0b0b0",
                           fontWeight: "400",
                           fontSize: "0.9rem",
                           display: "flex",
@@ -458,88 +522,7 @@ const Footer = () => {
             ))}
           </Grid>
 
-          {/* Awards & Recognition - Mood color hover */}
-          {/* <Box
-            sx={{
-              mt: 10,
-              pt: 5,
-              borderTop: "1px solid rgba(255,255,255,0.05)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{ color: "#666", mb: 3, letterSpacing: "2px" }}
-            >
-              AWARD-WINNING SERVICE
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                gap: 4,
-                mb: 6,
-              }}
-            >
-              {[
-                { label: "Best Luxury Platform 2024", icon: "🏆" },
-                { label: "Travelers' Choice", icon: "⭐" },
-                { label: "5-Star Service", icon: "✨" },
-                { label: "Sustainable Travel", icon: "🌿" },
-              ].map((award) => (
-                <Box
-                  key={award.label}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 1,
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    p: 2,
-                    borderRadius: "12px",
-                    "&:hover": {
-                      transform: "translateY(-5px)",
-                      bgcolor: `${getMoodColor(mood)}10`,
-                      border: `1px solid ${getMoodColor(mood)}20`,
-                      "& .award-icon": {
-                        transform: "scale(1.2)",
-                        filter: `drop-shadow(0 0 8px ${getMoodColor(mood)}40)`,
-                      },
-                      "& .award-label": {
-                        color: getMoodColor(mood),
-                      },
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="h4"
-                    className="award-icon"
-                    sx={{ transition: "all 0.3s ease" }}
-                  >
-                    {award.icon}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    className="award-label"
-                    sx={{
-                      color: "#888",
-                      maxWidth: "120px",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    {award.label}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Box> */}
-
-          {/* Bottom Bar - Mood color hover */}
+          {/* Bottom Bar */}
           <Box
             sx={{
               pt: 4,
@@ -554,7 +537,7 @@ const Footer = () => {
             <Typography
               variant="body2"
               sx={{
-                color: "#666",
+                color: "#888888",
                 fontSize: "0.9rem",
                 display: "flex",
                 alignItems: "center",
@@ -564,6 +547,9 @@ const Footer = () => {
               © 2026 StayFlow. All rights reserved.
               <Box
                 component="span"
+                onClick={() =>
+                  showToast("❤️ Thank you for your love!", "success")
+                }
                 sx={{
                   color: getMoodColor(mood),
                   transition: "all 0.3s ease",
@@ -585,16 +571,17 @@ const Footer = () => {
                   <Box key={item} sx={{ position: "relative" }}>
                     <Typography
                       component="a"
-                      href={`/${item.toLowerCase().replace(/\s+/g, "-")}`}
+                      href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        alert(
-                          `${item} page is under development. Coming soon! 🚀`
+                        showToast(
+                          `📄 ${item} page is under development. Coming soon!`,
+                          "warning"
                         );
                       }}
                       variant="body2"
                       sx={{
-                        color: "#888",
+                        color: "#b0b0b0",
                         cursor: "pointer",
                         textDecoration: "none",
                         transition: "all 0.3s ease",
@@ -626,54 +613,6 @@ const Footer = () => {
               )}
             </Stack>
           </Box>
-
-          {/* Back to Top Button - Mood color */}
-          {/* <Box
-            sx={{
-              position: "absolute",
-              right: 0,
-              top: 0,
-              transform: "translateY(-50%)",
-              mr: { xs: 2, md: 0 },
-            }}
-          >
-            <IconButton
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              sx={{
-                bgcolor: getMoodColor(mood),
-                color: "#fff",
-                border: "3px solid #0a0a0a",
-                width: "48px",
-                height: "48px",
-                transition: "all 0.4s ease",
-                position: "relative",
-                overflow: "hidden",
-                "&:hover": {
-                  bgcolor: "#fff",
-                  color: getMoodColor(mood),
-                  transform: "translateY(-5px)",
-                  boxShadow: `0 10px 30px ${getMoodColor(mood)}60`,
-                  "&::before": {
-                    transform: "translateX(100%)",
-                  },
-                },
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  background:
-                    "linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent)",
-                  transform: "translateX(-100%)",
-                  transition: "transform 0.6s ease",
-                },
-              }}
-            >
-              ↑
-            </IconButton>
-          </Box> */}
         </Container>
       </Box>
     </>

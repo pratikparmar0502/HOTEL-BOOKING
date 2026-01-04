@@ -1,5 +1,11 @@
-import { useState, useContext } from "react";
-import { Add, ArrowForward } from "@mui/icons-material";
+import { useState, useContext, React, useEffect } from "react";
+import {
+  EventAvailable,
+  Star,
+  Close,
+  LocationOn,
+  ArrowForward,
+} from "@mui/icons-material";
 import nature1 from "../../assets/hotel-image/nature-1.jpg";
 import nature2 from "../../assets/hotel-image/nature-2.jpg";
 import nature3 from "../../assets/hotel-image/nature-3.jpg";
@@ -37,13 +43,7 @@ import destination4 from "../../assets/destination/destination-4.avif";
 import destination5 from "../../assets/destination/destination-5.avif";
 import destination6 from "../../assets/destination/destination-6.avif";
 
-import {
-  Favorite,
-  LocationOn,
-  Close,
-  Star,
-  SearchOff,
-} from "@mui/icons-material";
+import { Favorite, Add, SearchOff } from "@mui/icons-material";
 
 import natureHero from "../../assets/nature-hero.avif";
 import royalHero from "../../assets/royal-hero.avif";
@@ -68,23 +68,75 @@ import {
   IconButton,
   Modal,
   Fade,
+  Select,
+  MenuItem,
+  CircularProgress,
+  Backdrop,
 } from "@mui/material";
 
 import { MoodContext } from "../../context/MoodContext.jsx";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, scale } from "framer-motion";
 
 const Home = () => {
-  const { mood, setMood } = useContext(MoodContext);
+  const [checkIn, setCheckIn] = useState(null);
+  const [checkOut, setCheckOut] = useState(null);
+  const [guests, setGuests] = useState(1);
+  const { mood } = useContext(MoodContext);
   const [open, setOpen] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [wishlistedIds, setWishlistedIds] = useState([]);
+  const [isBooked, setIsBooked] = useState(false);
+
+  const calculateNights = (start, end) => {
+    if (!start || !end) return 1;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = Math.abs(endDate - startDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays || 1;
+  };
+
+  const calculatedNights =
+    checkIn && checkOut ? calculateNights(checkIn, checkOut) : 1;
+  const totalPrice = (selectedHotel?.price || 0) * calculatedNights;
+  const serviceFee = Math.round(totalPrice * 0.05);
+  const finalAmount = totalPrice + serviceFee;
+
+  const handleReserve = () => {
+    if (!checkIn || !checkOut) {
+      alert("Please selects a dates!!! ");
+      return;
+    }
+
+    setIsBooked(true);
+
+    setTimeout(() => {
+      // setOpen(false);
+      // setIsBooked(false);
+    }, 5000);
+
+    const bookingData = {
+      hotelName: selectedHotel.name,
+      totalPrice: finalAmount,
+      stayDuration: `${calculatedNights} nights`,
+      guests: guests,
+      dates: `${checkIn} to ${checkOut}`,
+    };
+
+    console.log("Booking Confirmed:", bookingData);
+    // Yahan tum navigation ya success modal trigger kar sakte ho
+  };
 
   const handleOpen = (hotel) => {
     setSelectedHotel(hotel);
     setOpen(true);
   };
-  const handleClose = () => setOpen(false);
+
+  const handleClose = () => {
+    setOpen(false);
+    setIsBooked(false); // Reset for next time
+  };
 
   const moodImages = {
     nature: natureHero,
@@ -467,6 +519,21 @@ const Home = () => {
       hotel.loc.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const themeColor = getMoodColor(mood);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }, // Har card 0.1s ke gap pe aayega
+    },
+  };
+
+  const cardVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
+  };
+
   return (
     <Box sx={{ bgcolor: "#fafafa" }}>
       {/* Hero Section */}
@@ -484,55 +551,71 @@ const Home = () => {
         }}
       >
         <Container maxWidth="md" sx={{ textAlign: "center", color: "white" }}>
-          <Typography
-            variant="h1"
-            fontWeight="900"
-            component={motion.h1}
-            key={mood}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            sx={{
-              fontSize: { xs: "2.6rem", md: "4rem" },
-              textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
-              mb: 2,
-            }}
-          >
-            Find Your Perfect{" "}
-            {mood === "default"
-              ? "Dream"
-              : mood.charAt(0).toUpperCase() + mood.slice(1)}{" "}
-            Stay
-          </Typography>
-
-          <Typography
-            variant="h6"
-            sx={{
-              mb: 4,
-              fontWeight: 400,
-              opacity: 0.9,
-              textShadow: "1px 1px 8px rgba(0,0,0,0.4)",
-              maxWidth: "700px",
-              mx: "auto",
-              lineHeight: 1.4,
-            }}
-          >
-            {mood === "default" &&
-              "From hidden gems to iconic landmarks, discover stays that match your vibe."}
-            {mood === "nature" &&
-              "Escape the noise and breathe in the fresh mountain air."}
-            {mood === "urban" &&
-              "Stay in the heart of the action, where the city never sleeps."}
-            {mood === "ocean" &&
-              "Wake up to the sound of waves and the touch of golden sand."}
-            {mood === "romantic" &&
-              "Create unforgettable memories in the most enchanting settings."}
-            {mood === "royal" &&
-              "Experience grand hospitality and live like royalty in heritage palaces."}
-          </Typography>
+          <AnimatePresence mode="wait">
+            <Typography
+              variant="h1"
+              fontWeight="900"
+              component={motion.h1}
+              key={mood}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              sx={{
+                fontSize: { xs: "2.6rem", md: "4rem" },
+                textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
+                mb: 2,
+              }}
+            >
+              Find Your Perfect{" "}
+              <span style={{ color: getMoodColor(mood) }}>
+                {mood === "default"
+                  ? "Dream"
+                  : mood.charAt(0).toUpperCase() + mood.slice(1)}
+              </span>{" "}
+              Stay
+            </Typography>
+          </AnimatePresence>
+          <Box sx={{ height: "60px", mb: 4 }}>
+            {" "}
+            {/* Height fix rakhi taaki text change pe jump na kare */}
+            <AnimatePresence mode="wait">
+              <Typography
+                component={motion.p}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                variant="h6"
+                sx={{
+                  mb: 4,
+                  fontWeight: 400,
+                  opacity: 0.9,
+                  textShadow: "1px 1px 8px rgba(0,0,0,0.4)",
+                  maxWidth: "700px",
+                  mx: "auto",
+                  lineHeight: 1.4,
+                }}
+              >
+                {mood === "default" &&
+                  "From hidden gems to iconic landmarks, discover stays that match your vibe."}
+                {mood === "nature" &&
+                  "Escape the noise and breathe in the fresh mountain air."}
+                {mood === "urban" &&
+                  "Stay in the heart of the action, where the city never sleeps."}
+                {mood === "ocean" &&
+                  "Wake up to the sound of waves and the touch of golden sand."}
+                {mood === "romantic" &&
+                  "Create unforgettable memories in the most enchanting settings."}
+                {mood === "royal" &&
+                  "Experience grand hospitality and live like royalty in heritage palaces."}
+              </Typography>
+            </AnimatePresence>
+          </Box>
 
           {/* Search Box */}
           <Box
+            component={motion.div}
+            whileHover={{ scale: 1.02 }}
             sx={{
               bgcolor: "white",
               borderRadius: "50px",
@@ -588,39 +671,51 @@ const Home = () => {
       <Container sx={{ py: 7 }}>
         {/* Section Title */}
         <Box sx={{ textAlign: "center", mb: 8 }}>
-          <Typography
-            variant="h2"
-            fontWeight="900"
-            sx={{
-              mb: 2,
-              color: "#1a1a1a",
-              fontSize: { xs: "2rem", md: "2.5rem" },
-            }}
-          >
-            {mood === "default" && searchQuery.length === 0
-              ? "Trending Stays"
-              : mood === "default" && searchQuery.length > 0
-              ? `Search Results for "${searchQuery}"`
-              : `Perfect ${
-                  mood.charAt(0).toUpperCase() + mood.slice(1)
-                } Getaways`}
-          </Typography>
-
-          <Typography
-            variant="body1"
-            sx={{
-              color: "text.secondary",
-              maxWidth: "600px",
-              mx: "auto",
-              lineHeight: 1.6,
-              fontSize: "1.1rem",
-              mb: 3,
-            }}
-          >
-            {mood === "default"
-              ? "Explore our top-rated collections and find the most loved destinations by travelers worldwide."
-              : `Handpicked selection of the finest ${mood} properties, ensuring a stay that matches your lifestyle and desires.`}
-          </Typography>
+          <AnimatePresence mode="wait">
+            <Typography
+              key={mood + searchQuery} // Key change hote hi animation chalegi
+              component={motion.h2}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              variant="h2"
+              fontWeight="900"
+              sx={{
+                mb: 2,
+                color: "#1a1a1a",
+                fontSize: { xs: "2rem", md: "2.5rem" },
+              }}
+            >
+              {mood === "default" && searchQuery.length === 0
+                ? "Trending Stays"
+                : mood === "default" && searchQuery.length > 0
+                ? `Search Results for "${searchQuery}"`
+                : `Perfect ${
+                    mood.charAt(0).toUpperCase() + mood.slice(1)
+                  } Getaways`}
+            </Typography>
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <Typography
+              component={motion.div}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              variant="body1"
+              sx={{
+                color: "text.secondary",
+                maxWidth: "600px",
+                mx: "auto",
+                lineHeight: 1.6,
+                fontSize: "1.1rem",
+                mb: 3,
+              }}
+            >
+              {mood === "default"
+                ? "Explore our top-rated collections and find the most loved destinations by travelers worldwide."
+                : `Handpicked selection of the finest ${mood} properties, ensuring a stay that matches your lifestyle and desires.`}
+            </Typography>
+          </AnimatePresence>
 
           <Box
             sx={{
@@ -673,12 +768,22 @@ const Home = () => {
         )}
 
         {/* Hotel Cards Grid */}
-        <Grid container spacing={4} sx={{ justifyContent: "center" }}>
+        <Grid
+          container
+          spacing={4}
+          sx={{ justifyContent: "center" }}
+          component={motion.div} // Grid ko motion banaya
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          key={mood + searchQuery}
+        >
           {displayedHotels.map((hotel) => (
             <Grid item xs={12} sm={6} md={4} key={hotel.id}>
               <Box
                 component={motion.div}
-                whileHover={{ y: -10 }}
+                variants={cardVariants}
+                whileHover={{ y: -12 }}
                 transition={{ duration: 0.3 }}
               >
                 <Card
@@ -701,7 +806,11 @@ const Home = () => {
                     <CardMedia
                       component="img"
                       image={hotel.img}
-                      sx={{ height: "100%", objectFit: "cover" }}
+                      sx={{
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "opacity 0.5s",
+                      }}
                     />
                     <Box
                       sx={{
@@ -788,6 +897,7 @@ const Home = () => {
                       {/* Wishlist Button */}
                       <Box
                         component="button"
+                        whileTap={{ scale: 0.8 }}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (wishlistedIds.includes(hotel.id)) {
@@ -897,6 +1007,13 @@ const Home = () => {
         open={open}
         onClose={handleClose}
         closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: { backdropFilter: "blur(8px)", bgcolor: "rgba(0,0,0,0.6)" }, // Darker, blurrier backdrop
+          },
+        }}
         sx={{
           display: "flex",
           alignItems: "center",
@@ -907,131 +1024,443 @@ const Home = () => {
         <Fade in={open}>
           <Box
             sx={{
-              bgcolor: "background.paper",
-              width: "95%",
-              maxWidth: 600,
-              borderRadius: "32px",
+              bgcolor: "#fff",
+              width: { xs: "100%", sm: "90%", md: "850px" },
+              borderRadius: { xs: "20px", md: "32px" }, // Super rounded corners
               maxHeight: "90vh",
-              overflowY: "auto",
               position: "relative",
-              boxShadow: 24,
+              boxShadow: "0 40px 80px rgba(0,0,0,0.3)", // Deep premium shadow
               overflow: "hidden",
               outline: "none",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             {selectedHotel ? (
               <>
+                {/* --- SCROLLABLE CONTENT AREA --- */}
                 <Box
-                  sx={{ position: "relative", height: 280, bgcolor: "#eee" }}
+                  sx={{
+                    overflowY: "auto",
+                    flex: 1,
+                    pb: 12,
+                    "&::-webkit-scrollbar": {
+                      display: "none",
+                    },
+                  }}
                 >
-                  <img
-                    src={
-                      selectedHotel.image ||
-                      selectedHotel.img ||
-                      "https://via.placeholder.com/600x400"
-                    }
-                    alt={selectedHotel.name}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <IconButton
-                    onClick={handleClose}
-                    sx={{
-                      position: "absolute",
-                      top: 15,
-                      right: 15,
-                      bgcolor: "rgba(255,255,255,0.9)",
-                      "&:hover": { bgcolor: "white" },
-                    }}
-                  >
-                    <Close />
-                  </IconButton>
-                </Box>
-
-                <Box sx={{ p: 4 }}>
-                  <Typography variant="h4" fontWeight="900" sx={{ mb: 1 }}>
-                    {selectedHotel.name}
-                  </Typography>
-
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    sx={{ mb: 3, color: "text.secondary" }}
-                  >
-                    <LocationOn
-                      sx={{ color: getMoodColor(mood), fontSize: "1.2rem" }}
-                    />
-                    <Typography variant="subtitle1" fontWeight="600">
-                      {selectedHotel.loc}
-                    </Typography>
-                  </Stack>
-
-                  <Divider sx={{ mb: 3 }} />
-
-                  <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    sx={{ mb: 3, lineHeight: 1.7 }}
-                  >
-                    {selectedHotel.desc}
-                  </Typography>
-
-                  {/* Price & Book */}
+                  {" "}
+                  {/* pb-12 ensures content isn't hidden behind footer */}
+                  {/* 1. HERO IMAGE SECTION */}
                   <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      mt: 2,
-                      p: 2.5,
-                      borderRadius: "20px",
-                      bgcolor: `${getMoodColor(mood)}08`,
-                      border: `1px solid ${getMoodColor(mood)}20`,
-                    }}
+                    sx={{ position: "relative", height: { xs: 280, md: 400 } }}
                   >
-                    <Box>
-                      <Typography
-                        variant="h4"
-                        fontWeight="900"
-                        sx={{ color: getMoodColor(mood) }}
-                      >
-                        ${selectedHotel.price}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        fontWeight="bold"
-                        color="text.secondary"
-                      >
-                        PER NIGHT
-                      </Typography>
-                    </Box>
-                    <Button
-                      variant="contained"
-                      size="large"
+                    {/* Close Button Floating */}
+                    <IconButton
+                      onClick={handleClose}
                       sx={{
-                        bgcolor: getMoodColor(mood),
-                        px: 5,
-                        py: 1.5,
-                        borderRadius: "15px",
-                        fontWeight: "bold",
-                        textTransform: "none",
+                        position: "absolute",
+                        top: 20,
+                        right: 20,
+                        zIndex: 10,
+                        bgcolor: "rgba(255,255,255,0.8)",
+                        backdropFilter: "blur(10px)",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                         "&:hover": {
-                          bgcolor: getMoodColor(mood),
-                          filter: "brightness(0.9)",
+                          bgcolor: "white",
+                          transform: "scale(1.1)",
                         },
+                        transition: "all 0.2s",
                       }}
                     >
-                      Book Now
-                    </Button>
+                      <Close />
+                    </IconButton>
+
+                    <img
+                      src={
+                        selectedHotel.img ||
+                        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800"
+                      }
+                      alt={selectedHotel.name}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+
+                    {/* Floating Rating Badge */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 20,
+                        left: 20,
+                        bgcolor: "rgba(255,255,255,0.95)",
+                        backdropFilter: "blur(4px)",
+                        px: 2,
+                        py: 1,
+                        borderRadius: "100px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+                      }}
+                    >
+                      <Star sx={{ color: "#FFB300", fontSize: "1.2rem" }} />
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="800"
+                        sx={{ color: "#2d3748" }}
+                      >
+                        {selectedHotel.rating}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        (24 reviews)
+                      </Typography>
+                    </Box>
                   </Box>
+                  {/* 2. MAIN CONTENT PADDING */}
+                  <Box sx={{ px: { xs: 3, md: 5 }, pt: 4 }}>
+                    {/* Title & Location */}
+                    <Typography
+                      variant="h3"
+                      fontWeight="900"
+                      letterSpacing="-1px"
+                      sx={{ color: "#1a202c", mb: 1 }}
+                    >
+                      {selectedHotel.name}
+                    </Typography>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      sx={{ mb: 4, color: "text.secondary" }}
+                    >
+                      <LocationOn sx={{ color: themeColor }} />
+                      <Typography variant="body1" fontWeight="500">
+                        {selectedHotel.loc}
+                      </Typography>
+                    </Stack>
+
+                    {/* 3. INPUTS SECTION (Modern Gray Box Style) */}
+                    <Box
+                      sx={{
+                        mb: 5,
+                        p: 3,
+                        borderRadius: "24px",
+                        bgcolor: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        fontWeight="800"
+                        sx={{
+                          mb: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <EventAvailable sx={{ color: themeColor }} /> Your Trip
+                      </Typography>
+
+                      <Grid container spacing={2}>
+                        {/* Check-In */}
+                        <Grid item xs={12} sm={4}>
+                          <Box
+                            sx={{
+                              p: 1.5,
+                              bgcolor: "white",
+                              borderRadius: "16px",
+                              border: "1px solid #edf2f7",
+                              transition: "0.2s",
+                              "&:hover": { borderColor: themeColor },
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              fontWeight="700"
+                              color="text.secondary"
+                              sx={{ display: "block", mb: 0.5, ml: 1 }}
+                            >
+                              CHECK-IN
+                            </Typography>
+                            <TextField
+                              type="date"
+                              fullWidth
+                              variant="standard"
+                              value={checkIn || ""}
+                              onChange={(e) => setCheckIn(e.target.value)}
+                              InputProps={{
+                                disableUnderline: true,
+                                sx: {
+                                  fontSize: "0.95rem",
+                                  fontWeight: 600,
+                                  px: 1,
+                                },
+                              }}
+                            />
+                          </Box>
+                        </Grid>
+
+                        {/* Check-Out */}
+                        <Grid item xs={12} sm={4}>
+                          <Box
+                            sx={{
+                              p: 1.5,
+                              bgcolor: "white",
+                              borderRadius: "16px",
+                              border: "1px solid #edf2f7",
+                              transition: "0.2s",
+                              "&:hover": { borderColor: themeColor },
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              fontWeight="700"
+                              color="text.secondary"
+                              sx={{ display: "block", mb: 0.5, ml: 1 }}
+                            >
+                              CHECK-OUT
+                            </Typography>
+                            <TextField
+                              type="date"
+                              inputProps={{
+                                min:
+                                  checkIn ||
+                                  new Date().toISOString().split("T")[0],
+                              }} // User purani date select nahi kar payega
+                              fullWidth
+                              variant="standard"
+                              value={checkOut || ""}
+                              onChange={(e) => setCheckOut(e.target.value)}
+                              InputProps={{
+                                disableUnderline: true,
+                                sx: {
+                                  fontSize: "0.95rem",
+                                  fontWeight: 600,
+                                  px: 1,
+                                },
+                              }}
+                            />
+                          </Box>
+                        </Grid>
+
+                        {/* Guests */}
+                        <Grid item xs={12} sm={4}>
+                          <Box
+                            sx={{
+                              p: 1.5,
+                              bgcolor: "white",
+                              borderRadius: "16px",
+                              border: "1px solid #edf2f7",
+                              transition: "0.2s",
+                              "&:hover": { borderColor: themeColor },
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              fontWeight="700"
+                              color="text.secondary"
+                              sx={{ display: "block", mb: 0.5, ml: 1 }}
+                            >
+                              GUESTS
+                            </Typography>
+                            <Select
+                              fullWidth
+                              variant="standard"
+                              displayEmpty
+                              value={guests}
+                              onChange={(e) => setGuests(e.target.value)}
+                              disableUnderline
+                              sx={{
+                                fontSize: "0.95rem",
+                                fontWeight: 600,
+                                px: 1,
+                              }}
+                            >
+                              {[1, 2, 3, 4, 5, 6].map((num) => (
+                                <MenuItem key={num} value={num}>
+                                  {num} Guest{num > 1 ? "s" : ""}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Box>
+
+                    {/* 4. AMENITIES (Clean Cards) */}
+                    <Box sx={{ mb: 5 }}>
+                      <Typography variant="h6" fontWeight="800" sx={{ mb: 3 }}>
+                        What this place offers
+                      </Typography>
+                      <Grid container spacing={2}>
+                        {[
+                          { label: "Wifi", emoji: "📶" },
+                          { label: "Pool", emoji: "🏊‍♂️" },
+                          { label: "AC", emoji: "❄️" },
+                          { label: "Kitchen", emoji: "🍳" },
+                          { label: "Parking", emoji: "🅿️" },
+                          { label: "Spa", emoji: "💆" },
+                          { label: "Breakfast", emoji: "🍽️" },
+                          { label: "Pets", emoji: "🐾" },
+                        ].map((item) => (
+                          <Grid item xs={6} sm={3} key={item.label}>
+                            <Box
+                              sx={{
+                                p: 2,
+                                borderRadius: "16px",
+                                bgcolor: "white",
+                                border: "1px solid #f1f5f9",
+                                textAlign: "center",
+                                cursor: "pointer",
+                                transition:
+                                  "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                "&:hover": {
+                                  transform: "translateY(-4px)",
+                                  boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
+                                  borderColor: themeColor,
+                                },
+                              }}
+                            >
+                              <Typography variant="h5" sx={{ mb: 1 }}>
+                                {item.emoji}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                fontWeight="600"
+                                color="text.secondary"
+                              >
+                                {item.label}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Box>
+
+                    {/* 5. DESCRIPTION */}
+                    <Box sx={{ mb: 4 }}>
+                      <Typography variant="h6" fontWeight="800" sx={{ mb: 1 }}>
+                        About this stay
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        sx={{ lineHeight: 1.8 }}
+                      >
+                        {selectedHotel.desc}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+
+                {/* --- STICKY FOOTER --- */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: "rgba(255,255,255,0.85)",
+                    backdropFilter: "blur(12px)",
+                    p: { xs: 2, md: 3 },
+                    px: { xs: 3, md: 5 },
+                    zIndex: 20,
+                    borderTop: "1px solid rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Grid
+                    container
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Grid item xs={6}>
+                      <Stack>
+                        <Stack
+                          direction="row"
+                          alignItems="baseline"
+                          spacing={0.5}
+                        >
+                          <Typography
+                            variant="h4"
+                            fontWeight="900"
+                            sx={{ color: "#1a202c" }}
+                          >
+                            ${finalAmount}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            fontWeight="600"
+                          >
+                            / {calculatedNights} nights
+                          </Typography>
+                        </Stack>
+                        {/* Is par click karne pe tum ek chhota tooltip ya alert dikha sakte ho fees ka */}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: themeColor,
+                            fontWeight: "bold",
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                        >
+                          Includes ${serviceFee} service fee
+                        </Typography>
+                      </Stack>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                      <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={handleReserve} // <--- Linked here
+                        sx={{
+                          bgcolor: themeColor,
+                          borderRadius: "14px",
+                          py: 1.8,
+                          fontWeight: "800",
+                          boxShadow: `0 10px 20px -5px ${themeColor}60`,
+                          "&:hover": {
+                            bgcolor: themeColor,
+                            transform: "translateY(-2px)",
+                          },
+                        }}
+                      >
+                        Reserve Now
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </Box>
               </>
             ) : (
-              <Box sx={{ p: 5, textAlign: "center" }}>Loading details...</Box>
+              // Loading State
+              <Box
+                sx={{
+                  height: "400px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CircularProgress
+                  size={50}
+                  thickness={4}
+                  sx={{ color: themeColor, mb: 3 }}
+                />
+                <Typography
+                  variant="h6"
+                  fontWeight="600"
+                  color="text.secondary"
+                >
+                  Finding the best rates...
+                </Typography>
+              </Box>
             )}
           </Box>
         </Fade>
@@ -1040,7 +1469,14 @@ const Home = () => {
       {/* Top Destination */}
       <Container sx={{ py: { xs: 6, md: 7 } }}>
         {/* Header */}
-        <Box sx={{ mb: 8, textAlign: "center" }}>
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          sx={{ mb: 8, textAlign: "center" }}
+        >
           <Typography
             variant="h2"
             fontWeight="900"
@@ -1105,8 +1541,11 @@ const Home = () => {
             >
               <Box
                 component={motion.div}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }} // Staggered delay
                 whileHover={{ y: -12, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300 }}
                 sx={{
                   position: "relative",
                   width: "100%",
@@ -1390,6 +1829,12 @@ const Home = () => {
               sm={6}
               md={4}
               key={index}
+              component={motion.div}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              whileHover={{ y: -10 }}
               sx={{
                 display: "flex",
                 justifyContent: "center",
@@ -1421,6 +1866,8 @@ const Home = () => {
               >
                 {/* Icon Container */}
                 <Box
+                  component={motion.div}
+                  whileHover={{ rotate: [0, -10, 10, -10, 0] }} // Jiggle effect
                   sx={{
                     width: "70px",
                     height: "70px",
