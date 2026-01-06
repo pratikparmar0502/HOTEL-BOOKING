@@ -26,7 +26,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Footer = () => {
-  const { mood, setMood } = useContext(MoodContext);
+  // const { mood, setMood } = useContext(MoodContext);
+  const { mood } = useContext(MoodContext);
 
   const getMoodColor = (currentMood) => {
     switch (currentMood) {

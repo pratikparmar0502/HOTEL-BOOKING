@@ -4,6 +4,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/client/Home";
 import Layout from "./components/layout/Layout";
+import Destination from "./pages/client/Destination";
+import Bookings from "./pages/client/Bookings";
+import About from "./pages/client/About";
+import { useState } from "react";
 
 const theme = createTheme({
   typography: {
@@ -26,17 +30,36 @@ const theme = createTheme({
 });
 
 function App() {
+
+  const [allBookings, setAllBookings] = useState([]);
+
+  const addNewBooking = (hotelData) => {
+    setAllBookings([...allBookings, hotelData]);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <CssBaseline />
-        <Switch>
-          <Route exact path="/">
-            <Layout>
+        <Layout>
+          <Switch>
+            <Route path="/about">
+              <About />
+            </Route>
+
+            <Route path="/bookings">
+              <Bookings />
+            </Route>
+
+            <Route path="/destination">
+              <Destination />
+            </Route>
+
+            <Route exact path="/">
               <Home />
-            </Layout>
-          </Route>
-        </Switch>
+            </Route>
+          </Switch>
+        </Layout>
       </Router>
       <ToastContainer position="top-right" autoClose={3000} />
     </ThemeProvider>

@@ -35,10 +35,10 @@ import {
   Menu as MenuIcon,
   Close,
   Home,
-  Explore,
   Place,
   Bookmark,
 } from "@mui/icons-material";
+import InfoIcon from "@mui/icons-material/Info";
 import { MoodContext } from "../../context/MoodContext";
 import { useHistory, useLocation } from "react-router-dom";
 
@@ -51,7 +51,7 @@ const Navbar = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+  // const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
@@ -98,9 +98,9 @@ const Navbar = () => {
 
   const navItems = [
     { label: "Home", path: "/", icon: <Home /> },
-    { label: "Explore", path: "/explore", icon: <Explore /> },
-    { label: "Destinations", path: "/destinations", icon: <Place /> },
+    { label: "Destination", path: "/destination", icon: <Place /> },
     { label: "My Bookings", path: "/bookings", icon: <Bookmark /> },
+    { label: "About", path: "/about", icon: <InfoIcon /> },
   ];
 
   const handleNavigation = (path) => {
