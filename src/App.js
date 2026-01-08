@@ -8,6 +8,8 @@ import Destination from "./pages/client/Destination";
 import Bookings from "./pages/client/Bookings";
 import About from "./pages/client/About";
 import { useState } from "react";
+import Auth from "./pages/client/Auth";
+import MoodProvider from "./context/MoodContext";
 
 const theme = createTheme({
   typography: {
@@ -30,39 +32,54 @@ const theme = createTheme({
 });
 
 function App() {
-
   const [allBookings, setAllBookings] = useState([]);
+  // Ye state check karegi ki user login hai ya nahi
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true"
+  );
+
+  // Login hone par ye function call hoga
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    localStorage.setItem("isLoggedIn", "true");
+  };
 
   const addNewBooking = (hotelData) => {
     setAllBookings([...allBookings, hotelData]);
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <CssBaseline />
-        <Layout>
-          <Switch>
-            <Route path="/about">
-              <About />
-            </Route>
+    <MoodProvider>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <CssBaseline />
+          <Layout>
+            <Switch>
+              <Route path={["/auth", "/login", "/signup"]}>
+                <Auth onLogin={handleLogin} />
+              </Route>
 
-            <Route path="/bookings">
-              <Bookings />
-            </Route>
+              <Route path="/about">
+                <About />
+              </Route>
 
-            <Route path="/destination">
-              <Destination />
-            </Route>
+              <Route path="/bookings">
+                <Bookings />
+              </Route>
 
-            <Route exact path="/">
-              <Home />
-            </Route>
-          </Switch>
-        </Layout>
-      </Router>
-      <ToastContainer position="top-right" autoClose={3000} />
-    </ThemeProvider>
+              <Route path="/destination">
+                <Destination />
+              </Route>
+
+              <Route exact path="/">
+                <Home />
+              </Route>
+            </Switch>
+          </Layout>
+        </Router>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </ThemeProvider>
+    </MoodProvider>
   );
 }
 

@@ -1,4 +1,6 @@
 import React, { useContext, useState } from "react";
+import { Menu, MenuItem, ListItemIcon } from "@mui/material";
+import { Logout, Person } from "@mui/icons-material";
 import {
   motion,
   AnimatePresence,
@@ -41,6 +43,7 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import { MoodContext } from "../../context/MoodContext";
 import { useHistory, useLocation } from "react-router-dom";
+import { Avatar } from "@mui/material";
 
 const Navbar = () => {
   const { scrollYProgress } = useScroll();
@@ -52,6 +55,26 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   // const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn"); // Data saaf
+    handleClose();
+    history.push("/login"); // Login page par bhej do
+    window.location.reload(); // Taaki navbar turant update ho jaye
+  };
+
+  // isLoggedIn ko define karein
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
@@ -98,7 +121,7 @@ const Navbar = () => {
 
   const navItems = [
     { label: "Home", path: "/", icon: <Home /> },
-    { label: "Destination", path: "/destination", icon: <Place /> },
+    { label: "Rooms", path: "/destination", icon: <Place /> },
     { label: "My Bookings", path: "/bookings", icon: <Bookmark /> },
     { label: "About", path: "/about", icon: <InfoIcon /> },
   ];
@@ -227,12 +250,12 @@ const Navbar = () => {
             )}
 
             {/* Right Actions */}
-            <Stack direction="row" spacing={1} alignItems="center">
+            {/* <Stack direction="row" spacing={1} alignItems="center">
               {!isMobile ? (
                 <>
                   <Button
                     variant="outlined"
-                    onClick={() => handleNavigation("/login")} // Changed
+                    onClick={() => history.push("/auth")} // Changed
                     sx={{
                       borderRadius: "20px",
                       borderColor: alpha(getMoodColor(mood), 0.3),
@@ -250,7 +273,7 @@ const Navbar = () => {
                   </Button>
                   <Button
                     variant="contained"
-                    onClick={() => handleNavigation("/signup")} // Changed
+                    onClick={() => history.push("/signup")} // Changed
                     sx={{
                       borderRadius: "20px",
                       backgroundColor: getMoodColor(mood),
@@ -289,7 +312,6 @@ const Navbar = () => {
                 </Button>
               )}
 
-              {/* User Profile / Mobile Menu */}
               <IconButton
                 onClick={
                   () =>
@@ -307,6 +329,48 @@ const Navbar = () => {
               >
                 {isMobile ? <MenuIcon /> : <AccountCircle />}
               </IconButton>
+            </Stack> */}
+            <Stack direction="row" spacing={2}>
+              {isLoggedIn ? (
+                <>
+                  <IconButton onClick={handleClick}>
+                    <Avatar sx={{ bgcolor: getMoodColor }}>U</Avatar>
+                  </IconButton>
+
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    PaperProps={{
+                      sx: { borderRadius: "15px", mt: 1.5, minWidth: 150 },
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        handleClose();
+                        history.push("/profile");
+                      }}
+                    >
+                      <ListItemIcon>
+                        <Person fontSize="small" />
+                      </ListItemIcon>
+                      My Profile
+                    </MenuItem>
+
+                    <MenuItem
+                      onClick={handleLogout}
+                      sx={{ color: "error.main" }}
+                    >
+                      <ListItemIcon>
+                        <Logout fontSize="small" sx={{ color: "error.main" }} />
+                      </ListItemIcon>
+                      Logout
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <Button onClick={() => history.push("/signup")}>Sign Up</Button>
+              )}
             </Stack>
           </Toolbar>
 

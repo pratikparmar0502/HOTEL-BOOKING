@@ -76,13 +76,8 @@ const Home = () => {
 
   // --- 1. State Declarations (Sab ek jagah) ---
 
-  // Default dates: Aaj aur Kal (YYYY-MM-DD format mein inputs ke liye)
-  const [checkIn, setCheckIn] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [checkOut, setCheckOut] = useState(
-    new Date(Date.now() + 86400000).toISOString().split("T")[0]
-  );
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
 
   const [guests, setGuests] = useState(1);
   const [open, setOpen] = useState(false);
@@ -113,58 +108,44 @@ const Home = () => {
   const serviceFee = Math.round(totalPrice * 0.05);
   const finalAmount = totalPrice + serviceFee;
 
-  // --- 3. Handlers ---
+  const handleQuickBook = () => {
+    if (!checkIn || !checkOut) {
+      alert("Please select both Check-in and Check-out dates!");
+      return;
+    }
 
-  const handleReserve = () => {
-    const newBooking = {
-      id: Date.now(), // Unique ID
-      hotelName: selectedHotel?.name,
+    setIsBooked(true); // Spinner dikhane ke liye
+
+    // 1. Pehle data object banao (Jo select kiya hai modal mein)
+    const bookingData = {
+      id: "BK-" + Date.now(),
+      hotelName: selectedHotel?.name || selectedHotel?.title,
+      hotelImage: selectedHotel?.img,
+      location: selectedHotel?.loc || selectedHotel?.location,
       totalPrice: finalAmount,
+      status: "pending",
+      checkIn: checkIn,
+      checkOut: checkOut,
       guests: guests,
-      dates: `${checkIn} to ${checkOut}`,
-      img: selectedHotel?.img,
-      loc: selectedHotel?.loc,
+      totalNights: calculatedNights || 1,
+      bookingDate: new Date().toLocaleDateString(),
     };
 
-    // 1. Pehle se saved bookings nikalo
-    const existingBookings = JSON.parse(
-      localStorage.getItem("allBookings") || "[]"
-    );
-
-    // 2. Nayi booking add karo
-    const updatedBookings = [newBooking, ...existingBookings];
-
-    // 3. Wapas save kar do
+    // 2. LocalStorage mein purana data nikalo aur naya wala 'unshift' (top pe add) karo
+    const existing = JSON.parse(localStorage.getItem("allBookings") || "[]");
+    const updatedBookings = [bookingData, ...existing];
     localStorage.setItem("allBookings", JSON.stringify(updatedBookings));
 
-    // 4. Ab redirect karo
-    history.push("/my-bookings");
-  };
-
-  const handleQuickBook = () => {
-    const bookingData = {
-      hotelName: selectedHotel?.name,
-      totalPrice: finalAmount,
-      stayDuration: `${calculatedNights} nights`,
-      guests: guests,
-      dates: `${checkIn} to ${checkOut}`,
-      img: selectedHotel?.img,
-    };
-
-    // console.log("Booking Confirmed:", bookingData);
-
-    // Simulation of API call or delay
+    // 3. 1.5 second baad Bookings page par bhejo
     setTimeout(() => {
-      setOpen(false);
       setIsBooked(false);
-
+      setOpen(false);
       history.push({
         pathname: "/bookings",
-        state: { booking: bookingData },
+        // state: { openPaymentFor: bookingData.id }, // Ye ID Bookings page ko trigger karegi
       });
-    }, 2000);
+    }, 1500);
   };
-  // };
 
   const handleOpen = (hotel) => {
     setSelectedHotel(hotel);
@@ -715,17 +696,18 @@ const Home = () => {
             </Box>
           </Container>
         </Box>
+
         {/* Main Content Stays */}
         <Container sx={{ py: 7 }}>
           {/* Section Title */}
 
           <Box
             component={motion.div}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            sx={{ mb: 8, textAlign: "center" }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            sx={{ mb: 10, textAlign: "center", position: "relative" }}
           >
             <Typography
               variant="h2"
@@ -1005,7 +987,10 @@ const Home = () => {
                           fullWidth
                           variant="outlined"
                           size="small"
-                          onClick={() => handleOpen(hotel)}
+                          onClick={() => {
+                            setSelectedHotel(hotel);
+                            setOpen(true);
+                          }}
                           sx={{
                             textTransform: "none",
                             fontWeight: 700,
@@ -1023,7 +1008,10 @@ const Home = () => {
                         <Button
                           fullWidth
                           variant="contained"
-                          onClick={handleQuickBook}
+                          onClick={() => {
+                            setSelectedHotel(hotel); // Hotel data set karo
+                            setOpen(true); // Modal kholo
+                          }}
                           disableElevation
                           sx={{
                             bgcolor: getMoodColor(mood),
@@ -1227,6 +1215,11 @@ const Home = () => {
                               }}
                             >
                               <Typography
+                                inputProps={{
+                                  min:
+                                    checkIn ||
+                                    new Date().toISOString().split("T")[0],
+                                }}
                                 variant="caption"
                                 fontWeight="700"
                                 color="text.secondary"
@@ -1235,6 +1228,11 @@ const Home = () => {
                                 CHECK-IN
                               </Typography>
                               <TextField
+                                inputProps={{
+                                  min:
+                                    checkIn ||
+                                    new Date().toISOString().split("T")[0],
+                                }}
                                 type="date"
                                 fullWidth
                                 variant="standard"
@@ -1474,7 +1472,7 @@ const Home = () => {
                         <Button
                           variant="contained"
                           fullWidth
-                          onClick={handleReserve} // <--- Linked here
+                          onClick={handleQuickBook}
                           sx={{
                             bgcolor: themeColor,
                             borderRadius: "14px",
@@ -1487,7 +1485,7 @@ const Home = () => {
                             },
                           }}
                         >
-                          Book Now
+                          {isBooked ? "Processing..." : "Confirm Booking"}{" "}
                         </Button>
                       </Grid>
                     </Grid>
@@ -1521,6 +1519,7 @@ const Home = () => {
             </Box>
           </Fade>
         </Modal>
+
         {/* Top Destination
       <Container sx={{ py: { xs: 6, md: 7 } }}>
         Header
@@ -1786,6 +1785,7 @@ const Home = () => {
           </Button>
         </Box>
       </Container> */}
+
         {/* Why Choose Us Section */}
         <Container sx={{ py: { xs: 8, md: 7 } }}>
           <Box sx={{ textAlign: "center", mb: 8 }}>
@@ -1959,6 +1959,7 @@ const Home = () => {
             ))}
           </Grid>
         </Container>
+
         {/* Testimonials Section */}
         <Box
           sx={{
