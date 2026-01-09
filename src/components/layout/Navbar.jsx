@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
-import { Menu, MenuItem, ListItemIcon } from "@mui/material";
-import { Logout, Person } from "@mui/icons-material";
+import { MoodContext } from "../../context/MoodContext";
+import { Menu, MenuItem, ListItemIcon, Avatar } from "@mui/material";
+import Person from "@mui/icons-material/Person";
 import {
   motion,
   AnimatePresence,
@@ -33,17 +34,22 @@ import {
   Favorite,
   Castle,
   AllInclusive,
-  AccountCircle,
-  Menu as MenuIcon,
-  Close,
+  // Menu as MenuIcon,
   Home,
   Place,
   Bookmark,
 } from "@mui/icons-material";
 import InfoIcon from "@mui/icons-material/Info";
-import { MoodContext } from "../../context/MoodContext";
 import { useHistory, useLocation } from "react-router-dom";
-import { Avatar } from "@mui/material";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const navItems = [
+  { label: "Home", path: "/", icon: <Home /> },
+  { label: "Rooms", path: "/destination", icon: <Place /> },
+  { label: "My Bookings", path: "/bookings", icon: <Bookmark /> },
+  { label: "About", path: "/about", icon: <InfoIcon /> },
+];
 
 const Navbar = () => {
   const { scrollYProgress } = useScroll();
@@ -76,6 +82,14 @@ const Navbar = () => {
   // isLoggedIn ko define karein
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
+  const filteredNavItems = navItems.filter((item) => {
+    // Agar item "My Bookings" hai aur user login NAHI hai, toh use nikaal do
+    if (item.label === "My Bookings" && !isLoggedIn) {
+      return false;
+    }
+    return true; // Baaki saare items dikhao
+  });
+
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 50,
@@ -92,6 +106,8 @@ const Navbar = () => {
     };
     return colors[currentMood] || colors.default;
   };
+
+  const moodColor = getMoodColor(mood);
 
   const getLogoIcon = () => {
     const iconStyle = {
@@ -119,15 +135,8 @@ const Navbar = () => {
     { id: "royal", label: "Royal", icon: <Castle /> },
   ];
 
-  const navItems = [
-    { label: "Home", path: "/", icon: <Home /> },
-    { label: "Rooms", path: "/destination", icon: <Place /> },
-    { label: "My Bookings", path: "/bookings", icon: <Bookmark /> },
-    { label: "About", path: "/about", icon: <InfoIcon /> },
-  ];
-
   const handleNavigation = (path) => {
-    history.push(path); // Changed from navigate()
+    history.push(path);
     if (isMobile) setDrawerOpen(false);
   };
 
@@ -208,7 +217,7 @@ const Navbar = () => {
                 spacing={{ md: 3, lg: 4 }}
                 sx={{ mx: 3, flex: 1, justifyContent: "center" }}
               >
-                {navItems.map((item) => (
+                {filteredNavItems.map((item) => (
                   <Button
                     key={item.label}
                     onClick={() => handleNavigation(item.path)}
@@ -362,7 +371,7 @@ const Navbar = () => {
                       sx={{ color: "error.main" }}
                     >
                       <ListItemIcon>
-                        <Logout fontSize="small" sx={{ color: "error.main" }} />
+                        {/* <Logout fontSize="small" sx={{ color: "error.main" }} /> */}
                       </ListItemIcon>
                       Logout
                     </MenuItem>
@@ -487,84 +496,209 @@ const Navbar = () => {
           },
         }}
       >
-        <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end" }}>
-          <IconButton onClick={() => setDrawerOpen(false)}>
-            <Close />
-          </IconButton>
-        </Box>
-        <Divider />
         <List sx={{ p: 2 }}>
-          {navItems.map((item) => (
-            <ListItem
-              key={item.label}
-              onClick={() => handleNavigation(item.path)}
+          {filteredNavItems.map(
+            (
+              item // navItems ki jagah filteredNavItems use kiya
+            ) => (
+              <ListItem
+                button // Ye clickable banane ke liye
+                key={item.label}
+                onClick={() => {
+                  handleNavigation(item.path);
+                  setDrawerOpen(false); // Click karte hi drawer band ho jaye
+                }}
+                sx={{
+                  borderRadius: "12px",
+                  mb: 1,
+                  backgroundColor: isActivePath(item.path)
+                    ? alpha(getMoodColor(mood), 0.1)
+                    : "transparent",
+                  color: isActivePath(item.path)
+                    ? getMoodColor(mood)
+                    : "text.primary",
+                }}
+              >
+                {/* Icon bhi dikhate hain Drawer mein, mast lagega */}
+                <ListItemIcon
+                  sx={{
+                    color: isActivePath(item.path)
+                      ? getMoodColor(mood)
+                      : "inherit",
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={
+                    <Typography
+                      sx={{ fontWeight: isActivePath(item.path) ? 700 : 600 }}
+                    >
+                      {item.label}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            )
+          )}
+        </List>
+
+        <Divider />
+
+        {/* Niche wale Buttons ka logic (Sign Up / Logout) */}
+        {/* <Box sx={{ p: 3 }}>
+          {isLoggedIn ? (
+            // Agar login hai toh seedha "My Profile" text button dikhao
+            <Button
+              onClick={() => {
+                // Direct Logout Logic
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userData"); // Agar save kiya ho toh
+                toast.info("Logged out successfully");
+                history.push("/login");
+                window.location.reload(); // Page refresh taaki Navbar update ho jaye
+              }}
               sx={{
-                borderRadius: "8px",
-                mb: 1,
-                backgroundColor: isActivePath(item.path)
-                  ? alpha(getMoodColor(mood), 0.1)
-                  : "transparent",
+                color: moodColor,
+                fontWeight: "700",
+                textTransform: "none",
+                fontSize: "1rem",
+                border: `2px solid ${alpha(moodColor, 0.3)}`,
+                borderRadius: "12px",
+                px: 2,
                 "&:hover": {
-                  backgroundColor: alpha(getMoodColor(mood), 0.05),
+                  bgcolor: alpha(moodColor, 0.1),
+                  borderColor: moodColor,
                 },
               }}
             >
-              <ListItemText
-                primary={
-                  <Typography
-                    sx={{
-                      color: isActivePath(item.path)
-                        ? getMoodColor(mood)
-                        : "text.primary",
-                      fontWeight: isActivePath(item.path) ? 700 : 600,
-                    }}
-                  >
-                    {item.label}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <Box sx={{ p: 3 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={() => {
-              handleNavigation("/signup"); // Changed
-              setDrawerOpen(false);
-            }}
-            sx={{
-              mb: 2,
-              borderRadius: "12px",
-              backgroundColor: getMoodColor(mood),
-              color: "white",
-              fontWeight: 600,
-              textTransform: "none",
-              py: 1.5,
-            }}
-          >
-            Sign Up
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => {
-              handleNavigation("/profile"); // Changed
-              setDrawerOpen(false);
-            }}
-            sx={{
-              borderRadius: "12px",
-              borderColor: alpha(getMoodColor(mood), 0.3),
-              color: getMoodColor(mood),
-              fontWeight: 600,
-              textTransform: "none",
-              py: 1.5,
-            }}
-          >
-            My Profile
-          </Button>
+              My Profile
+            </Button>
+          ) : (
+            // Agar login nahi hai toh Sign Up button
+            <Button
+              variant="contained" // "text" ki jagah "contained" zyada modern lagta hai
+              onClick={() => history.push("/signup")}
+              sx={{
+                // Safety check: Agar moodColor na mile toh blue (#3b82f6) use karega
+                bgcolor: moodColor || "#3b82f6",
+                color: "#fff",
+                borderRadius: "14px", // Thoda rounded corners for modern feel
+                fontWeight: "700",
+                px: 3, // Side padding thodi zyada
+                py: 1,
+                textTransform: "none", // Capital letters hatane ke liye
+                fontSize: "0.95rem",
+                letterSpacing: "0.5px",
+                boxShadow: `0 8px 20px ${alpha(moodColor || "#3b82f6", 0.3)}`, // Button ke niche halka sa glow
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  bgcolor: moodColor || "#3b82f6",
+                  transform: "translateY(-2px)", // Hover par halka sa upar uthega
+                  boxShadow: `0 12px 25px ${alpha(
+                    moodColor || "#3b82f6",
+                    0.4
+                  )}`,
+                  filter: "brightness(1.1)",
+                },
+                "&:active": {
+                  transform: "translateY(0)", // Click par wapas niche
+                },
+              }}
+            >
+              Sign Up
+            </Button>
+          )}
+        </Box> */}
+        <Box sx={{ p: 3, mt: "auto" }}>
+          {isLoggedIn ? (
+            /* --- MODERN MY PROFILE / LOGOUT BUTTON --- */
+            <Button
+              fullWidth
+              onClick={() => {
+                localStorage.removeItem("isLoggedIn");
+                toast.info("Logged out safely!");
+                history.push("/login");
+                window.location.reload();
+              }}
+              sx={{
+                py: 1.8,
+                borderRadius: "16px",
+                fontSize: "1rem",
+                fontWeight: "700",
+                textTransform: "none",
+                color: moodColor || "#3b82f6",
+                // Glass effect with Mood Border
+                bgcolor: alpha(moodColor || "#3b82f6", 0.05),
+                border: `2px solid ${alpha(moodColor || "#3b82f6", 0.2)}`,
+                transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                display: "flex",
+                gap: 1.5,
+                "&:hover": {
+                  bgcolor: alpha(moodColor || "#3b82f6", 0.1),
+                  border: `2px solid ${moodColor || "#3b82f6"}`,
+                  transform: "scale(1.02)",
+                },
+              }}
+            >
+              <Person sx={{ fontSize: 22 }} />
+              My Profile (Logout)
+            </Button>
+          ) : (
+            /* --- MODERN SIGN UP BUTTON --- */
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => {
+                history.push("/signup");
+                setDrawerOpen(false);
+              }}
+              sx={{
+                py: 2,
+                borderRadius: "18px",
+                fontSize: "1rem",
+                fontWeight: "800",
+                textTransform: "none",
+                // Fancy Gradient Background
+                background: `linear-gradient(135deg, ${
+                  moodColor || "#3b82f6"
+                } 0%, ${alpha(moodColor || "#3b82f6", 0.8)} 100%)`,
+                color: "#fff",
+                boxShadow: `0 10px 25px ${alpha(moodColor || "#3b82f6", 0.4)}`,
+                transition: "all 0.3s ease-in-out",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: `0 15px 30px ${alpha(
+                    moodColor || "#3b82f6",
+                    0.5
+                  )}`,
+                  filter: "brightness(1.1)",
+                },
+                "&:active": {
+                  transform: "scale(0.95)",
+                },
+              }}
+            >
+              Join StayFlow
+            </Button>
+          )}
+
+          {/* Optional: Chota sa welcome note niche */}
+          {!isLoggedIn && (
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                textAlign: "center",
+                mt: 2,
+                color: "text.secondary",
+                fontWeight: 500,
+              }}
+            >
+              Start your premium experience today
+            </Typography>
+          )}
         </Box>
       </Drawer>
     </>

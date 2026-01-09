@@ -10,6 +10,8 @@ import About from "./pages/client/About";
 import { useState } from "react";
 import Auth from "./pages/client/Auth";
 import MoodProvider from "./context/MoodContext";
+import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const theme = createTheme({
   typography: {
@@ -55,8 +57,16 @@ function App() {
           <CssBaseline />
           <Layout>
             <Switch>
+              <Route path="/admin">
+                <AdminDashboard />
+              </Route>
+
               <Route path={["/auth", "/login", "/signup"]}>
                 <Auth onLogin={handleLogin} />
+              </Route>
+
+              <Route path="/bookings">
+                {isLoggedIn ? <Bookings /> : <Redirect to="/auth" />}
               </Route>
 
               <Route path="/about">
@@ -77,7 +87,17 @@ function App() {
             </Switch>
           </Layout>
         </Router>
-        <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </ThemeProvider>
     </MoodProvider>
   );
