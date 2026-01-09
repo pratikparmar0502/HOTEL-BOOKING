@@ -2,6 +2,9 @@ import React, { useContext, useState } from "react";
 import { MoodContext } from "../../context/MoodContext";
 import { Menu, MenuItem, ListItemIcon, Avatar } from "@mui/material";
 import Person from "@mui/icons-material/Person";
+import Logout from "@mui/icons-material/Logout";
+// import AccountCircle from "@mui/icons-material/AccountCircle";
+// import MenuIcon from "@mui/icons-material/Menu";
 import {
   motion,
   AnimatePresence,
@@ -34,7 +37,6 @@ import {
   Favorite,
   Castle,
   AllInclusive,
-  // Menu as MenuIcon,
   Home,
   Place,
   Bookmark,
@@ -354,7 +356,7 @@ const Navbar = () => {
                       sx: { borderRadius: "15px", mt: 1.5, minWidth: 150 },
                     }}
                   >
-                    <MenuItem
+                    {/* <MenuItem
                       onClick={() => {
                         handleClose();
                         history.push("/profile");
@@ -364,14 +366,14 @@ const Navbar = () => {
                         <Person fontSize="small" />
                       </ListItemIcon>
                       My Profile
-                    </MenuItem>
+                    </MenuItem> */}
 
                     <MenuItem
                       onClick={handleLogout}
                       sx={{ color: "error.main" }}
                     >
                       <ListItemIcon>
-                        {/* <Logout fontSize="small" sx={{ color: "error.main" }} /> */}
+                        <Logout fontSize="small" sx={{ color: "error.main" }} />
                       </ListItemIcon>
                       Logout
                     </MenuItem>

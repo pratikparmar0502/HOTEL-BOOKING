@@ -1,17 +1,23 @@
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  useLocation,
+  Redirect,
+} from "react-router-dom";
 import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/client/Home";
-import Layout from "./components/layout/Layout";
 import Destination from "./pages/client/Destination";
 import Bookings from "./pages/client/Bookings";
 import About from "./pages/client/About";
 import { useState } from "react";
 import Auth from "./pages/client/Auth";
 import MoodProvider from "./context/MoodContext";
-import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
 
 const theme = createTheme({
   typography: {
@@ -33,21 +39,46 @@ const theme = createTheme({
   },
 });
 
+// Helper component taaki useLocation Router ke andar rahe
+const AppContent = ({ isLoggedIn, handleLogin }) => {
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith("/admin");
+
+  return (
+    <>
+      {/* Navbar sirf tab dikhega jab admin page NA HO */}
+      {!isAdminPage && <Navbar />}
+
+      <Switch>
+        <Route exact path="/admin" component={AdminDashboard} />
+
+        <Route path={["/auth", "/login", "/signup"]}>
+          <Auth onLogin={handleLogin} />
+        </Route>
+
+        <Route path="/bookings">
+          {isLoggedIn ? <Bookings /> : <Redirect to="/auth" />}
+        </Route>
+
+        <Route path="/about" component={About} />
+        <Route path="/destination" component={Destination} />
+        <Route exact path="/" component={Home} />
+      </Switch>
+
+      {/* Footer sirf tab dikhega jab admin page NA HO */}
+      {!isAdminPage && <Footer />}
+    </>
+  );
+};
+
 function App() {
-  const [allBookings, setAllBookings] = useState([]);
-  // Ye state check karegi ki user login hai ya nahi
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
   );
 
-  // Login hone par ye function call hoga
   const handleLogin = () => {
     setIsLoggedIn(true);
     localStorage.setItem("isLoggedIn", "true");
-  };
-
-  const addNewBooking = (hotelData) => {
-    setAllBookings([...allBookings, hotelData]);
   };
 
   return (
@@ -55,49 +86,9 @@ function App() {
       <ThemeProvider theme={theme}>
         <Router>
           <CssBaseline />
-          <Layout>
-            <Switch>
-              <Route path="/admin">
-                <AdminDashboard />
-              </Route>
-
-              <Route path={["/auth", "/login", "/signup"]}>
-                <Auth onLogin={handleLogin} />
-              </Route>
-
-              <Route path="/bookings">
-                {isLoggedIn ? <Bookings /> : <Redirect to="/auth" />}
-              </Route>
-
-              <Route path="/about">
-                <About />
-              </Route>
-
-              <Route path="/bookings">
-                <Bookings />
-              </Route>
-
-              <Route path="/destination">
-                <Destination />
-              </Route>
-
-              <Route exact path="/">
-                <Home />
-              </Route>
-            </Switch>
-          </Layout>
+          <AppContent isLoggedIn={isLoggedIn} handleLogin={handleLogin} />
+          <ToastContainer position="top-right" autoClose={3000} />
         </Router>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
       </ThemeProvider>
     </MoodProvider>
   );
