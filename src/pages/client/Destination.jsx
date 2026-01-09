@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Box,
   Container,
@@ -443,6 +444,20 @@ const Destination = () => {
     }, 1500);
   };
 
+  // LocalStorage se check karo ki user login hai ya nahi
+  const userIsLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+  // Modal ke andar wala button logic
+  const handleBooking = () => {
+    if (userIsLoggedIn) {
+      alert("Booking is Completed! 🎉");
+      // Yahan booking ka code chalega
+    } else {
+      alert("Please first sign up to book your stay!");
+      history.push("/login");
+    }
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -552,54 +567,58 @@ const Destination = () => {
       {/* Main Content */}
       <Box sx={{ bgcolor: "#f8fafc", minHeight: "100vh", py: 6 }}>
         <Container maxWidth="lg">
-          {/* Results Header */}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ mb: 6, flexWrap: "wrap", gap: 2 }}
+          <Box
+            component={motion.div}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            sx={{ mb: 10, textAlign: "center", position: "relative" }}
           >
-            <Box>
-              <Typography
-                variant="h3"
-                sx={{ fontWeight: 900, color: "#0f172a", mb: 0.5 }}
-              >
-                {filteredProperties.length} Stays Found
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Matching your{" "}
-                <span
-                  style={{
-                    color: getMoodColor(mood),
-                    fontWeight: 700,
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {mood === "default" ? "all vibes" : mood}
-                </span>{" "}
-                mood
-              </Typography>
-            </Box>
-            <Button
-              startIcon={<MapIcon />}
-              variant="outlined"
+            <Typography
+              variant="h2"
+              fontWeight="900"
               sx={{
-                borderRadius: "12px",
-                px: 3,
-                py: 1.5,
-                textTransform: "none",
-                fontWeight: 700,
-                borderColor: getMoodColor(mood),
-                color: getMoodColor(mood),
-                "&:hover": {
-                  bgcolor: `${getMoodColor(mood)}10`,
-                  borderColor: getMoodColor(mood),
-                },
+                mb: 2,
+                background: `linear-gradient(45deg, #1a1a1a, ${getMoodColor(
+                  mood
+                )})`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                fontSize: { xs: "2.5rem", md: "3.5rem" },
               }}
             >
-              View on Map
-            </Button>
-          </Stack>
+              ✨ Trending Rooms
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: "text.secondary",
+                maxWidth: "600px",
+                mx: "auto",
+                fontWeight: 400,
+                fontSize: { xs: "1.1rem", md: "1.25rem" },
+              }}
+            >
+              Discover the most loved getaways, handpicked for unforgettable
+              experiences
+            </Typography>
+
+            {/* Decorative line */}
+            <Box
+              sx={{
+                width: "100px",
+                height: "4px",
+                background: `linear-gradient(90deg, ${getMoodColor(
+                  mood
+                )}, ${getMoodColor(mood)}80, transparent)`,
+                borderRadius: "2px",
+                mx: "auto",
+                mt: 4,
+              }}
+            />
+          </Box>
 
           {/* Properties Grid */}
           <Grid container spacing={4}>
@@ -1357,7 +1376,17 @@ const Destination = () => {
                       <Button
                         variant="contained"
                         fullWidth
-                        onClick={handleQuickBook}
+                        onClick={() => {
+                          const actualLoginStatus =
+                            localStorage.getItem("isLoggedIn") === "true";
+
+                          if (!actualLoginStatus) {
+                            alert("Please first sign up to book your stay!");
+                            history.push("/signup");
+                          } else {
+                            handleBooking();
+                          }
+                        }}
                         sx={{
                           bgcolor: themeColor,
                           borderRadius: "14px",
@@ -1406,7 +1435,7 @@ const Destination = () => {
       </Modal>
 
       {/* Back to Top Button */}
-      {showBackToTop && (
+      {/* {showBackToTop && (
         <IconButton
           onClick={scrollToTop}
           sx={{
@@ -1426,7 +1455,7 @@ const Destination = () => {
         >
           <KeyboardArrowUp />
         </IconButton>
-      )}
+      )} */}
     </>
   );
 };

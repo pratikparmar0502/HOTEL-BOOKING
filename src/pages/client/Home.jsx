@@ -1009,8 +1009,18 @@ const Home = () => {
                           fullWidth
                           variant="contained"
                           onClick={() => {
-                            setSelectedHotel(hotel); // Hotel data set karo
-                            setOpen(true); // Modal kholo
+                            // Yahan check hoga logic
+                            const userIsLoggedIn = false; // Isse baad mein auth se connect karenge
+                            if (!userIsLoggedIn) {
+                              // 1. Pehle user ko message dikhao (Optional)
+                              alert("Please first sign up to book your stay!");
+                              // 2. Redirect to Sign Up
+                              history.push("/signup");
+                            } else {
+                              setOpen(true); // Modal kholo
+                              setSelectedHotel(hotel); // Hotel data set karo
+                              handleQuickBook();
+                            }
                           }}
                           disableElevation
                           sx={{
@@ -1472,7 +1482,19 @@ const Home = () => {
                         <Button
                           variant="contained"
                           fullWidth
-                          onClick={handleQuickBook}
+                          onClick={() => {
+                            // 1. LocalStorage se real-time check karo ki user logged in hai ya nahi
+                            const userIsLoggedIn =
+                              localStorage.getItem("isLoggedIn") === "true";
+                            if (!userIsLoggedIn) {
+                              // Agar login nahi hai, toh message dikhao aur signup page par bhej do
+                              alert("Please first sign up to book your stay!");
+                              history.push("/signup");
+                            } else {
+                              // Agar login hai, tabhi booking confirm hogi
+                              handleQuickBook();
+                            }
+                          }}
                           sx={{
                             bgcolor: themeColor,
                             borderRadius: "14px",
@@ -1485,7 +1507,7 @@ const Home = () => {
                             },
                           }}
                         >
-                          {isBooked ? "Processing..." : "Confirm Booking"}{" "}
+                          {isBooked ? "Processing..." : "Book Now"}{" "}
                         </Button>
                       </Grid>
                     </Grid>

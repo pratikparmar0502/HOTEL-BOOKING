@@ -58,6 +58,7 @@ const Auth = ({ onLogin }) => {
         toastId: "login-success", // Unique ID taaki duplicate na bane
       });
     }, 100);
+    localStorage.setItem("isLoggedIn", "true");
     history.push("/");
   };
 

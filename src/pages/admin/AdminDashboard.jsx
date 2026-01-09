@@ -32,6 +32,7 @@ import {
   InputAdornment,
   useTheme,
   useMediaQuery,
+  Modal,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -60,6 +61,7 @@ const AdminDashboard = () => {
   const history = useHistory();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [searchTerm, setSearchTerm] = useState(""); // Search ke liye nayi state
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
   // const handleProfileMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -70,6 +72,54 @@ const AdminDashboard = () => {
     history.push("/auth");
     window.location.reload();
   };
+
+  // 1. Pehle ye states add karo component ke andar
+  const [hotels, setHotels] = useState([
+    {
+      id: 1,
+      name: "Grand Hyatt",
+      loc: "Mumbai, India",
+      status: "Active",
+      rate: 4.8,
+    },
+    {
+      id: 2,
+      name: "The Taj Palace",
+      loc: "Delhi, India",
+      status: "Active",
+      rate: 4.9,
+    },
+  ]);
+
+  const [openModal, setOpenModal] = useState(false);
+  const [newHotel, setNewHotel] = useState({
+    name: "",
+    loc: "",
+    status: "Active",
+    rate: "",
+  });
+
+  // 2. Add Hotel Function
+  const handleAddHotel = () => {
+    if (newHotel.name && newHotel.loc) {
+      setHotels([...hotels, { ...newHotel, id: Date.now() }]);
+      setOpenModal(false); // Modal band karne ke liye
+      setNewHotel({ name: "", loc: "", status: "Active", rate: "" }); // Reset form
+    }
+  };
+
+  // 3. Delete Hotel Function
+  const handleDelete = (id) => {
+    const filtered = hotels.filter((h) => h.id !== id);
+    setHotels(filtered);
+  };
+
+  // Filter Logic: Search bar ke liye
+  const filteredHotels = hotels.filter(
+    (hotel) =>
+      hotel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      hotel.loc.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Modern Sidebar Logic
   const drawer = (
@@ -163,7 +213,7 @@ const AdminDashboard = () => {
     <Box sx={{ display: "flex", bgcolor: "#f8fafc", minHeight: "100vh" }}>
       <CssBaseline />
 
-      <AppBar
+      {/* <AppBar
         position="fixed"
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
@@ -214,7 +264,7 @@ const AdminDashboard = () => {
             <Avatar src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" />
           </Stack>
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
 
       <Box
         component="nav"
@@ -235,7 +285,7 @@ const AdminDashboard = () => {
         </Drawer>
       </Box>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 4, mt: 8 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 4, mt: 2 }}>
         <Container maxWidth="xl">
           <Box
             sx={{
@@ -255,6 +305,7 @@ const AdminDashboard = () => {
             </Box>
             <Button
               variant="contained"
+              onClick={() => setOpenModal(true)}
               startIcon={<HotelIcon />}
               sx={{ borderRadius: "10px", px: 3 }}
             >
@@ -420,7 +471,10 @@ const AdminDashboard = () => {
                           <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton size="small" color="error">
-                          <DeleteIcon fontSize="small" />
+                          <DeleteIcon
+                            fontSize="small"
+                            onClick={() => handleDelete(row.id)}
+                          />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -430,6 +484,58 @@ const AdminDashboard = () => {
             </TableContainer>
           </Paper>
         </Container>
+        {/* --- ADD HOTEL MODAL --- */}
+        <Modal open={openModal} onClose={() => setOpenModal(false)}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "background.paper",
+              borderRadius: "16px",
+              boxShadow: 24,
+              p: 4,
+            }}
+          >
+            <Typography variant="h6" fontWeight={700} mb={2}>
+              Add New Hotel
+            </Typography>
+            <Stack spacing={2}>
+              <TextField
+                label="Hotel Name"
+                fullWidth
+                onChange={(e) =>
+                  setNewHotel({ ...newHotel, name: e.target.value })
+                }
+              />
+              <TextField
+                label="Location"
+                fullWidth
+                onChange={(e) =>
+                  setNewHotel({ ...newHotel, loc: e.target.value })
+                }
+              />
+              <TextField
+                label="Rating (1-5)"
+                type="number"
+                fullWidth
+                onChange={(e) =>
+                  setNewHotel({ ...newHotel, rate: e.target.value })
+                }
+              />
+              <Button
+                variant="contained"
+                onClick={handleAddHotel}
+                fullWidth
+                sx={{ py: 1.5 }}
+              >
+                Save Hotel
+              </Button>
+            </Stack>
+          </Box>
+        </Modal>
       </Box>
     </Box>
   );

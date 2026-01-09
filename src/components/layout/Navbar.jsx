@@ -161,7 +161,7 @@ const Navbar = () => {
           <Toolbar
             sx={{
               justifyContent: "space-between",
-              minHeight: { xs: 70, md: 80 },
+              minHeight: { xs: 60, md: 70 },
               px: { xs: 1, sm: 2 },
             }}
           >
