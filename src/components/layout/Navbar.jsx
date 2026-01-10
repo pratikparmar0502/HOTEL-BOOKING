@@ -1,8 +1,7 @@
 import React, { useContext, useState } from "react";
 import { MoodContext } from "../../context/MoodContext";
-import { Menu, MenuItem, ListItemIcon, Avatar } from "@mui/material";
-import Person from "@mui/icons-material/Person";
-import Logout from "@mui/icons-material/Logout";
+import { ListItemIcon, Avatar } from "@mui/material";
+// import Logout from "@mui/icons-material/Logout";
 // import AccountCircle from "@mui/icons-material/AccountCircle";
 // import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -19,7 +18,6 @@ import {
   Stack,
   Box,
   Container,
-  IconButton,
   useScrollTrigger,
   Drawer,
   List,
@@ -40,6 +38,8 @@ import {
   Home,
   Place,
   Bookmark,
+  Person,
+  AccountCircle,
 } from "@mui/icons-material";
 import InfoIcon from "@mui/icons-material/Info";
 import { useHistory, useLocation } from "react-router-dom";
@@ -64,11 +64,6 @@ const Navbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   // const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -260,45 +255,62 @@ const Navbar = () => {
               </Stack>
             )}
 
-            {/* Right Actions */}
-            {/* <Stack direction="row" spacing={1} alignItems="center">
-              {!isMobile ? (
+            <Stack
+              direction="row"
+              spacing={{ xs: 1, sm: 1.5, md: 2 }} // Mobile pe gap kam, desktop pe zyada
+              alignItems="center"
+            >
+              {!isLoggedIn ? (
                 <>
+                  {/* Log In Button */}
                   <Button
                     variant="outlined"
-                    onClick={() => history.push("/auth")} // Changed
+                    onClick={() => history.push("/auth", { mode: "login" })}
                     sx={{
-                      borderRadius: "20px",
-                      borderColor: alpha(getMoodColor(mood), 0.3),
                       color: getMoodColor(mood),
-                      fontWeight: 600,
+                      fontWeight: 700,
+                      // Mobile par font size chhota (0.75rem), Desktop par (0.85rem)
+                      fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
                       textTransform: "none",
-                      px: 3,
+                      borderRadius: "20px",
+                      // Mobile par padding kam (px: 1.5), Desktop par (px: 3)
+                      px: { xs: 1.5, sm: 2, md: 3 },
+                      py: 0.6,
+                      borderColor: alpha(getMoodColor(mood), 0.4),
+                      minWidth: "auto",
                       "&:hover": {
                         borderColor: getMoodColor(mood),
-                        backgroundColor: alpha(getMoodColor(mood), 0.05),
+                        bgcolor: alpha(getMoodColor(mood), 0.08),
                       },
                     }}
                   >
-                    Log in
+                    Log In
                   </Button>
+
+                  {/* Sign Up Button */}
                   <Button
                     variant="contained"
-                    onClick={() => history.push("/signup")} // Changed
+                    onClick={() => history.push("/auth", { mode: "signup" })}
                     sx={{
-                      borderRadius: "20px",
-                      backgroundColor: getMoodColor(mood),
+                      background: `linear-gradient(45deg, ${getMoodColor(
+                        mood
+                      )}, ${getMoodColor(mood)}dd)`,
                       color: "white",
-                      fontWeight: 600,
+                      fontWeight: 700,
+                      fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
                       textTransform: "none",
-                      px: 3,
-                      boxShadow: `0 4px 14px ${alpha(getMoodColor(mood), 0.3)}`,
+                      borderRadius: "20px",
+                      px: { xs: 2, sm: 2.5, md: 3.5 },
+                      py: 0.7,
+                      boxShadow: `0 4px 12px ${alpha(getMoodColor(mood), 0.3)}`,
+                      minWidth: "auto",
+                      whiteSpace: "nowrap", // Isse text next line mein nahi jayega
                       "&:hover": {
-                        backgroundColor: getMoodColor(mood),
-                        boxShadow: `0 6px 20px ${alpha(
+                        boxShadow: `0 6px 15px ${alpha(
                           getMoodColor(mood),
-                          0.4
+                          0.5
                         )}`,
+                        transform: "translateY(-1.5px)",
                       },
                     }}
                   >
@@ -306,98 +318,30 @@ const Navbar = () => {
                   </Button>
                 </>
               ) : (
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => handleNavigation("/login")} // Changed
-                  sx={{
-                    borderRadius: "20px",
-                    backgroundColor: getMoodColor(mood),
-                    color: "white",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    px: 2,
-                  }}
-                >
-                  Log in
-                </Button>
-              )}
-
-              <IconButton
-                onClick={
-                  () =>
-                    isMobile
-                      ? setDrawerOpen(true)
-                      : handleNavigation("/profile") // Changed
-                }
-                sx={{
-                  ml: 1,
-                  backgroundColor: alpha(getMoodColor(mood), 0.1),
-                  "&:hover": {
-                    backgroundColor: alpha(getMoodColor(mood), 0.2),
-                  },
-                }}
-              >
-                {isMobile ? <MenuIcon /> : <AccountCircle />}
-              </IconButton>
-            </Stack> */}
-            <Stack direction="row" spacing={2}>
-              {isLoggedIn ? (
-                <>
-                  <IconButton onClick={handleClick}>
-                    <Avatar sx={{ bgcolor: getMoodColor }}>U</Avatar>
-                  </IconButton>
-
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    PaperProps={{
-                      sx: { borderRadius: "15px", mt: 1.5, minWidth: 150 },
+                // Logged In State (Logout + Avatar)
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Button
+                    variant="contained"
+                    onClick={handleLogout}
+                    sx={{
+                      fontSize: { xs: "0.7rem", md: "0.85rem" },
+                      px: { xs: 1.5, md: 3 },
+                      borderRadius: "20px",
+                      textTransform: "none",
+                      bgcolor: getMoodColor(mood),
                     }}
                   >
-                    {/* <MenuItem
-                      onClick={() => {
-                        handleClose();
-                        history.push("/profile");
-                      }}
-                    >
-                      <ListItemIcon>
-                        <Person fontSize="small" />
-                      </ListItemIcon>
-                      My Profile
-                    </MenuItem> */}
-
-                    <MenuItem
-                      onClick={handleLogout}
-                      sx={{ color: "error.main" }}
-                    >
-                      <ListItemIcon>
-                        <Logout fontSize="small" sx={{ color: "error.main" }} />
-                      </ListItemIcon>
-                      Logout
-                    </MenuItem>
-                  </Menu>
-                </>
-              ) : (
-                <Button
-                  sx={{
-                    color: getMoodColor(mood),
-                    borderRadius: "20px",
-                    borderColor: alpha(getMoodColor(mood), 0.3),
-                    fontWeight: 600,
-                    textTransform: "none",
-                    px: 3,
-                    "&:hover": {
-                      borderColor: getMoodColor(mood),
-                      backgroundColor: alpha(getMoodColor(mood), 0.05),
-                    },
-                  }}
-                  onClick={() => history.push("/auth")}
-                  variant="outlined"
-                >
-                  Sign Up
-                </Button>
+                    Logout
+                  </Button>
+                  <Avatar
+                    sx={{
+                      width: { xs: 32, md: 40 },
+                      height: { xs: 32, md: 40 },
+                    }}
+                  >
+                    <AccountCircle />
+                  </Avatar>
+                </Stack>
               )}
             </Stack>
           </Toolbar>

@@ -15,9 +15,13 @@ import About from "./pages/client/About";
 import { useState } from "react";
 import Auth from "./pages/client/Auth";
 import MoodProvider from "./context/MoodContext";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminBookings from "./pages/admin/AdminBooking";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminHotel from "./pages/admin/AdminHotel";
+import AdminCustomers from "./pages/admin/AdminCustomers";
 
 const theme = createTheme({
   typography: {
@@ -39,33 +43,41 @@ const theme = createTheme({
   },
 });
 
-// Helper component taaki useLocation Router ke andar rahe
-const AppContent = ({ isLoggedIn, handleLogin }) => {
+// 1. Yahan handleLogout ko add kiya
+const AppContent = ({ isLoggedIn, handleLogin, handleLogout }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <>
-      {/* Navbar sirf tab dikhega jab admin page NA HO */}
       {!isAdminPage && <Navbar />}
 
       <Switch>
-        <Route exact path="/admin" component={AdminDashboard} />
+        {/* Admin Nested Routing */}
+        <Route path="/admin">
+          {/* 2. Ab ye handleLogout yahan sahi se kaam karega */}
+          <AdminLayout onLogout={handleLogout}>
+            <Switch>
+              <Route exact path="/admin" component={AdminDashboard} />
+              <Route path="/admin/adminhotels" component={AdminHotel} />
+              <Route path="/admin/adminbookings" component={AdminBookings} />
+              <Route path="/admin/admincustomers" component={AdminCustomers} />
+            </Switch>
+          </AdminLayout>
+        </Route>
 
+        {/* ... baaki routes same rahenge */}
         <Route path={["/auth", "/login", "/signup"]}>
           <Auth onLogin={handleLogin} />
         </Route>
-
         <Route path="/bookings">
           {isLoggedIn ? <Bookings /> : <Redirect to="/auth" />}
         </Route>
-
         <Route path="/about" component={About} />
         <Route path="/destination" component={Destination} />
         <Route exact path="/" component={Home} />
       </Switch>
 
-      {/* Footer sirf tab dikhega jab admin page NA HO */}
       {!isAdminPage && <Footer />}
     </>
   );
@@ -81,12 +93,22 @@ function App() {
     localStorage.setItem("isLoggedIn", "true");
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("isLoggedIn");
+    window.location.href = "/";
+  };
+
   return (
     <MoodProvider>
       <ThemeProvider theme={theme}>
         <Router>
           <CssBaseline />
-          <AppContent isLoggedIn={isLoggedIn} handleLogin={handleLogin} />
+          <AppContent
+            isLoggedIn={isLoggedIn}
+            handleLogin={handleLogin}
+            handleLogout={handleLogout}
+          />{" "}
           <ToastContainer position="top-right" autoClose={3000} />
         </Router>
       </ThemeProvider>

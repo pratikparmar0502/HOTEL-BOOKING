@@ -1,4 +1,15 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+// import AccountCircle from "@mui/icons-material/AccountCircle";
+// import Logout from "@mui/icons-material/Logout";
+// Agar Google/Facebook icons use kar rahe ho toh:
+// import Google from "@mui/icons-material/Google";
+// import Facebook from "@mui/icons-material/Facebook";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Email from "@mui/icons-material/Email";
+import Lock from "@mui/icons-material/Lock";
+import Person from "@mui/icons-material/Person";
+import ArrowForward from "@mui/icons-material/ArrowForward";
 import {
   Box,
   Container,
@@ -10,30 +21,30 @@ import {
   IconButton,
   InputAdornment,
   alpha,
-  Fade,
   Zoom,
 } from "@mui/material";
-import {
-  Visibility,
-  VisibilityOff,
-  Email,
-  Lock,
-  Person,
-  ArrowForward,
-  Google,
-  Facebook,
-} from "@mui/icons-material";
 import { MoodContext } from "../../context/MoodContext";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom"; // location add kiya
 import { toast } from "react-toastify";
 
 const Auth = ({ onLogin }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
   const { mood } = useContext(MoodContext);
   const history = useHistory();
+  const location = useLocation(); // URL se data lene ke liye
 
-  // Mood Color Logic
+  // Navbar ke buttons ke hisaab se state set karna
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Jab bhi URL change ho (e.g. state: {mode: 'signup'}), ye check karega
+  useEffect(() => {
+    if (location.state?.mode === "signup") {
+      setIsLogin(false);
+    } else {
+      setIsLogin(true);
+    }
+  }, [location]);
+
   const getMoodColor = (m) => {
     const colors = {
       nature: "#2e7d32",
@@ -50,15 +61,17 @@ const Auth = ({ onLogin }) => {
   const handleSubmit = () => {
     toast.dismiss();
 
-    onLogin(); // App.js wala logic chalao
+    localStorage.setItem("isLoggedIn", "true");
 
-    // Ek chota sa delay de kar toast dikhao taaki page change hone par crash na ho
+    onLogin();
+
     setTimeout(() => {
-      toast.success(`Welcome to StayFlow! Let's explore ${mood} vibes.`, {
-        toastId: "login-success", // Unique ID taaki duplicate na bane
+      toast.success(`Welcome back! Exploring ${mood} stays.`, {
+        icon: "🚀",
+        style: { borderRadius: "10px" },
       });
     }, 100);
-    localStorage.setItem("isLoggedIn", "true");
+
     history.push("/");
   };
 
@@ -70,109 +83,97 @@ const Auth = ({ onLogin }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        // Ye hai wo "Piche ka blue" magic
-        background: `linear-gradient(135deg, ${moodColor} 0%, ${alpha(
+        background: `radial-gradient(circle at 20% 30%, ${alpha(
+          moodColor,
+          0.15
+        )} 0%, transparent 40%),
+                    radial-gradient(circle at 80% 70%, ${alpha(
+                      moodColor,
+                      0.15
+                    )} 0%, transparent 40%),
+                    linear-gradient(135deg, ${moodColor} 0%, ${alpha(
           moodColor,
           0.8
-        )} 50%, #000000 100%)`,
-        backgroundSize: "cover",
+        )} 50%, #121212 100%)`,
         position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* Decorative Circles in Background (Glow Effect) */}
+      {/* Background Glows */}
       <Box
         sx={{
           position: "absolute",
           top: -100,
           left: -100,
-          width: 400,
-          height: 400,
+          width: 500,
+          height: 500,
+          bgcolor: alpha("#fff", 0.05),
           borderRadius: "50%",
-          background: alpha("#fff", 0.1),
-          filter: "blur(80px)",
-        }}
-      />
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: -50,
-          right: -50,
-          width: 300,
-          height: 300,
-          borderRadius: "50%",
-          background: alpha(moodColor, 0.4),
-          filter: "blur(60px)",
+          filter: "blur(100px)",
         }}
       />
 
       <Container maxWidth="sm">
-        <Zoom in timeout={600}>
+        <Zoom in timeout={500}>
           <Paper
-            elevation={24}
+            elevation={0} // Elevation hata kar custom shadow lagayi
             sx={{
-              p: { xs: 3, md: 5 },
-              borderRadius: "40px",
-              // The Glassmorphism Effect
-              backdropFilter: "blur(20px)",
-              background: "rgba(255, 255, 255, 0.9)",
-              border: `1px solid ${alpha(moodColor, 0.3)}`,
+              p: { xs: 4, md: 6 },
+              borderRadius: "32px",
+              backdropFilter: "blur(25px)",
+              background: "rgba(255, 255, 255, 0.92)",
+              border: `1px solid ${alpha("#fff", 0.5)}`,
+              boxShadow: `0 25px 50px -12px rgba(0,0,0,0.5)`,
               textAlign: "center",
               position: "relative",
-              overflow: "hidden",
             }}
           >
-            {/* Top Color Bar */}
-            <Box
+            {/* Logo or Small Icon placeholder */}
+            {/* <Box
               sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: "8px",
-                background: `linear-gradient(90deg, ${moodColor}, ${alpha(
-                  moodColor,
-                  0.5
-                )})`,
-              }}
-            />
-
-            <Typography
-              variant="h3"
-              fontWeight="900"
-              sx={{
-                color: moodColor,
-                mb: 1,
-                letterSpacing: "-1px",
-                textShadow: `0 10px 20px ${alpha(moodColor, 0.2)}`,
+                width: 60,
+                height: 60,
+                bgcolor: alpha(moodColor, 0.1),
+                borderRadius: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 24px",
               }}
             >
-              {isLogin ? "Welcome Back" : "Create Account"}
+              <Lock sx={{ color: moodColor, fontSize: 30 }} />
+            </Box> */}
+
+            <Typography
+              variant="h4"
+              fontWeight="900"
+              sx={{ color: "#1a1a1a", mb: 1 }}
+            >
+              {isLogin ? "Welcome Back" : "Join StayFlow"}
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               color="text.secondary"
               sx={{ mb: 4, fontWeight: 500 }}
             >
               {isLogin
-                ? "Enter your credentials to access your dashboard."
-                : "Join us and start your premium journey today."}
+                ? "Glad to see you again! Please login."
+                : "Create an account to start your journey."}
             </Typography>
 
-            <Stack spacing={2.5}>
+            <Stack spacing={2}>
               {!isLogin && (
                 <TextField
                   fullWidth
                   label="Full Name"
-                  variant="outlined"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
                         <Person sx={{ color: moodColor }} />
                       </InputAdornment>
                     ),
-                    sx: { borderRadius: "15px" },
+                    sx: { borderRadius: "12px" },
                   }}
                 />
               )}
@@ -180,14 +181,13 @@ const Auth = ({ onLogin }) => {
               <TextField
                 fullWidth
                 label="Email Address"
-                variant="outlined"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <Email sx={{ color: moodColor }} />
                     </InputAdornment>
                   ),
-                  sx: { borderRadius: "15px" },
+                  sx: { borderRadius: "12px" },
                 }}
               />
 
@@ -205,79 +205,57 @@ const Auth = ({ onLogin }) => {
                     <InputAdornment position="end">
                       <IconButton
                         onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
-                  sx: { borderRadius: "15px" },
+                  sx: { borderRadius: "12px" },
                 }}
               />
 
               <Button
                 variant="contained"
+                fullWidth
                 size="large"
                 onClick={handleSubmit}
                 endIcon={<ArrowForward />}
                 sx={{
                   py: 1.8,
-                  mt: 2,
-                  borderRadius: "15px",
+                  borderRadius: "12px",
                   bgcolor: moodColor,
-                  fontWeight: "800",
-                  fontSize: "1.1rem",
-                  boxShadow: `0 10px 20px ${alpha(moodColor, 0.4)}`,
-                  transition: "all 0.3s ease",
+                  fontWeight: "bold",
+                  fontSize: "1rem",
+                  textTransform: "none",
+                  boxShadow: `0 8px 20px ${alpha(moodColor, 0.3)}`,
                   "&:hover": {
                     bgcolor: moodColor,
-                    transform: "translateY(-3px)",
-                    boxShadow: `0 15px 30px ${alpha(moodColor, 0.5)}`,
+                    transform: "translateY(-2px)",
+                    boxShadow: `0 12px 25px ${alpha(moodColor, 0.4)}`,
                   },
                 }}
               >
-                {isLogin ? "Sign Up" : "Get Started"}
+                {isLogin ? "Log In" : "Create Account"}
               </Button>
             </Stack>
 
-            {/* Social Login Dummy Buttons for Pro Look */}
-            {/* <Box sx={{ mt: 4 }}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: "block", mb: 2 }}
-              >
-                — OR CONTINUE WITH —
-              </Typography>
-              <Stack direction="row" spacing={2} justifyContent="center">
-                <IconButton sx={{ border: "1px solid #ddd" }}>
-                  <Google sx={{ color: "#DB4437" }} />
-                </IconButton>
-                <IconButton sx={{ border: "1px solid #ddd" }}>
-                  <Facebook sx={{ color: "#4267B2" }} />
-                </IconButton>
-              </Stack>
-            </Box> */}
-
             <Box
-              sx={{
-                mt: 4,
-                p: 2,
-                bgcolor: alpha(moodColor, 0.05),
-                borderRadius: "15px",
-                cursor: "pointer",
-              }}
+              sx={{ mt: 4, cursor: "pointer", "&:hover opacity": 0.8 }}
               onClick={() => setIsLogin(!isLogin)}
             >
               <Typography
                 variant="body2"
                 sx={{ fontWeight: 600, color: "text.secondary" }}
               >
-                {isLogin ? "New to StayFlow? " : "Already a member? "}
+                {isLogin
+                  ? "Don't have an account? "
+                  : "Already have an account? "}
                 <Box
                   component="span"
-                  sx={{ color: moodColor, fontWeight: "800" }}
+                  sx={{ color: moodColor, fontWeight: "800", ml: 0.5 }}
                 >
-                  {isLogin ? "Create Account" : "Login Here"}
+                  {isLogin ? "Sign Up" : "Log In"}
                 </Box>
               </Typography>
             </Box>

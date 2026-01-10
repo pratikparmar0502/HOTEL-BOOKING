@@ -45,7 +45,7 @@ import royal6 from "../../assets/hotel-image/royal-6.jpg";
 // import destination4 from "../../assets/destination/destination-4.avif";
 // import destination5 from "../../assets/destination/destination-5.avif";
 // import destination6 from "../../assets/destination/destination-6.avif";
-import { Favorite, Add, SearchOff } from "@mui/icons-material";
+import { SearchOff } from "@mui/icons-material";
 import natureHero from "../../assets/nature-hero.avif";
 import royalHero from "../../assets/royal-hero.avif";
 import urbanHero from "../../assets/urban-hero.avif";
@@ -155,10 +155,10 @@ const Home = () => {
     }, 1500);
   };
 
-  const handleOpen = (hotel) => {
-    setSelectedHotel(hotel);
-    setOpen(true);
-  };
+  // const handleOpen = (hotel) => {
+  //   setSelectedHotel(hotel);
+  //   setOpen(true);
+  // };
 
   const handleClose = () => {
     setOpen(false);
