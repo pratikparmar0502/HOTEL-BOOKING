@@ -1,5 +1,14 @@
 import { useState, useContext, React } from "react";
-import { EventAvailable, Star, Close, LocationOn } from "@mui/icons-material";
+import {
+  EventAvailable,
+  Star,
+  Close,
+  LocationOn,
+  Pool,
+  Wifi,
+  AcUnit,
+  ArrowForwardRounded,
+} from "@mui/icons-material";
 import nature1 from "../../assets/hotel-image/nature-1.jpg";
 import nature2 from "../../assets/hotel-image/nature-2.jpg";
 import nature3 from "../../assets/hotel-image/nature-3.jpg";
@@ -84,7 +93,6 @@ const Home = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [isBooked, setIsBooked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [wishlistedIds, setWishlistedIds] = useState([]);
 
   // --- 2. Helper Functions (Calculations) ---
 
@@ -142,7 +150,7 @@ const Home = () => {
       setOpen(false);
       history.push({
         pathname: "/bookings",
-        // state: { openPaymentFor: bookingData.id }, // Ye ID Bookings page ko trigger karegi
+        state: { openPaymentFor: bookingData.id }, // Ye ID Bookings page ko trigger karegi
       });
     }, 1500);
   };
@@ -558,6 +566,19 @@ const Home = () => {
     visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
   };
 
+  const userIsLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+  // Modal ke andar wala button logic
+  const handleBooking = () => {
+    if (userIsLoggedIn) {
+      alert("Booking is Completed! 🎉");
+      // Yahan booking ka code chalega
+    } else {
+      alert("Please first sign up to book your stay!");
+      history.push("/login");
+    }
+  };
+
   return (
     <>
       <Box sx={{ bgcolor: "#fafafa" }}>
@@ -890,16 +911,70 @@ const Home = () => {
                         </Typography>
                       </Stack>
 
-                      {/* Price and Wishlist */}
+                      {/* ------------- Amenities ------------- */}
+                      <Stack
+                        direction="row"
+                        spacing={3}
+                        sx={{ my: 1, color: "text.secondary" }}
+                      >
+                        {/* Wifi Icon */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                          }}
+                        >
+                          <Wifi fontSize="small" sx={{ fontSize: "1.1rem" }} />
+                          <Typography variant="caption" fontWeight="500">
+                            Wifi
+                          </Typography>
+                        </Box>
+
+                        {/* Pool Icon (Sirf dikhane ke liye) */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                          }}
+                        >
+                          <Pool fontSize="small" sx={{ fontSize: "1.1rem" }} />
+                          <Typography variant="caption" fontWeight="500">
+                            Pool
+                          </Typography>
+                        </Box>
+
+                        {/* AC Icon */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                          }}
+                        >
+                          <AcUnit
+                            fontSize="small"
+                            sx={{ fontSize: "1.1rem" }}
+                          />
+                          <Typography variant="caption" fontWeight="500">
+                            AC
+                          </Typography>
+                        </Box>
+                      </Stack>
+
+                      <Divider sx={{ my: 2, opacity: 0.7 }} />
+
+                      {/* Price and Book Now */}
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          mb: 2,
                           mt: "auto",
                         }}
                       >
+                        {/* Left Side: Price */}
                         <Box sx={{ display: "flex", alignItems: "baseline" }}>
                           <Typography
                             variant="h5"
@@ -920,123 +995,43 @@ const Home = () => {
                           </Typography>
                         </Box>
 
-                        {/* Wishlist Button */}
-                        <Box
-                          component={motion.button}
-                          whileTap={{ scale: 0.8 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (wishlistedIds.includes(hotel.id)) {
-                              setWishlistedIds(
-                                wishlistedIds.filter((id) => id !== hotel.id)
-                              );
-                            } else {
-                              setWishlistedIds([...wishlistedIds, hotel.id]);
-                            }
-                          }}
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.8,
-                            cursor: "pointer",
-                            bgcolor: "transparent",
-                            outline: "none",
-                            py: 0.5,
-                            px: 1.5,
-                            borderRadius: "20px",
-                            border: `1px solid ${getMoodColor(mood)}`,
-                            transition: "0.3s",
-                            "&:hover": { bgcolor: `${getMoodColor(mood)}10` },
-                          }}
-                        >
-                          {wishlistedIds.includes(hotel.id) ? (
-                            <Favorite
-                              sx={{
-                                fontSize: "1rem",
-                                color: getMoodColor(mood),
-                              }}
-                            />
-                          ) : (
-                            <Add
-                              sx={{
-                                fontSize: "1.1rem",
-                                color: getMoodColor(mood),
-                              }}
-                            />
-                          )}
-
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontWeight: "bold",
-                              color: getMoodColor(mood),
-                            }}
-                          >
-                            {wishlistedIds.includes(hotel.id)
-                              ? "Saved"
-                              : "Wishlist"}
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <Divider sx={{ my: 2, opacity: 0.6 }} />
-
-                      {/* Buttons */}
-                      <Stack direction="row" spacing={2}>
+                        {/* Right Side: Details Button */}
                         <Button
-                          fullWidth
-                          variant="outlined"
-                          size="small"
+                          variant="contained"
+                          size="medium" // Large bohot bada ho jata hai card me, medium perfect hai
+                          endIcon={<ArrowForwardRounded />} // Arrow se user ko "Go" wali feeling aati hai
                           onClick={() => {
                             setSelectedHotel(hotel);
                             setOpen(true);
                           }}
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: 700,
-                            borderRadius: "12px",
-                            borderColor: "#ddd",
-                            color: "#555",
-                            "&:hover": {
-                              borderColor: getMoodColor(mood),
-                              color: getMoodColor(mood),
-                            },
-                          }}
-                        >
-                          Details
-                        </Button>
-                        <Button
-                          fullWidth
-                          variant="contained"
-                          onClick={() => {
-                            // Yahan check hoga logic
-                            const userIsLoggedIn = false; // Isse baad mein auth se connect karenge
-                            if (!userIsLoggedIn) {
-                              // 1. Pehle user ko message dikhao (Optional)
-                              alert("Please first sign up to book your stay!");
-                              // 2. Redirect to Sign Up
-                              history.push("/signup");
-                            } else {
-                              setOpen(true); // Modal kholo
-                              setSelectedHotel(hotel); // Hotel data set karo
-                              handleQuickBook();
-                            }
-                          }}
-                          disableElevation
+                          disableElevation // Default shadow hatayi, hum custom shadow denge
                           sx={{
                             bgcolor: getMoodColor(mood),
-                            borderRadius: "12px",
+                            color: "#fff",
                             textTransform: "none",
                             fontWeight: "bold",
+                            borderRadius: "12px",
+                            px: 3,
+                            py: 1,
+                            // Default State: Halki colored shadow
+                            boxShadow: `0 4px 14px ${getMoodColor(mood)}50`,
+                            transition: "all 0.3s ease", // Smooth animation
+
                             "&:hover": {
                               bgcolor: getMoodColor(mood),
-                              filter: "brightness(0.9)",
+                              // Button thoda upar uthega
+                              transform: "translateY(-2px)",
+                              // Shadow strong aur glow karegi
+                              boxShadow: `0 8px 20px ${getMoodColor(mood)}70`,
+                            },
+                            "&:active": {
+                              transform: "translateY(0)", // Click karne wapas niche
                             },
                           }}
                         >
                           Book Now
                         </Button>
-                      </Stack>
+                      </Box>
                     </CardContent>
                   </Card>
                 </Box>

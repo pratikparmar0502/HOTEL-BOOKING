@@ -235,7 +235,7 @@ const Auth = ({ onLogin }) => {
                   },
                 }}
               >
-                {isLogin ? "Sign In Now" : "Get Started"}
+                {isLogin ? "Sign Up" : "Get Started"}
               </Button>
             </Stack>
 

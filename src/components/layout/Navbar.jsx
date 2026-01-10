@@ -216,7 +216,7 @@ const Navbar = () => {
             {!isMobile && (
               <Stack
                 direction="row"
-                spacing={{ md: 3, lg: 4 }}
+                spacing={{ md: 3, lg: 5 }}
                 sx={{ mx: 3, flex: 1, justifyContent: "center" }}
               >
                 {filteredNavItems.map((item) => (
@@ -380,7 +380,24 @@ const Navbar = () => {
                   </Menu>
                 </>
               ) : (
-                <Button onClick={() => history.push("/signup")}>Sign Up</Button>
+                <Button
+                  sx={{
+                    color: getMoodColor(mood),
+                    borderRadius: "20px",
+                    borderColor: alpha(getMoodColor(mood), 0.3),
+                    fontWeight: 600,
+                    textTransform: "none",
+                    px: 3,
+                    "&:hover": {
+                      borderColor: getMoodColor(mood),
+                      backgroundColor: alpha(getMoodColor(mood), 0.05),
+                    },
+                  }}
+                  onClick={() => history.push("/auth")}
+                  variant="outlined"
+                >
+                  Sign Up
+                </Button>
               )}
             </Stack>
           </Toolbar>

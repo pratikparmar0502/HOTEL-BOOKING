@@ -688,7 +688,7 @@ const Destination = () => {
                       </Box>
 
                       {/* Favorite Button */}
-                      <IconButton
+                      {/* <IconButton
                         onClick={() => toggleFavorite(property.id)}
                         sx={{
                           position: "absolute",
@@ -709,7 +709,7 @@ const Destination = () => {
                         ) : (
                           <FavoriteBorder sx={{ fontSize: 20 }} />
                         )}
-                      </IconButton>
+                      </IconButton> */}
 
                       {/* Rating Badge */}
                       <Box sx={{ position: "absolute", bottom: 16, left: 16 }}>
