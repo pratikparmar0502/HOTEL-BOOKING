@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
 import { MoodContext } from "../../context/MoodContext";
-// Inhe replace karo (Navbar ke upar):
 import Forest from "@mui/icons-material/Forest";
 import Apartment from "@mui/icons-material/Apartment";
 import Waves from "@mui/icons-material/Waves";
@@ -39,6 +38,7 @@ import {
   useMediaQuery,
   ListItemButton,
   ListItemIcon,
+  IconButton,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { useHistory, useLocation } from "react-router-dom";
@@ -205,6 +205,25 @@ const Navbar = () => {
                 </Typography>
               </Box>
             </Box>
+
+            {isMobile && (
+              <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
+                <motion.div whileTap={{ scale: 0.9 }}>
+                  <IconButton
+                    onClick={() => setDrawerOpen(true)}
+                    sx={{
+                      color: getMoodColor(mood),
+                      bgcolor: alpha(getMoodColor(mood), 0.1),
+                      borderRadius: "12px",
+                      p: 1,
+                      "&:hover": { bgcolor: alpha(getMoodColor(mood), 0.2) },
+                    }}
+                  >
+                    <MenuIcon sx={{ fontSize: "1.8rem" }} />
+                  </IconButton>
+                </motion.div>
+              </Box>
+            )}
 
             {/* Desktop Navigation */}
             {!isMobile && (

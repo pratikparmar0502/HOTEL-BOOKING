@@ -6,8 +6,6 @@ import {
   Redirect,
 } from "react-router-dom";
 import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/client/Home";
 import Destination from "./pages/client/Destination";
 import Bookings from "./pages/client/Bookings";
@@ -53,9 +51,7 @@ const AppContent = ({ isLoggedIn, handleLogin, handleLogout }) => {
       {!isAdminPage && <Navbar />}
 
       <Switch>
-        {/* Admin Nested Routing */}
         <Route path="/admin">
-          {/* 2. Ab ye handleLogout yahan sahi se kaam karega */}
           <AdminLayout onLogout={handleLogout}>
             <Switch>
               <Route exact path="/admin" component={AdminDashboard} />
@@ -66,7 +62,6 @@ const AppContent = ({ isLoggedIn, handleLogin, handleLogout }) => {
           </AdminLayout>
         </Route>
 
-        {/* ... baaki routes same rahenge */}
         <Route path={["/auth", "/login", "/signup"]}>
           <Auth onLogin={handleLogin} />
         </Route>
@@ -110,7 +105,6 @@ function App() {
             handleLogin={handleLogin}
             handleLogout={handleLogout}
           />{" "}
-          <ToastContainer position="top-right" autoClose={3000} />
         </Router>
       </ThemeProvider>
     </MoodProvider>

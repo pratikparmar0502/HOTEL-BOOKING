@@ -278,7 +278,6 @@ const Auth = ({ onLogin }) => {
           </Paper>
         </Zoom>
       </Container>
-      <ToastContainer position="top-center" />
     </Box>
   );
 };

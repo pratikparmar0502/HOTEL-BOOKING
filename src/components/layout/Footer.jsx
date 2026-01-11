@@ -22,7 +22,7 @@ import {
   Waves,
   YouTube,
 } from "@mui/icons-material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Footer = () => {
@@ -108,7 +108,7 @@ const Footer = () => {
   return (
     <>
       {/* Toast Container - App ke root mein add karna */}
-      <ToastContainer
+      {/* <ToastContainer
         position="bottom-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -119,7 +119,7 @@ const Footer = () => {
         draggable
         pauseOnHover
         theme="colored"
-      />
+      /> */}
 
       {/* --- DARK FOOTER --- */}
       <Box
