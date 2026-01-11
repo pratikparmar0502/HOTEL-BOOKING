@@ -13,7 +13,8 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
-import { CheckCircle, Cancel, HourglassEmpty } from "@mui/icons-material";
+import CheckCircle from "@mui/icons-material/CheckCircle";
+import Cancel from "@mui/icons-material/Cancel";
 
 const initialBookings = [
   {
@@ -42,7 +43,7 @@ const initialBookings = [
   },
 ];
 
-const AdminBookings = () => {
+const AdminBooking = () => {
   const [bookings, setBookings] = useState(initialBookings);
 
   const updateStatus = (id, newStatus) => {
@@ -127,4 +128,4 @@ const AdminBookings = () => {
   );
 };
 
-export default AdminBookings;
+export default AdminBooking;

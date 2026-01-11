@@ -18,9 +18,10 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
-const AdminBookings = () => {
+const AdminCustomers = () => {
   const [bookings, setBookings] = useState([]);
   const [hotels, setHotels] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -42,9 +43,9 @@ const AdminBookings = () => {
     try {
       // Teeno data ek saath fetch karte hain 🚀
       const [bookRes, hotRes, custRes] = await Promise.all([
-        api.get("/adminbookings"),
-        api.get("/adminhotels"),
-        api.get("/admincustomers"),
+        api.get("/bookings"),
+        api.get("/hotels"),
+        api.get("/customers"),
       ]);
 
       setBookings(bookRes.data.Data || bookRes.data.data || []);
@@ -57,7 +58,7 @@ const AdminBookings = () => {
 
   const handleSave = () => {
     api
-      .post("/adminbookings", formData)
+      .post("/bookings", formData)
       .then(() => {
         toast.success("Booking Successful!");
         setOpenModal(false);
@@ -68,7 +69,7 @@ const AdminBookings = () => {
   };
 
   const deleteBooking = (id) => {
-    api.delete(`admin/bookings/${id}`).then(() => {
+    api.delete(`/bookings/${id}`).then(() => {
       toast.info("Booking Cancelled");
       fetchAllData();
     });
@@ -204,4 +205,4 @@ const AdminBookings = () => {
   );
 };
 
-export default AdminBookings;
+export default AdminCustomers;

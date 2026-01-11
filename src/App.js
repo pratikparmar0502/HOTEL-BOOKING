@@ -18,7 +18,7 @@ import MoodProvider from "./context/MoodContext";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminBookings from "./pages/admin/AdminBooking";
+import AdminBooking from "./pages/admin/AdminBooking";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminHotel from "./pages/admin/AdminHotel";
 import AdminCustomers from "./pages/admin/AdminCustomers";
@@ -59,8 +59,8 @@ const AppContent = ({ isLoggedIn, handleLogin, handleLogout }) => {
           <AdminLayout onLogout={handleLogout}>
             <Switch>
               <Route exact path="/admin" component={AdminDashboard} />
-              <Route path="/admin/adminhotels" component={AdminHotel} />
-              <Route path="/admin/adminbookings" component={AdminBookings} />
+              <Route path="/admin/adminhotel" component={AdminHotel} />
+              <Route path="/admin/adminbooking" component={AdminBooking} />
               <Route path="/admin/admincustomers" component={AdminCustomers} />
             </Switch>
           </AdminLayout>
@@ -96,7 +96,8 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("isLoggedIn");
-    window.location.href = "/";
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   return (

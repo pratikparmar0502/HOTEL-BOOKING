@@ -9,6 +9,11 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+// AdminDashboard.jsx ke upar ye dalo
+import HotelIcon from "@mui/icons-material/Hotel";
+import MoneyIcon from "@mui/icons-material/AttachMoney";
+import CalendarIcon from "@mui/icons-material/CalendarToday";
+import PeopleIcon from "@mui/icons-material/People";
 import {
   Box,
   Typography,
@@ -18,12 +23,6 @@ import {
   Avatar,
   Stack,
 } from "@mui/material";
-import {
-  Hotel as HotelIcon,
-  AttachMoney as MoneyIcon,
-  CalendarToday as CalendarIcon,
-  People as PeopleIcon,
-} from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
@@ -36,25 +35,38 @@ const AdminDashboard = () => {
   });
 
   useEffect(() => {
-    Promise.all([api.get("/adminhotels"), api.get("/admincustomers")])
-      .then(([hotelRes, custRes]) => {
-        // Checking both cases (Data or data)
+    const loadStats = async () => {
+      try {
+        // 1. Teeno APIs se data ek saath mangwao
+        const [hotelRes, custRes, bookRes] = await Promise.all([
+          api.get("/hotels"),
+          api.get("/customers"),
+          api.get("/bookings"),
+        ]);
+
+        // 2. Data extract karne ka safe tarika
         const hData = hotelRes.data.Data || hotelRes.data.data || [];
         const cData = custRes.data.Data || custRes.data.data || [];
+        const bData = bookRes.data.Data || bookRes.data.data || [];
 
-        // Calculating total revenue from hotels price
-        const totalRev = hData.reduce(
-          (sum, h) => sum + (Number(h.price) || 0),
+        // 3. Revenue calculate karo (Image ke hisaab se 'amount' field use ho rahi hai)
+        const totalRev = bData.reduce(
+          (sum, b) => sum + (Number(b.amount) || 0),
           0
         );
 
+        // 4. Stats set karo
         setStats({
           totalHotels: hData.length,
           totalRevenue: totalRev,
           totalCustomer: cData.length,
         });
-      })
-      .catch((err) => console.error("Dashboard Error:", err));
+      } catch (err) {
+        console.error("Dashboard Fetch Error:", err);
+      }
+    };
+
+    loadStats();
   }, []);
 
   const analyticsData = [

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import api from "../../api/axios"; // Humara naya axios instance
+import api from "../../api/axios";
 import { toast, ToastContainer } from "react-toastify";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import StarIcon from "@mui/icons-material/Star";
 import {
   Box,
   Typography,
@@ -18,12 +22,6 @@ import {
   Modal,
   Chip,
 } from "@mui/material";
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Add as AddIcon,
-  Star as StarIcon,
-} from "@mui/icons-material";
 
 const AdminHotel = () => {
   const [list, setList] = useState([]);

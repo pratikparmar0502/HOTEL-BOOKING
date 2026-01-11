@@ -1,9 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-// import AccountCircle from "@mui/icons-material/AccountCircle";
-// import Logout from "@mui/icons-material/Logout";
-// Agar Google/Facebook icons use kar rahe ho toh:
-// import Google from "@mui/icons-material/Google";
-// import Facebook from "@mui/icons-material/Facebook";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Email from "@mui/icons-material/Email";
@@ -24,21 +19,30 @@ import {
   Zoom,
 } from "@mui/material";
 import { MoodContext } from "../../context/MoodContext";
-import { useHistory, useLocation } from "react-router-dom"; // location add kiya
-import { toast } from "react-toastify";
+
+import { useHistory, useLocation } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import api from "../../api/axios";
 
 const Auth = ({ onLogin }) => {
-  const { mood } = useContext(MoodContext);
-  const history = useHistory();
-  const location = useLocation(); // URL se data lene ke liye
+  const moodContext = useContext(MoodContext);
+  const mood = moodContext ? moodContext.mood : "default";
 
-  // Navbar ke buttons ke hisaab se state set karna
+  const history = useHistory();
+  const location = useLocation();
+
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Jab bhi URL change ho (e.g. state: {mode: 'signup'}), ye check karega
+  // Form Data State
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
   useEffect(() => {
-    if (location.state?.mode === "signup") {
+    if (location.pathname === "/signup" || location.state?.mode === "signup") {
       setIsLogin(false);
     } else {
       setIsLogin(true);
@@ -58,27 +62,61 @@ const Auth = ({ onLogin }) => {
   };
   const moodColor = getMoodColor(mood);
 
-  const handleSubmit = () => {
-    toast.dismiss();
+  // Handle Input Change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    localStorage.setItem("isLoggedIn", "true");
+  const handleSubmit = async () => {
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill all fields ❌");
+      return;
+    }
 
-    onLogin();
+    try {
+      if (isLogin) {
+        // --- LOGIN LOGIC (Using customers collection) ---
+        const res = await api.get("/customers");
+        const users = res.data.Data || res.data.data || [];
 
-    setTimeout(() => {
-      toast.success(`Welcome back! Exploring ${mood} stays.`, {
-        icon: "🚀",
-        style: { borderRadius: "10px" },
-      });
-    }, 100);
+        const user = users.find(
+          (u) => u.email === formData.email && u.password === formData.password
+        );
 
-    history.push("/");
+        if (user) {
+          // ✨ ADMIN CHECK
+          if (
+            user.email === "admin07@gmail.com" &&
+            user.password === "admin071845"
+          ) {
+            localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("isLoggedIn", "true");
+            if (onLogin) onLogin();
+            toast.success("Welcome Boss! Admin Access Granted. 👑");
+            setTimeout(() => history.push("/admin"), 1000);
+          } else {
+            toast.info("Logged in as User.");
+            setTimeout(() => history.push("/"), 1000);
+          }
+        } else {
+          toast.error("Invalid Email or Password ❌");
+        }
+      } else {
+        // --- SIGNUP LOGIC (Saving to customers) ---
+        await api.post("/customers", formData);
+        toast.success("Account Created! Please Login.");
+        setIsLogin(true);
+      }
+    } catch (err) {
+      console.error("Auth Error:", err);
+      toast.error("API Error: Check if '/customers' exists.");
+    }
   };
 
   return (
     <Box
       sx={{
-        minHeight: "90vh",
+        minHeight: "100vh",
         width: "100%",
         display: "flex",
         alignItems: "center",
@@ -87,11 +125,11 @@ const Auth = ({ onLogin }) => {
           moodColor,
           0.15
         )} 0%, transparent 40%),
-                    radial-gradient(circle at 80% 70%, ${alpha(
-                      moodColor,
-                      0.15
-                    )} 0%, transparent 40%),
-                    linear-gradient(135deg, ${moodColor} 0%, ${alpha(
+                     radial-gradient(circle at 80% 70%, ${alpha(
+                       moodColor,
+                       0.15
+                     )} 0%, transparent 40%),
+                     linear-gradient(135deg, ${moodColor} 0%, ${alpha(
           moodColor,
           0.8
         )} 50%, #121212 100%)`,
@@ -99,24 +137,10 @@ const Auth = ({ onLogin }) => {
         overflow: "hidden",
       }}
     >
-      {/* Background Glows */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: -100,
-          left: -100,
-          width: 500,
-          height: 500,
-          bgcolor: alpha("#fff", 0.05),
-          borderRadius: "50%",
-          filter: "blur(100px)",
-        }}
-      />
-
       <Container maxWidth="sm">
         <Zoom in timeout={500}>
           <Paper
-            elevation={0} // Elevation hata kar custom shadow lagayi
+            elevation={0}
             sx={{
               p: { xs: 4, md: 6 },
               borderRadius: "32px",
@@ -125,25 +149,8 @@ const Auth = ({ onLogin }) => {
               border: `1px solid ${alpha("#fff", 0.5)}`,
               boxShadow: `0 25px 50px -12px rgba(0,0,0,0.5)`,
               textAlign: "center",
-              position: "relative",
             }}
           >
-            {/* Logo or Small Icon placeholder */}
-            {/* <Box
-              sx={{
-                width: 60,
-                height: 60,
-                bgcolor: alpha(moodColor, 0.1),
-                borderRadius: "16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 24px",
-              }}
-            >
-              <Lock sx={{ color: moodColor, fontSize: 30 }} />
-            </Box> */}
-
             <Typography
               variant="h4"
               fontWeight="900"
@@ -166,7 +173,10 @@ const Auth = ({ onLogin }) => {
               {!isLogin && (
                 <TextField
                   fullWidth
+                  name="name"
                   label="Full Name"
+                  value={formData.name}
+                  onChange={handleChange}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -180,7 +190,10 @@ const Auth = ({ onLogin }) => {
 
               <TextField
                 fullWidth
+                name="email"
                 label="Email Address"
+                value={formData.email}
+                onChange={handleChange}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -193,8 +206,11 @@ const Auth = ({ onLogin }) => {
 
               <TextField
                 fullWidth
+                name="password"
                 type={showPassword ? "text" : "password"}
                 label="Password"
+                value={formData.password}
+                onChange={handleChange}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -241,7 +257,7 @@ const Auth = ({ onLogin }) => {
             </Stack>
 
             <Box
-              sx={{ mt: 4, cursor: "pointer", "&:hover opacity": 0.8 }}
+              sx={{ mt: 4, cursor: "pointer" }}
               onClick={() => setIsLogin(!isLogin)}
             >
               <Typography
@@ -262,6 +278,7 @@ const Auth = ({ onLogin }) => {
           </Paper>
         </Zoom>
       </Container>
+      <ToastContainer position="top-center" />
     </Box>
   );
 };

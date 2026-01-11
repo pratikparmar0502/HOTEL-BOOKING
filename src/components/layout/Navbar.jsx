@@ -1,9 +1,19 @@
 import React, { useContext, useState } from "react";
 import { MoodContext } from "../../context/MoodContext";
-import { ListItemIcon, Avatar } from "@mui/material";
-// import Logout from "@mui/icons-material/Logout";
-// import AccountCircle from "@mui/icons-material/AccountCircle";
-// import MenuIcon from "@mui/icons-material/Menu";
+// Inhe replace karo (Navbar ke upar):
+import Forest from "@mui/icons-material/Forest";
+import Apartment from "@mui/icons-material/Apartment";
+import Waves from "@mui/icons-material/Waves";
+import Favorite from "@mui/icons-material/Favorite";
+import Castle from "@mui/icons-material/Castle";
+import AllInclusive from "@mui/icons-material/AllInclusive";
+import Home from "@mui/icons-material/Home";
+import Place from "@mui/icons-material/Place";
+import Bookmark from "@mui/icons-material/Bookmark";
+import Person from "@mui/icons-material/Person";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import MenuIcon from "@mui/icons-material/Menu";
+import Avatar from "@mui/material/Avatar";
 import {
   motion,
   AnimatePresence,
@@ -27,20 +37,9 @@ import {
   alpha,
   useTheme,
   useMediaQuery,
+  ListItemButton,
+  ListItemIcon,
 } from "@mui/material";
-import {
-  Forest,
-  Apartment,
-  Waves,
-  Favorite,
-  Castle,
-  AllInclusive,
-  Home,
-  Place,
-  Bookmark,
-  Person,
-  AccountCircle,
-} from "@mui/icons-material";
 import InfoIcon from "@mui/icons-material/Info";
 import { useHistory, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -464,44 +463,77 @@ const Navbar = () => {
             (
               item // navItems ki jagah filteredNavItems use kiya
             ) => (
+              // <ListItem
+              //   button // Ye clickable banane ke liye
+              //   key={item.label}
+
+              //   onClick={() => {
+              //     handleNavigation(item.path);
+              //     setDrawerOpen(false); // Click karte hi drawer band ho jaye
+              //   }}
+              //   sx={{
+              //     borderRadius: "12px",
+              //     mb: 1,
+              //     backgroundColor: isActivePath(item.path)
+              //       ? alpha(getMoodColor(mood), 0.1)
+              //       : "transparent",
+              //     color: isActivePath(item.path)
+              //       ? getMoodColor(mood)
+              //       : "text.primary",
+              //   }}
+              // >
+              //   {/* Icon bhi dikhate hain Drawer mein, mast lagega */}
+              //   <ListItemIcon
+              //     sx={{
+              //       color: isActivePath(item.path)
+              //         ? getMoodColor(mood)
+              //         : "inherit",
+              //     }}
+              //   >
+              //     {item.icon}
+              //   </ListItemIcon>
+
+              //   <ListItemText
+              //     primary={
+              //       <Typography
+              //         sx={{ fontWeight: isActivePath(item.path) ? 700 : 600 }}
+              //       >
+              //         {item.label}
+              //       </Typography>
+              //     }
+              //   />
+              // </ListItem>
               <ListItem
-                button // Ye clickable banane ke liye
                 key={item.label}
-                onClick={() => {
-                  handleNavigation(item.path);
-                  setDrawerOpen(false); // Click karte hi drawer band ho jaye
-                }}
-                sx={{
-                  borderRadius: "12px",
-                  mb: 1,
-                  backgroundColor: isActivePath(item.path)
-                    ? alpha(getMoodColor(mood), 0.1)
-                    : "transparent",
-                  color: isActivePath(item.path)
-                    ? getMoodColor(mood)
-                    : "text.primary",
-                }}
+                disablePadding // Ye add karo
               >
-                {/* Icon bhi dikhate hain Drawer mein, mast lagega */}
-                <ListItemIcon
+                <ListItemButton // ListItem ke andar ListItemButton use karo
+                  onClick={() => {
+                    handleNavigation(item.path);
+                    setDrawerOpen(false);
+                  }}
                   sx={{
+                    borderRadius: "12px",
+                    mb: 1,
+                    backgroundColor: isActivePath(item.path)
+                      ? alpha(getMoodColor(mood), 0.1)
+                      : "transparent",
                     color: isActivePath(item.path)
                       ? getMoodColor(mood)
-                      : "inherit",
+                      : "text.primary",
                   }}
                 >
-                  {item.icon}
-                </ListItemIcon>
-
-                <ListItemText
-                  primary={
-                    <Typography
-                      sx={{ fontWeight: isActivePath(item.path) ? 700 : 600 }}
-                    >
-                      {item.label}
-                    </Typography>
-                  }
-                />
+                  <ListItemIcon
+                    sx={{
+                      color: isActivePath(item.path)
+                        ? getMoodColor(mood)
+                        : "inherit",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
               </ListItem>
             )
           )}

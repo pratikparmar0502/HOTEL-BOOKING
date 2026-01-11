@@ -1,4 +1,9 @@
 import React from "react";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import HotelIcon from "@mui/icons-material/Hotel";
+import CalendarIcon from "@mui/icons-material/CalendarToday";
+import PeopleIcon from "@mui/icons-material/People";
+import LogoutIcon from "@mui/icons-material/Logout";
 import {
   Box,
   Drawer,
@@ -7,34 +12,26 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
   Toolbar,
   Typography,
   Button,
   alpha,
 } from "@mui/material";
 import { useHistory, useLocation } from "react-router-dom";
-import {
-  Dashboard as DashboardIcon,
-  Hotel as HotelIcon,
-  CalendarToday as CalendarIcon,
-  People as PeopleIcon,
-  Logout as LogoutIcon,
-} from "@mui/icons-material";
 
 const drawerWidth = 280;
 
-const Layout = ({ children, onLogout }) => {
+const AdminLayout = ({ children, onLogout }) => {
   const history = useHistory();
   const location = useLocation();
 
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin" },
-    { text: "Manage Hotels", icon: <HotelIcon />, path: "/admin/adminhotels" },
+    { text: "Manage Hotels", icon: <HotelIcon />, path: "/admin/adminhotel" },
     {
       text: "Bookings",
       icon: <CalendarIcon />,
-      path: "/admin/adminbookings",
+      path: "/admin/adminbooking",
       badge: 5,
     },
     { text: "Customers", icon: <PeopleIcon />, path: "/admin/admincustomers" },
@@ -120,4 +117,4 @@ const Layout = ({ children, onLogout }) => {
   );
 };
 
-export default Layout;
+export default AdminLayout;
