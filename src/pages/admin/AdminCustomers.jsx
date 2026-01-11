@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
-import { toast, ToastContainer } from "react-toastify";
 import {
   Box,
   Typography,
@@ -20,6 +19,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import toast from "react-hot-toast";
 
 const AdminCustomers = () => {
   const [bookings, setBookings] = useState([]);
@@ -200,7 +200,6 @@ const AdminCustomers = () => {
           </Stack>
         </Box>
       </Modal>
-      <ToastContainer position="bottom-right" />
     </Box>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
-import { toast, ToastContainer } from "react-toastify";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -22,6 +21,7 @@ import {
   Modal,
   Chip,
 } from "@mui/material";
+import toast from "react-hot-toast";
 
 const AdminHotel = () => {
   const [list, setList] = useState([]);
@@ -56,10 +56,11 @@ const AdminHotel = () => {
   const handleSubmit = () => {
     const payload = {
       name: formData.name,
-      loc: formData.loc,
-      rate: Number(formData.rate),
+      location: formData.location,
       price: Number(formData.price),
-      status: formData.status,
+      rate: Number(formData.rate),
+      image: formData.image,
+      status: true,
     };
 
     if (editId != null) {
@@ -266,7 +267,6 @@ const AdminHotel = () => {
           </Stack>
         </Box>
       </Modal>
-      <ToastContainer position="bottom-right" />
     </Box>
   );
 };

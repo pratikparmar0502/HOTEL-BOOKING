@@ -1,10 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Email from "@mui/icons-material/Email";
-import Lock from "@mui/icons-material/Lock";
-import Person from "@mui/icons-material/Person";
-import ArrowForward from "@mui/icons-material/ArrowForward";
 import {
   Box,
   Container,
@@ -18,99 +12,125 @@ import {
   alpha,
   Zoom,
 } from "@mui/material";
-import { MoodContext } from "../../context/MoodContext";
-
+import {
+  Visibility,
+  VisibilityOff,
+  Email,
+  Lock,
+  Person,
+  ArrowForward,
+} from "@mui/icons-material";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { useHistory, useLocation } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import toast from "react-hot-toast";
+
+import { MoodContext } from "../../context/MoodContext";
 import api from "../../api/axios";
 
 const Auth = ({ onLogin }) => {
-  const moodContext = useContext(MoodContext);
-  const mood = moodContext ? moodContext.mood : "default";
-
+  const { mood } = useContext(MoodContext) || { mood: "default" };
   const history = useHistory();
   const location = useLocation();
 
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Form Data State
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
-
   useEffect(() => {
-    if (location.pathname === "/signup" || location.state?.mode === "signup") {
-      setIsLogin(false);
-    } else {
-      setIsLogin(true);
-    }
-  }, [location]);
+    const modeFromNavbar = location.state?.mode;
 
-  const getMoodColor = (m) => {
-    const colors = {
+    if (modeFromNavbar === "signup") {
+      setIsLogin(false); // Signup form dikhao
+    } else {
+      setIsLogin(true); // Default ya "login" state par Login form dikhao
+    }
+  }, [location.state]);
+  const moodColor =
+    {
       nature: "#2e7d32",
       urban: "#6200ea",
       ocean: "#00bcd4",
       romantic: "#d81b60",
       royal: "#ffab00",
-      default: "#1976d2",
-    };
-    return colors[m] || colors.default;
-  };
-  const moodColor = getMoodColor(mood);
+    }[mood] || "#1976d2";
 
-  // Handle Input Change
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.email || !formData.password) {
-      toast.error("Please fill all fields ❌");
-      return;
-    }
-
-    try {
-      if (isLogin) {
-        // --- LOGIN LOGIC (Using customers collection) ---
-        const res = await api.get("/customers");
+  // --- FORMIK & YUP CONFIG ---
+  const formik = useFormik({
+    initialValues: { name: "", email: "", password: "" },
+    validationSchema: Yup.object({
+      name: !isLogin
+        ? Yup.string().min(3, "Too short").required("Name is required")
+        : Yup.string(),
+      email: Yup.string().email("Invalid email").required("Email is required"),
+      password: Yup.string()
+        .min(6, "Min 6 characters")
+        .required("Password is required"),
+    }),
+    onSubmit: async (values) => {
+      const loadToast = toast.loading(
+        isLogin ? "Signing in..." : "Creating account..."
+      );
+      try {
+        // Sabse pehle saare users ko fetch karo check karne ke liye
+        const res = await api.get("/Users"); //
         const users = res.data.Data || res.data.data || [];
 
-        const user = users.find(
-          (u) => u.email === formData.email && u.password === formData.password
-        );
-
-        if (user) {
-          // ✨ ADMIN CHECK
-          if (
-            user.email === "admin07@gmail.com" &&
-            user.password === "admin071845"
-          ) {
+        if (isLogin) {
+          // --- LOGIN LOGIC ---
+          const user = users.find(
+            (u) => u.email === values.email && u.password === values.password
+          );
+          if (user) {
             localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("isLoggedIn", "true");
-            if (onLogin) onLogin();
-            toast.success("Welcome Boss! Admin Access Granted. 👑");
-            setTimeout(() => history.push("/admin"), 1000);
+            if (onLogin) onLogin(user); // State update here 🚀
+
+            toast.success(`Welcome back!`, { id: loadToast });
+
+            if (values.email === "admin07@gmail.com") {
+              history.push("/admin");
+            } else {
+              history.push("/");
+            }
           } else {
-            toast.info("Logged in as User.");
-            setTimeout(() => history.push("/"), 1000);
+            toast.error("Invalid credentials", { id: loadToast });
           }
         } else {
-          toast.error("Invalid Email or Password ❌");
+          const emailExists = users.some((u) => u.email === values.email);
+
+          if (emailExists) {
+            toast.error("Email already registered! Please login.", {
+              id: loadToast,
+            });
+            return; // Yahan se function ruk jayega, POST nahi hoga
+          }
+
+          // SIGNUP
+          if (values.email === "admin07@gmail.com") {
+            toast.dismiss(loadToast);
+            toast.error("This email is reserved for Admin!");
+            return;
+          }
+
+          await api.post("/Users", {
+            name: values.name,
+            email: values.email,
+            password: values.password,
+          });
+
+          toast.success("Account Created! Please login.", { id: loadToast });
+          setTimeout(() => setIsLogin(true), 1500); // Switch to login UI
         }
-      } else {
-        // --- SIGNUP LOGIC (Saving to customers) ---
-        await api.post("/customers", formData);
-        toast.success("Account Created! Please Login.");
-        setIsLogin(true);
+      } catch (err) {
+        toast.error("API Connection Failed", { id: loadToast });
       }
-    } catch (err) {
-      console.error("Auth Error:", err);
-      toast.error("API Error: Check if '/customers' exists.");
-    }
+    },
+  });
+
+  // Toggle Function
+  const handleToggle = () => {
+    formik.resetForm();
+    history.push(isLogin ? "/signup" : "/login");
   };
 
   return (
@@ -125,156 +145,116 @@ const Auth = ({ onLogin }) => {
           moodColor,
           0.15
         )} 0%, transparent 40%),
-                     radial-gradient(circle at 80% 70%, ${alpha(
-                       moodColor,
-                       0.15
-                     )} 0%, transparent 40%),
-                     linear-gradient(135deg, ${moodColor} 0%, ${alpha(
-          moodColor,
-          0.8
-        )} 50%, #121212 100%)`,
-        position: "relative",
-        overflow: "hidden",
+                   linear-gradient(135deg, ${moodColor} 0%, #121212 100%)`,
       }}
     >
-      <Container maxWidth="sm">
-        <Zoom in timeout={500}>
+      <Container maxWidth="xs">
+        <Zoom in timeout={500} key={isLogin}>
           <Paper
             elevation={0}
             sx={{
-              p: { xs: 4, md: 6 },
+              p: 5,
               borderRadius: "32px",
-              backdropFilter: "blur(25px)",
-              background: "rgba(255, 255, 255, 0.92)",
-              border: `1px solid ${alpha("#fff", 0.5)}`,
-              boxShadow: `0 25px 50px -12px rgba(0,0,0,0.5)`,
               textAlign: "center",
+              background: "rgba(255, 255, 255, 0.92)",
+              backdropFilter: "blur(25px)",
+              boxShadow: `0 25px 50px -12px rgba(0,0,0,0.5)`,
             }}
           >
-            <Typography
-              variant="h4"
-              fontWeight="900"
-              sx={{ color: "#1a1a1a", mb: 1 }}
-            >
+            <Typography variant="h4" fontWeight="900" mb={1}>
               {isLogin ? "Welcome Back" : "Join StayFlow"}
             </Typography>
-
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 4, fontWeight: 500 }}
-            >
+            <Typography variant="body2" color="text.secondary" mb={4}>
               {isLogin
-                ? "Glad to see you again! Please login."
-                : "Create an account to start your journey."}
+                ? "Enter details to access your account"
+                : "Sign up to start your journey"}
             </Typography>
 
-            <Stack spacing={2}>
-              {!isLogin && (
+            <form onSubmit={formik.handleSubmit}>
+              <Stack spacing={2.5}>
+                {!isLogin && (
+                  <TextField
+                    fullWidth
+                    label="Full Name"
+                    name="name"
+                    {...formik.getFieldProps("name")}
+                    error={formik.touched.name && !!formik.errors.name}
+                    helperText={formik.touched.name && formik.errors.name}
+                    InputProps={{
+                      startAdornment: (
+                        <Person sx={{ mr: 1, color: moodColor }} />
+                      ),
+                    }}
+                  />
+                )}
                 <TextField
                   fullWidth
-                  name="name"
-                  label="Full Name"
-                  value={formData.name}
-                  onChange={handleChange}
+                  label="Email Address"
+                  name="email"
+                  {...formik.getFieldProps("email")}
+                  error={formik.touched.email && !!formik.errors.email}
+                  helperText={formik.touched.email && formik.errors.email}
                   InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person sx={{ color: moodColor }} />
-                      </InputAdornment>
-                    ),
-                    sx: { borderRadius: "12px" },
+                    startAdornment: <Email sx={{ mr: 1, color: moodColor }} />,
                   }}
                 />
-              )}
-
-              <TextField
-                fullWidth
-                name="email"
-                label="Email Address"
-                value={formData.email}
-                onChange={handleChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Email sx={{ color: moodColor }} />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: "12px" },
-                }}
-              />
-
-              <TextField
-                fullWidth
-                name="password"
-                type={showPassword ? "text" : "password"}
-                label="Password"
-                value={formData.password}
-                onChange={handleChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Lock sx={{ color: moodColor }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
+                <TextField
+                  fullWidth
+                  label="Password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  {...formik.getFieldProps("password")}
+                  error={formik.touched.password && !!formik.errors.password}
+                  helperText={formik.touched.password && formik.errors.password}
+                  InputProps={{
+                    startAdornment: <Lock sx={{ mr: 1, color: moodColor }} />,
+                    endAdornment: (
                       <IconButton
                         onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: "12px" },
-                }}
-              />
-
-              <Button
-                variant="contained"
-                fullWidth
-                size="large"
-                onClick={handleSubmit}
-                endIcon={<ArrowForward />}
-                sx={{
-                  py: 1.8,
-                  borderRadius: "12px",
-                  bgcolor: moodColor,
-                  fontWeight: "bold",
-                  fontSize: "1rem",
-                  textTransform: "none",
-                  boxShadow: `0 8px 20px ${alpha(moodColor, 0.3)}`,
-                  "&:hover": {
+                    ),
+                  }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  endIcon={<ArrowForward />}
+                  sx={{
+                    py: 1.8,
+                    borderRadius: "12px",
                     bgcolor: moodColor,
-                    transform: "translateY(-2px)",
-                    boxShadow: `0 12px 25px ${alpha(moodColor, 0.4)}`,
-                  },
-                }}
-              >
-                {isLogin ? "Log In" : "Create Account"}
-              </Button>
-            </Stack>
-
-            <Box
-              sx={{ mt: 4, cursor: "pointer" }}
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 600, color: "text.secondary" }}
-              >
-                {isLogin
-                  ? "Don't have an account? "
-                  : "Already have an account? "}
-                <Box
-                  component="span"
-                  sx={{ color: moodColor, fontWeight: "800", ml: 0.5 }}
+                    fontWeight: "bold",
+                    mt: 2,
+                  }}
                 >
-                  {isLogin ? "Sign Up" : "Log In"}
-                </Box>
-              </Typography>
-            </Box>
+                  {isLogin ? "Log In" : "Sign Up"}
+                </Button>
+              </Stack>
+            </form>
+
+            <Typography
+              onClick={handleToggle}
+              sx={{
+                mt: 4,
+                cursor: "pointer",
+                fontWeight: 600,
+                color: "text.secondary",
+              }}
+            >
+              {isLogin
+                ? "Don't have an account? "
+                : "Already have an account? "}
+              <Box
+                component="span"
+                sx={{ color: moodColor, fontWeight: "800" }}
+              >
+                {isLogin ? "Sign Up" : "Log In"}
+              </Box>
+            </Typography>
           </Paper>
         </Zoom>
       </Container>

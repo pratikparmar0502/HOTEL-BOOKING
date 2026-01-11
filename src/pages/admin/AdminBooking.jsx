@@ -90,8 +90,8 @@ const AdminBooking = () => {
           </TableHead>
           <TableBody>
             {bookings.map((row) => (
-              <TableRow key={row.id} hover>
-                <TableCell fontWeight={600}>{row.id}</TableCell>
+              <TableRow key={row._id} hover>
+                <TableCell fontWeight={600}>{row._id}</TableCell>
                 <TableCell>{row.guest}</TableCell>
                 <TableCell>{row.hotel}</TableCell>
                 <TableCell>{row.amount}</TableCell>

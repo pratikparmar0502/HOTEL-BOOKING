@@ -39,7 +39,6 @@ import {
   EventAvailable,
 } from "@mui/icons-material";
 import { MoodContext } from "../../context/MoodContext";
-import { toast } from "react-toastify";
 
 // Import local images
 import explore_nature_1 from "../../assets/explore/nature-1.webp";
@@ -63,6 +62,7 @@ import explore_hero_urban from "../../assets/explore/urban-hero.webp";
 import explore_hero_ocean from "../../assets/explore/ocean-hero.webp";
 import explore_hero_romantic from "../../assets/explore/romantic-hero.webp";
 import explore_hero_royal from "../../assets/explore/royal-hero.webp";
+import toast from "react-hot-toast";
 
 const MOOD_COLORS = {
   nature: "#10b981",

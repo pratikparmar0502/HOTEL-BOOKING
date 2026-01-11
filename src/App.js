@@ -20,6 +20,7 @@ import AdminBooking from "./pages/admin/AdminBooking";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminHotel from "./pages/admin/AdminHotel";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import toast, { Toaster } from "react-hot-toast";
 
 const theme = createTheme({
   typography: {
@@ -42,28 +43,41 @@ const theme = createTheme({
 });
 
 // 1. Yahan handleLogout ko add kiya
-const AppContent = ({ isLoggedIn, handleLogin, handleLogout }) => {
+const AppContent = ({ isLoggedIn, isAdmin, handleLogin, handleLogout }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <>
-      {!isAdminPage && <Navbar />}
+      {!isAdminPage && (
+        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+      )}
 
       <Switch>
         <Route path="/admin">
-          <AdminLayout onLogout={handleLogout}>
-            <Switch>
-              <Route exact path="/admin" component={AdminDashboard} />
-              <Route path="/admin/adminhotel" component={AdminHotel} />
-              <Route path="/admin/adminbooking" component={AdminBooking} />
-              <Route path="/admin/admincustomers" component={AdminCustomers} />
-            </Switch>
-          </AdminLayout>
+          {isLoggedIn && isAdmin ? (
+            <AdminLayout onLogout={handleLogout}>
+              <Switch>
+                <Route exact path="/admin" component={AdminDashboard} />
+                <Route path="/admin/adminhotel" component={AdminHotel} />
+                <Route path="/admin/adminbooking" component={AdminBooking} />
+                <Route
+                  path="/admin/admincustomers"
+                  component={AdminCustomers}
+                />
+              </Switch>
+            </AdminLayout>
+          ) : (
+            <Redirect to={isLoggedIn ? "/" : "/auth"} />
+          )}
         </Route>
 
         <Route path={["/auth", "/login", "/signup"]}>
-          <Auth onLogin={handleLogin} />
+          {isLoggedIn ? (
+            <Redirect to={isAdmin ? "/admin" : "/"} />
+          ) : (
+            <Auth onLogin={handleLogin} />
+          )}
         </Route>
         <Route path="/bookings">
           {isLoggedIn ? <Bookings /> : <Redirect to="/auth" />}
@@ -83,16 +97,33 @@ function App() {
     localStorage.getItem("isLoggedIn") === "true"
   );
 
-  const handleLogin = () => {
+  const [isAdmin, setIsAdmin] = useState(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    return user?.email === "admin07@gmail.com";
+  });
+
+  const handleLogin = (user) => {
     setIsLoggedIn(true);
-    localStorage.setItem("isLoggedIn", "true");
+    if (user && user.email === "admin07@gmail.com") {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("user");
-    window.location.href = "/login";
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    toast.success("Logged out successfully!", {
+      duration: 3000,
+      position: "top-center",
+    });
+
+    setTimeout(() => {
+      window.location.href = "/auth";
+    }, 1000);
   };
 
   return (
@@ -100,8 +131,10 @@ function App() {
       <ThemeProvider theme={theme}>
         <Router>
           <CssBaseline />
+          <Toaster position="top-right" reverseOrder={false} />
           <AppContent
             isLoggedIn={isLoggedIn}
+            isAdmin={isAdmin}
             handleLogin={handleLogin}
             handleLogout={handleLogout}
           />{" "}
