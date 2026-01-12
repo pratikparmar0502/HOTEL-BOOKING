@@ -92,7 +92,7 @@ import {
   Work, // Added Work icon import
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { styled, alpha } from "@mui/material/styles";
+import { styled, alpha } from "@mui/material";
 import { MoodContext } from "../../context/MoodContext";
 
 // Custom Timeline Components (since @mui/lab is not installed)

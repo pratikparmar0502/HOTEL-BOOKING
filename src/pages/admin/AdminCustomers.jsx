@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import api from "../../api/axios";
+import api from "../../api/axios"; // Aapka axios instance
 import {
   Box,
   Typography,
-  Button,
-  Stack,
   Paper,
   Table,
   TableBody,
@@ -12,194 +10,63 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
-  Modal,
-  MenuItem,
-  TextField,
+  Avatar,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import toast from "react-hot-toast";
 
 const AdminCustomers = () => {
-  const [bookings, setBookings] = useState([]);
-  const [hotels, setHotels] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
-
-  const initialValues = {
-    hotelName: "",
-    customerName: "",
-    amount: "",
-    date: "",
-  };
-  const [formData, setFormData] = useState(initialValues);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetchAllData();
-  }, []);
-
-  const fetchAllData = async () => {
-    try {
-      // Teeno data ek saath fetch karte hain 🚀
-      const [bookRes, hotRes, custRes] = await Promise.all([
-        api.get("/bookings"),
-        api.get("/hotels"),
-        api.get("/customers"),
-      ]);
-
-      setBookings(bookRes.data.Data || bookRes.data.data || []);
-      setHotels(hotRes.data.Data || hotRes.data.data || []);
-      setCustomers(custRes.data.Data || custRes.data.data || []);
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
-  };
-
-  const handleSave = () => {
+    // Postman: GET /api/Users fetch karna
     api
-      .post("/bookings", formData)
-      .then(() => {
-        toast.success("Booking Successful!");
-        setOpenModal(false);
-        setFormData(initialValues);
-        fetchAllData();
+      .get("/Users")
+      .then((res) => {
+        // TechSnack API aksar data 'Data' field mein bhejti hai
+        setUsers(res.data.Data || res.data || []);
       })
-      .catch(() => toast.error("Booking Failed!"));
-  };
-
-  const deleteBooking = (id) => {
-    api.delete(`/bookings/${id}`).then(() => {
-      toast.info("Booking Cancelled");
-      fetchAllData();
-    });
-  };
+      .catch((err) => console.log("User fetch error:", err));
+  }, []);
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" mb={4}>
-        <Typography variant="h4" fontWeight={800}>
-          Manage Bookings
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setOpenModal(true)}
-        >
-          New Booking
-        </Button>
-      </Stack>
+      <Typography variant="h4" fontWeight={800} mb={3}>
+        Registered Customers
+      </Typography>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+      <TableContainer
+        component={Paper}
+        sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+      >
         <Table>
           <TableHead sx={{ bgcolor: "#f8fafc" }}>
             <TableRow>
-              <TableCell>Customer</TableCell>
-              <TableCell>Hotel</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>User</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {bookings.map((row) => (
-              <TableRow key={row._id}>
-                <TableCell>{row.customerName}</TableCell>
-                <TableCell>{row.hotelName}</TableCell>
-                <TableCell>{row.date}</TableCell>
-                <TableCell>${row.amount}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    onClick={() => deleteBooking(row._id)}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+            {users.map((user) => (
+              <TableRow key={user._id} hover>
+                <TableCell
+                  sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                >
+                  <Avatar sx={{ bgcolor: "primary.main" }}>
+                    {user.name?.charAt(0)}
+                  </Avatar>
+                  <Typography fontWeight={600}>{user.name}</Typography>
+                </TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="success.main">
+                    Active
+                  </Typography>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* MODAL FOR NEW BOOKING */}
-      <Modal open={openModal} onClose={() => setOpenModal(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            p: 4,
-            borderRadius: 4,
-          }}
-        >
-          <Typography variant="h6" mb={3}>
-            Create New Booking
-          </Typography>
-          <Stack spacing={2}>
-            {/* HOTEL DROPDOWN */}
-            <TextField
-              select
-              label="Select Hotel"
-              value={formData.hotelName}
-              onChange={(e) =>
-                setFormData({ ...formData, hotelName: e.target.value })
-              }
-            >
-              {hotels.map((h) => (
-                <MenuItem key={h._id} value={h.name}>
-                  {h.name}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            {/* CUSTOMER DROPDOWN */}
-            <TextField
-              select
-              label="Select Customer"
-              value={formData.customerName}
-              onChange={(e) =>
-                setFormData({ ...formData, customerName: e.target.value })
-              }
-            >
-              {customers.map((c) => (
-                <MenuItem key={c._id} value={c.name}>
-                  {c.name}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <TextField
-              label="Amount"
-              type="number"
-              value={formData.amount}
-              onChange={(e) =>
-                setFormData({ ...formData, amount: e.target.value })
-              }
-            />
-
-            <TextField
-              type="date"
-              value={formData.date}
-              onChange={(e) =>
-                setFormData({ ...formData, date: e.target.value })
-              }
-            />
-
-            <Button
-              variant="contained"
-              onClick={handleSave}
-              fullWidth
-              sx={{ py: 1.5 }}
-            >
-              Confirm Booking
-            </Button>
-          </Stack>
-        </Box>
-      </Modal>
     </Box>
   );
 };

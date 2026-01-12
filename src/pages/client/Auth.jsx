@@ -85,7 +85,7 @@ const Auth = ({ onLogin }) => {
             localStorage.setItem("isLoggedIn", "true");
             if (onLogin) onLogin(user); // State update here 🚀
 
-            toast.success(`Welcome back!`, { id: loadToast });
+            toast.success(`Welcome!`, { id: loadToast });
 
             if (values.email === "admin07@gmail.com") {
               history.push("/admin");

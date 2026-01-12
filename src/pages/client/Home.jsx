@@ -78,6 +78,8 @@ import {
 import { MoodContext } from "../../context/MoodContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min.js";
+import api from "../../api/axios.js";
+import toast from "react-hot-toast";
 
 const Home = () => {
   const history = useHistory();
@@ -116,50 +118,53 @@ const Home = () => {
   const serviceFee = Math.round(totalPrice * 0.05);
   const finalAmount = totalPrice + serviceFee;
 
-  const handleQuickBook = () => {
+  const handleQuickBook = async () => {
     if (!checkIn || !checkOut) {
       alert("Please select both Check-in and Check-out dates!");
       return;
     }
 
-    setIsBooked(true); // Spinner dikhane ke liye
+    setIsBooked(true);
 
-    // 1. Pehle data object banao (Jo select kiya hai modal mein)
+    // 1. API ke liye payload taiyar karein (Postman ke format mein)
     const bookingData = {
-      id: "BK-" + Date.now(),
+      customerName: "Guest User",
       hotelName: selectedHotel?.name || selectedHotel?.title,
-      hotelImage: selectedHotel?.img,
-      location: selectedHotel?.loc || selectedHotel?.location,
-      totalPrice: finalAmount,
-      status: "pending",
       checkIn: checkIn,
       checkOut: checkOut,
-      guests: guests,
-      totalNights: calculatedNights || 1,
-      bookingDate: new Date().toLocaleDateString(),
+      amount: finalAmount,
+      status: "Pending",
     };
 
-    // 2. LocalStorage mein purana data nikalo aur naya wala 'unshift' (top pe add) karo
-    const existing = JSON.parse(localStorage.getItem("allBookings") || "[]");
-    const updatedBookings = [bookingData, ...existing];
-    localStorage.setItem("allBookings", JSON.stringify(updatedBookings));
+    try {
+      // API Call using your axios instance
+      const res = await api.post("/ConfirmBookings", bookingData);
 
-    // 3. 1.5 second baad Bookings page par bhejo
-    setTimeout(() => {
+      if (res.status === 200 || res.status === 201) {
+        toast.success("Booking Successful! 🎉");
+
+        // LocalStorage update for instant UI
+        const existing = JSON.parse(
+          localStorage.getItem("allBookings") || "[]"
+        );
+        localStorage.setItem(
+          "allBookings",
+          JSON.stringify([bookingData, ...existing])
+        );
+
+        setTimeout(() => {
+          setIsBooked(false);
+          setOpen(false);
+          history.push("/bookings");
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Booking Error:", error.response?.data);
+      // Agar "Key does not match" aa raha hai toh headers check karein
+      toast.error(error.response?.data?.message || "Key mismatch or API Error");
       setIsBooked(false);
-      setOpen(false);
-      history.push({
-        pathname: "/bookings",
-        state: { openPaymentFor: bookingData.id }, // Ye ID Bookings page ko trigger karegi
-      });
-    }, 1500);
+    }
   };
-
-  // const handleOpen = (hotel) => {
-  //   setSelectedHotel(hotel);
-  //   setOpen(true);
-  // };
-
   const handleClose = () => {
     setOpen(false);
     setIsBooked(false); // Reset for next time

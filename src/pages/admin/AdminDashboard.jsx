@@ -6,10 +6,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
 } from "recharts";
-// AdminDashboard.jsx ke upar ye dalo
 import HotelIcon from "@mui/icons-material/Hotel";
 import MoneyIcon from "@mui/icons-material/AttachMoney";
 import CalendarIcon from "@mui/icons-material/CalendarToday";
@@ -23,7 +20,7 @@ import {
   Avatar,
   Stack,
 } from "@mui/material";
-import { alpha } from "@mui/material/styles";
+import { alpha } from "@mui/material";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
@@ -39,9 +36,9 @@ const AdminDashboard = () => {
       try {
         // 1. Teeno APIs se data ek saath mangwao
         const [hotelRes, custRes, bookRes] = await Promise.all([
-          api.get("/hotels"),
-          api.get("/customers"),
-          api.get("/bookings"),
+          api.get("/Hotels"),
+          api.get("/Users"),
+          api.get("/ConfirmBookings"),
         ]);
 
         // 2. Data extract karne ka safe tarika
@@ -49,12 +46,11 @@ const AdminDashboard = () => {
         const cData = custRes.data.Data || custRes.data.data || [];
         const bData = bookRes.data.Data || bookRes.data.data || [];
 
-        // 3. Revenue calculate karo (Image ke hisaab se 'amount' field use ho rahi hai)
+        // 3. Revenue calculate karo
         const totalRev = bData.reduce(
-          (sum, b) => sum + (Number(b.amount) || 0),
+          (sum, b) => sum + (Number(b.totalAmount) || Number(b.amount) || 0),
           0
         );
-
         // 4. Stats set karo
         setStats({
           totalHotels: hData.length,
@@ -156,30 +152,34 @@ const AdminDashboard = () => {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, borderRadius: "16px", height: 400 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", height: 450, minHeight: 0 }}>
             <Typography variant="h6" fontWeight={700} mb={2}>
               Revenue Analytics
             </Typography>
-            <ResponsiveContainer width="100%" height="90%">
-              <AreaChart data={analyticsData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#f1f5f9"
-                />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#3b82f6"
-                  fillOpacity={0.1}
-                  fill="#3b82f6"
-                  strokeWidth={3}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <Box sx={{ width: "100%", height: 350 }}>
+              {" "}
+              {/* Container with explicit height */}
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={analyticsData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#f1f5f9"
+                  />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#3b82f6"
+                    fillOpacity={0.1}
+                    fill="#3b82f6"
+                    strokeWidth={3}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Box>
           </Paper>
         </Grid>
       </Grid>

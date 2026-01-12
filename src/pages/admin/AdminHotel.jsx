@@ -29,12 +29,14 @@ const AdminHotel = () => {
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
 
+  // POSTMAN ki key "location" hai, toh hum yahan bhi wahi rakhenge taaki confusion na ho
   const initialValues = {
     name: "",
-    loc: "",
+    location: "",
     rate: "",
     price: "",
     status: true,
+    imageFile: null, // File ke liye extra field
   };
   const [formData, setFormData] = useState(initialValues);
 
@@ -42,44 +44,40 @@ const AdminHotel = () => {
     getData();
   }, []);
 
-  // 1. GET DATA (API se hotels lana)
   const getData = () => {
     api
-      .get("/hotels")
-      .then((res) => {
-        console.log("Api data: ", res.data.Data);
-        setList(res.data.Data);
-      })
+      .get("/Hotels")
+      .then((res) => setList(res.data.Data || []))
       .catch((err) => console.log("Fetch Error:", err));
   };
 
   const handleSubmit = () => {
-    const payload = {
-      name: formData.name,
-      location: formData.location,
-      price: Number(formData.price),
-      rate: Number(formData.rate),
-      image: formData.image,
-      status: true,
-    };
+    const formDataObj = new FormData();
+    formDataObj.append("name", formData.name);
+    formDataObj.append("location", formData.location);
+    formDataObj.append("price", formData.price);
+    formDataObj.append("rate", formData.rate);
+    formDataObj.append("status", "true");
+
+    if (formData.imageFile) {
+      formDataObj.append("image", formData.imageFile);
+    }
+
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
 
     if (editId != null) {
-      // 2. Sirf payload bhejo, pura formData nahi (kyunki formData mein _id hota hai)
       api
-        .patch(`/hotels/${editId}`, payload)
+        .patch(`/Hotels/${editId}`, formDataObj, config)
         .then(() => {
-          toast.success("Hotel updated successfully!");
+          toast.success("Hotel updated!");
           finalize();
         })
-        .catch((err) => {
-          console.log("Patch Error Details:", err.response?.data);
-          toast.error("Update failed: Key mismatch or Server Error");
-        });
+        .catch(() => toast.error("Update failed"));
     } else {
       api
-        .post("/hotels", payload)
+        .post("/Hotels", formDataObj, config)
         .then(() => {
-          toast.success("Hotel added successfully!");
+          toast.success("Hotel added!");
           finalize();
         })
         .catch(() => toast.error("Add failed"));
@@ -93,19 +91,19 @@ const AdminHotel = () => {
     getData();
   };
 
-  // 3. EDIT & DELETE
   const editBtn = (item) => {
-    setEditId(item._id); // TechSnack _id use karta hai
-    setFormData(item);
+    setEditId(item._id);
+    // Yahan check karna ki API se 'location' aa raha hai ya 'loc'
+    setFormData({ ...item, location: item.location || item.loc });
     setOpenModal(true);
   };
 
   const deleteBtn = (id) => {
     if (window.confirm("Are you sure?")) {
       api
-        .delete(`/hotels/${id}`)
+        .delete(`/Hotels/${id}`)
         .then(() => {
-          toast.success("Hotel deleted!");
+          toast.success("Deleted!");
           getData();
         })
         .catch(() => toast.error("Delete failed"));
@@ -114,21 +112,15 @@ const AdminHotel = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight={800} color="#1e293b">
+      <Stack direction="row" justifyContent="space-between" mb={4}>
+        <Typography variant="h4" fontWeight={800}>
           Manage Hotels
         </Typography>
         <Stack direction="row" spacing={2}>
           <TextField
-            placeholder="Search hotels..."
+            placeholder="Search..."
             size="small"
             onChange={(e) => setSearch(e.target.value)}
-            sx={{ bgcolor: "white", borderRadius: 1 }}
           />
           <Button
             variant="contained"
@@ -138,24 +130,21 @@ const AdminHotel = () => {
               setFormData(initialValues);
               setOpenModal(true);
             }}
-            sx={{ borderRadius: 2 }}
           >
             Add Hotel
           </Button>
         </Stack>
       </Stack>
 
-      <TableContainer
-        component={Paper}
-        sx={{ borderRadius: 3, boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}
-      >
+      <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead sx={{ bgcolor: "#f8fafc" }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 700 }}>Hotel Name</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Location</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Price</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Rating</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Image</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>
                 Actions
               </TableCell>
@@ -171,19 +160,30 @@ const AdminHotel = () => {
                   <TableCell>
                     <Typography fontWeight={600}>{row.name}</Typography>
                   </TableCell>
-                  <TableCell>{row.loc}</TableCell>
+                  <TableCell>{row.location || row.loc}</TableCell>
+                  <TableCell>₹{row.price}</TableCell>
                   <TableCell>
                     <Stack direction="row" alignItems="center" spacing={0.5}>
                       <StarIcon sx={{ color: "#f59e0b", fontSize: 18 }} />
-                      <Typography variant="body2">{row.rate}</Typography>
+                      <Typography>{row.rate}</Typography>
                     </Stack>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      label={row.status ? "Active" : "Inactive"}
-                      color={row.status ? "success" : "default"}
-                      size="small"
-                    />
+                    {row.image ? (
+                      <Box
+                        component="img"
+                        src={row.image}
+                        alt={row.name}
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: "8px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="caption">No Image</Typography>
+                    )}
                   </TableCell>
                   <TableCell align="right">
                     <IconButton onClick={() => editBtn(row)} color="primary">
@@ -202,7 +202,6 @@ const AdminHotel = () => {
         </Table>
       </TableContainer>
 
-      {/* MODAL FOR ADD/EDIT */}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
@@ -214,13 +213,12 @@ const AdminHotel = () => {
             bgcolor: "background.paper",
             borderRadius: 4,
             p: 4,
-            boxShadow: 24,
           }}
         >
           <Typography variant="h6" fontWeight={700} mb={3}>
-            {editId ? "Update Hotel" : "Register New Hotel"}
+            {editId ? "Update Hotel" : "Add Hotel"}
           </Typography>
-          <Stack spacing={2.5}>
+          <Stack spacing={2}>
             <TextField
               label="Hotel Name"
               fullWidth
@@ -232,9 +230,18 @@ const AdminHotel = () => {
             <TextField
               label="Location"
               fullWidth
-              value={formData.loc}
+              value={formData.location}
               onChange={(e) =>
-                setFormData({ ...formData, loc: e.target.value })
+                setFormData({ ...formData, location: e.target.value })
+              }
+            />
+            <TextField
+              label="Price"
+              type="number"
+              fullWidth
+              value={formData.price}
+              onChange={(e) =>
+                setFormData({ ...formData, price: e.target.value })
               }
             />
             <TextField
@@ -246,23 +253,24 @@ const AdminHotel = () => {
                 setFormData({ ...formData, rate: e.target.value })
               }
             />
-            <TextField
-              label="Price per Night"
-              type="number"
-              fullWidth
-              value={formData.price}
+
+            <Typography variant="caption">Upload Hotel Image</Typography>
+            <input
+              type="file"
+              accept="image/*"
               onChange={(e) =>
-                setFormData({ ...formData, price: e.target.value })
+                setFormData({ ...formData, imageFile: e.target.files[0] })
               }
             />
+
             <Button
               variant="contained"
               size="large"
               onClick={handleSubmit}
               fullWidth
-              sx={{ mt: 2, borderRadius: 2 }}
+              sx={{ mt: 2 }}
             >
-              {editId ? "Update Details" : "Save Hotel"}
+              {editId ? "Update" : "Save"}
             </Button>
           </Stack>
         </Box>
