@@ -31,37 +31,38 @@ const AdminDashboard = () => {
     totalCustomer: 0,
   });
 
+  const loadStats = async () => {
+    try {
+      // 1. Teeno APIs se data ek saath mangwao
+      const [hotelRes, custRes, bookRes] = await Promise.all([
+        api.get("/Hotels"),
+        api.get("/Users"),
+        api.get("/ConfirmBookings"),
+      ]);
+
+      // 2. Data extract karne ka safe tarika
+      const hData = hotelRes.data.Data || hotelRes.data.data || [];
+      const cData = custRes.data.Data || custRes.data.data || [];
+      const bData = bookRes.data.Data || bookRes.data.data || [];
+
+      // 3. Revenue calculate karo
+      // AdminDashboard.jsx mein:
+      const totalRev = bData
+        .filter((b) => b.status === "confirmed") // Sirf confirmed bookings ka paisa
+        .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+      
+      // 4. Stats set karo
+      setStats({
+        totalHotels: hData.length,
+        totalRevenue: totalRev,
+        totalCustomer: cData.length,
+      });
+    } catch (err) {
+      console.error("Dashboard Fetch Error:", err);
+    }
+  };
+
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        // 1. Teeno APIs se data ek saath mangwao
-        const [hotelRes, custRes, bookRes] = await Promise.all([
-          api.get("/Hotels"),
-          api.get("/Users"),
-          api.get("/ConfirmBookings"),
-        ]);
-
-        // 2. Data extract karne ka safe tarika
-        const hData = hotelRes.data.Data || hotelRes.data.data || [];
-        const cData = custRes.data.Data || custRes.data.data || [];
-        const bData = bookRes.data.Data || bookRes.data.data || [];
-
-        // 3. Revenue calculate karo
-        const totalRev = bData.reduce(
-          (sum, b) => sum + (Number(b.totalAmount) || Number(b.amount) || 0),
-          0
-        );
-        // 4. Stats set karo
-        setStats({
-          totalHotels: hData.length,
-          totalRevenue: totalRev,
-          totalCustomer: cData.length,
-        });
-      } catch (err) {
-        console.error("Dashboard Fetch Error:", err);
-      }
-    };
-
     loadStats();
   }, []);
 

@@ -120,10 +120,6 @@ function App() {
       duration: 3000,
       position: "top-center",
     });
-
-    setTimeout(() => {
-      window.location.href = "/auth";
-    }, 1000);
   };
 
   return (

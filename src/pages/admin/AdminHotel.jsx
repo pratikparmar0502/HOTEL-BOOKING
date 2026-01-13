@@ -46,7 +46,7 @@ const AdminHotel = () => {
 
   const getData = () => {
     api
-      .get("/Hotels")
+      .get("/HotelsData") // Pehle /Hotels tha
       .then((res) => setList(res.data.Data || []))
       .catch((err) => console.log("Fetch Error:", err));
   };
@@ -57,31 +57,22 @@ const AdminHotel = () => {
     formDataObj.append("location", formData.location);
     formDataObj.append("price", formData.price);
     formDataObj.append("rate", formData.rate);
-    formDataObj.append("status", "true");
+    formDataObj.append("status", formData.status);
+    formDataObj.append("Authorization", "ngXSnLPrB0vbLvNA");
 
     if (formData.imageFile) {
       formDataObj.append("image", formData.imageFile);
     }
 
-    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    // Sahi endpoint: /HotelsData
+    const url = editId ? `/HotelsData/${editId}` : "/HotelsData";
 
-    if (editId != null) {
-      api
-        .patch(`/Hotels/${editId}`, formDataObj, config)
-        .then(() => {
-          toast.success("Hotel updated!");
-          finalize();
-        })
-        .catch(() => toast.error("Update failed"));
-    } else {
-      api
-        .post("/Hotels", formDataObj, config)
-        .then(() => {
-          toast.success("Hotel added!");
-          finalize();
-        })
-        .catch(() => toast.error("Add failed"));
-    }
+    api[editId ? "patch" : "post"](url, formDataObj)
+      .then(() => {
+        toast.success("Success!");
+        finalize();
+      })
+      .catch((err) => toast.error("Key mismatch on HotelsData"));
   };
 
   const finalize = () => {
@@ -93,8 +84,7 @@ const AdminHotel = () => {
 
   const editBtn = (item) => {
     setEditId(item._id);
-    // Yahan check karna ki API se 'location' aa raha hai ya 'loc'
-    setFormData({ ...item, location: item.location || item.loc });
+    setFormData({ ...item, location: item.location });
     setOpenModal(true);
   };
 
@@ -103,8 +93,11 @@ const AdminHotel = () => {
       api
         .delete(`/Hotels/${id}`)
         .then(() => {
-          toast.success("Deleted!");
+          toast.success("Deleted Successfully!");
           getData();
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         })
         .catch(() => toast.error("Delete failed"));
     }

@@ -23,44 +23,82 @@ const AdminBooking = () => {
   const [loading, setLoading] = useState(true);
 
   // 1. Real API se data lana
+  const getBookings = async () => {
+    try {
+      const res = await api.get("/Bookingssystem");
+      const fetchedData = res.data.Data || res.data || [];
+      setBookings(fetchedData);
+    } catch (err) {
+      console.error("Fetch Error:", err);
+      toast.error("Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const getBookings = async () => {
-      try {
-        const res = await api.get("/ConfirmBookings");
-        const fetchedData = res.data.Data || res.data || [];
-        setBookings(fetchedData);
-      } catch (err) {
-        console.error("Fetch Error:", err);
-        toast.error("Failed to load bookings");
-      } finally {
-        setLoading(false);
-      }
-    };
     getBookings();
   }, []);
-
   const updateStatus = async (id, newStatus) => {
+    const toastId = toast.loading("Updating...");
     try {
-      // 1. Check karein ki URL sahi hai.
-      // Agar PATCH kaam nahi kar raha, toh apne senior/doc se poochein ki 'id' URL mein jayegi ya body mein.
-      const res = await api.patch(`/ConfirmBookings/${id}`, {
-        status: newStatus,
-        // FIX: Agar header se 'Key doesn't match' aa raha hai, toh key yahan body mein bhej kar dekhein:
-        customerKey: "ngXSnLPrB0vbLvNA",
+      // 1. FormData banayein (Server ki requirement ke liye)
+      const formData = new FormData();
+      formData.append("status", newStatus.toLowerCase());
+
+      // 2. TOKEN KO URL MEIN BHEJEIN (Final Trick)
+      // Kai baar Techsnack APIs form-data ke case mein headers
+      // ko ignore kar deti hain aur sirf URL query ko dekhti hain.
+      const url = `/Bookingssystem/${id}?Authorization=ngXSnLPrB0vbLvNA`;
+
+      const res = await api.patch(url, formData, {
+        headers: {
+          // Headers mein bhi key rakhein double security ke liye
+          Authorization: "ngXSnLPrB0vbLvNA",
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       if (res.data.Status === "Success" || res.status === 200) {
         setBookings((prev) =>
-          prev.map((b) =>
-            b._id === id || b.id === id ? { ...b, status: newStatus } : b
-          )
+          prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b))
         );
-        toast.success(`Booking ${newStatus}!`);
+        toast.success(`Booking ${newStatus}!`, { id: toastId });
       }
     } catch (err) {
-      console.error("Update Error Details:", err.response?.data);
-      // Agar yahan bhi 404 aa raha hai, toh matlab backend /ConfirmBookings/:id support nahi karta
-      toast.error(err.response?.data?.Message || "Status update failed (404)");
+      console.log("Full Response:", err.response?.data);
+
+      // Agar ab bhi Key Match na ho, toh 'customerKey' try karein
+      if (err.response?.data?.Message?.includes("Key")) {
+        handleRetryWithCustomerKey(id, newStatus, toastId);
+      } else {
+        toast.error(err.response?.data?.Message || "Error", { id: toastId });
+      }
+    }
+  };
+
+  // Retry logic agar pehla fail ho
+  const handleRetryWithCustomerKey = async (id, newStatus, toastId) => {
+    try {
+      const formData = new FormData();
+      formData.append("status", newStatus.toLowerCase());
+
+      // Kuch endpoints 'customerKey' maangte hain
+      const res = await api.patch(
+        `/Bookingssystem/${id}?customerKey=ngXSnLPrB0vbLvNA`,
+        formData
+      );
+
+      if (res.data.Status === "Success") {
+        setBookings((prev) =>
+          prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b))
+        );
+        toast.success("Updated!", { id: toastId });
+      }
+    } catch (e) {
+      toast.error("API Key Issue: Check your Techsnack Dashboard", {
+        id: toastId,
+      });
     }
   };
 

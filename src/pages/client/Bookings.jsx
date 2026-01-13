@@ -63,7 +63,8 @@ import {
   Celebration,
   Whatshot,
   BeachAccess,
-  Work, // Added Work icon import
+  Work,
+  Delete, // Added Work icon import
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { styled, alpha } from "@mui/material";
@@ -243,44 +244,92 @@ const Bookings = () => {
 
   const moodColor = getMoodColor(mood);
 
+  // const fetchMyBookings = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const userData = JSON.parse(localStorage.getItem("user"));
+  //     const userEmail = userData?.email;
+  //     const userName = userData?.displayName;
+
+  //     const response = await api.get("/Bookingssystem");
+  //     console.log("Full Data:", response.data);
+  //     // 1. Data structure fix (Aapka data 'Data' key ke andar hai)
+  //     const allData = response.data.Data || [];
+
+  //     // 2. Filter logic ko behtar karein
+  //     const myData = allData.filter((b) => {
+  //       const dbCustomer = b.customerName?.toLowerCase().trim();
+  //       const currentUserEmail = userData?.email?.toLowerCase().trim();
+  //       const currentUserName = userData?.displayName?.toLowerCase().trim();
+
+  //       // Debugging ke liye console log (Ise check karein browser mein)
+  //       console.log(
+  //         `Checking: DB(${dbCustomer}) vs User(${currentUserEmail} / ${currentUserName})`
+  //       );
+
+  //       // Match check
+  //       return (
+  //         dbCustomer === currentUserEmail || dbCustomer === currentUserName
+  //       );
+  //     });
+  //     console.log("My Filtered Bookings:", myData);
+  //     setBookings(myData);
+  //   } catch (err) {
+  //     console.error("Fetch Error:", err);
+  //     toast.error("Failed to fetch bookings");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const fetchMyBookings = async () => {
+    try {
+      setLoading(true);
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const userEmail = userData?.email?.toLowerCase().trim();
+      const userName = userData?.displayName?.toLowerCase().trim();
+
+      const response = await api.get("/Bookingssystem");
+      console.log("Full Data Response:", response.data);
+
+      // Extract data properly - adjust based on your actual response structure
+      const allData = response.data.Data || response.data || [];
+
+      // Filter by user
+      const myData = allData.filter((b) => {
+        if (!b) return false;
+
+        const dbCustomer =
+          b.customerName?.toString().toLowerCase().trim() || "";
+        const dbEmail = b.email?.toString().toLowerCase().trim() || "";
+
+        return (
+          dbCustomer === userName ||
+          dbCustomer === userEmail ||
+          dbEmail === userEmail
+        );
+      });
+
+      console.log("Filtered Bookings:", myData);
+
+      // Ensure each booking has required fields
+      const processedBookings = myData.map((booking) => ({
+        ...booking,
+        status: booking.status?.toLowerCase() || "pending",
+        amount: booking.amount || booking.totalPrice || 0,
+        totalPrice: booking.totalPrice || booking.amount || 0,
+      }));
+
+      setBookings(processedBookings);
+    } catch (err) {
+      console.error("Fetch Error:", err);
+      toast.error("Failed to fetch bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchMyBookings = async () => {
-      try {
-        setLoading(true);
-        const userData = JSON.parse(localStorage.getItem("user"));
-        const userEmail = userData?.email;
-        const userName = userData?.displayName;
-
-        const response = await api.get("/Bookingssystem");
-        console.log("Full Data:", response.data);
-        // 1. Data structure fix (Aapka data 'Data' key ke andar hai)
-        const allData = response.data.Data || [];
-
-        // 2. Filter logic ko behtar karein
-        const myData = allData.filter((b) => {
-          const dbCustomer = b.customerName?.toLowerCase().trim();
-          const currentUserEmail = userData?.email?.toLowerCase().trim();
-          const currentUserName = userData?.displayName?.toLowerCase().trim();
-
-          // Debugging ke liye console log (Ise check karein browser mein)
-          console.log(
-            `Checking: DB(${dbCustomer}) vs User(${currentUserEmail} / ${currentUserName})`
-          );
-
-          // Match check
-          return (
-            dbCustomer === currentUserEmail || dbCustomer === currentUserName
-          );
-        });
-        console.log("My Filtered Bookings:", myData);
-        setBookings(myData);
-      } catch (err) {
-        console.error("Fetch Error:", err);
-        toast.error("Failed to fetch bookings");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchMyBookings();
   }, []);
 
@@ -295,38 +344,101 @@ const Bookings = () => {
     setPaymentStep(0);
   };
 
+  // const handleCompletePayment = async () => {
+  //   setPaymentStep(1); // Stepper loading start
+
+  //   try {
+  //     // 1. FormData banayein (JSON nahi chalega kyunki backend Multer use kar raha hai)
+  //     const formData = new FormData();
+
+  //     // 2. Status Update
+  //     formData.append("status", "confirmed");
+  //     formData.append("paymentMethod", paymentMethod);
+
+  //     // 3. FIX
+  //     formData.append("hotelImage", selectedBooking?.hotelImage || "");
+  //     formData.append("amount", selectedBooking?.amount || 0);
+
+  //     // 4. PATCH Call with Backticks
+  //     const response = await api.patch(
+  //       `/Bookingssystem/${selectedBooking._id}`,
+  //       formData,
+  //       {
+  //         headers: { "Content-Type": "multipart/form-data" },
+  //       }
+  //     );
+
+  //     if (response.data.Status === "Success") {
+  //       // Success Animation Sequence
+  //       setTimeout(() => {
+  //         setPaymentStep(2);
+  //         setShowConfetti(true);
+
+  //         setTimeout(() => {
+  //           setOpenPayment(false);
+  //           setShowConfetti(false);
+
+  //           // List refresh karein
+  //           fetchMyBookings();
+
+  //           toast.success("Payment Successful!");
+  //         }, 2000);
+  //       }, 1500);
+  //     }
+  //   } catch (error) {
+  //     console.error("Payment Update Error:", error.response?.data);
+
+  //     // Agar abhi bhi error aaye toh uska message dikhayein
+  //     const errorMsg = error.response?.data?.Message || "Server Update Failed";
+  //     toast.error(errorMsg);
+  //     setPaymentStep(0);
+  //   }
+  // };
   const handleCompletePayment = async () => {
-    // async banayein
     setPaymentStep(1);
 
     try {
-      // Backend Update Call
-      await api.patch(`/Bookingssystem/${selectedBooking._id}`, {
-        ...selectedBooking,
-        status: "confirmed",
-        amount: selectedBooking.amount, // Ensure amount stays
-      });
+      const formData = new FormData();
 
-      setTimeout(() => {
+      // 1. Normal Fields
+      formData.append("status", "confirmed");
+      formData.append("paymentMethod", paymentMethod);
+
+      // 2. MULTER FIX:
+      // Backend ko 'hotelImage' key mein FILE chahiye.
+      // Hum ek khali Blob (dummy file) bhejenge taaki Multer ko
+      // uska expected 'file' format mil jaye aur "Key mismatch" na aaye.
+      const dummyBlob = new Blob([""], { type: "image/png" });
+      formData.append("hotelImage", dummyBlob, "current_image.png");
+
+      // 3. API Request
+      const response = await api.patch(
+        `/Bookingssystem/${selectedBooking._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.Status === "Success") {
         setPaymentStep(2);
         setShowConfetti(true);
-
         setTimeout(() => {
           setOpenPayment(false);
           setShowConfetti(false);
-
-          // Frontend Update
-          const updatedBookings = bookings.map((b) =>
-            b._id === selectedBooking._id ? { ...b, status: "confirmed" } : b
-          );
-          setBookings(updatedBookings);
-          toast.success("Payment Successful & Booking Confirmed!");
+          fetchMyBookings(); // Data refresh karein [cite: 2026-01-10]
+          toast.success("Payment Recorded Successfully!");
         }, 2000);
-      }, 1500);
+      }
     } catch (error) {
-      console.error("Payment Update Error", error);
-      toast.error("Payment recorded but server update failed.");
-      setPaymentStep(0); // Reset on error
+      console.error("Backend Error:", error.response?.data);
+      // Agar abhi bhi error aaye, toh console mein 'Message' check karein
+      toast.error(
+        error.response?.data?.Message || "Server Error: Key mismatch"
+      );
+      setPaymentStep(0);
     }
   };
 
@@ -436,7 +548,10 @@ const Bookings = () => {
     return icons[amenity] || <Hotel fontSize="small" />;
   };
   // 1. Status ko normalize karein (Small/Capital letter issue fix)
-  const normalizeStatus = (status) => (status ? status.toLowerCase() : "");
+  const normalizeStatus = (status) => {
+    if (!status) return "pending";
+    return status.toLowerCase().trim();
+  };
 
   const filteredBookings = bookings.filter((b) => {
     const status = normalizeStatus(b.status);
@@ -730,93 +845,159 @@ const Bookings = () => {
               ))}
             </Tabs>
           </Paper>
-          {/* ..........;=================================================================================================================== */}
 
-          <Container maxWidth="lg" sx={{ py: 8 }}>
+          {/* Bookings Grid  */}
+          <Container maxWidth="lg" sx={{ py: 6 }}>
             <Grid container spacing={4}>
-              {bookings.map((booking) => (
+              {filteredBookings.map((booking) => (
                 <Grid item xs={12} sm={6} md={4} key={booking._id}>
                   <Card
                     sx={{
-                      borderRadius: "24px",
+                      borderRadius: "28px",
                       overflow: "hidden",
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+                      background: "#ffffff",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                      transition:
+                        "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                      boxShadow: "0 15px 35px rgba(0,0,0,0.05)",
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
+                      "&:hover": {
+                        transform: "translateY(-10px)",
+                        boxShadow: "0 25px 50px rgba(0,0,0,0.12)",
+                      },
                     }}
                   >
-                    {/* Hotel Image */}
-                    <CardMedia
-                      component="img"
-                      height="220"
-                      image={booking.hotelImage}
-                      alt={booking.hotelName}
-                      sx={{
-                        transition: "0.3s",
-                        "&:hover": { transform: "scale(1.05)" },
-                      }}
-                    />
-
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      {/* Status Chip */}
-                      <Chip
-                        label={booking.status.toUpperCase()}
-                        size="small"
-                        color={
-                          booking.status === "confirmed" ? "success" : "warning"
-                        }
+                    <Box sx={{ position: "relative", overflow: "hidden" }}>
+                      <CardMedia
+                        component="img"
+                        height="240"
+                        image={booking.hotelImage}
+                        alt={booking.hotelName}
                         sx={{
-                          fontWeight: "bold",
-                          mb: 1.5,
-                          borderRadius: "8px",
+                          transition: "0.5s ease",
+                          "&:hover": { transform: "scale(1.1)" },
                         }}
                       />
 
-                      <Typography variant="h5" fontWeight="800" gutterBottom>
+                      <Chip
+                        label={booking.status.toUpperCase()}
+                        size="small"
+                        sx={{
+                          position: "absolute",
+                          top: 16,
+                          right: 16,
+                          backdropFilter: "blur(10px)",
+                          background:
+                            booking.status === "confirmed"
+                              ? "rgba(76, 175, 80, 0.85)"
+                              : "rgba(255, 152, 0, 0.85)",
+                          color: "white",
+                          fontWeight: "700",
+                          fontSize: "0.7rem",
+                          borderRadius: "10px",
+                          border: "1px solid rgba(255,255,255,0.3)",
+                        }}
+                      />
+                    </Box>
+
+                    <CardContent sx={{ flexGrow: 1, p: 3, pb: 2 }}>
+                      <Typography
+                        variant="h5"
+                        fontWeight="900"
+                        sx={{
+                          mb: 1,
+                          color: "#1a1a1a",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 1,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
                         {booking.hotelName}
                       </Typography>
 
                       <Stack
                         direction="row"
-                        spacing={1}
+                        spacing={1.5}
                         alignItems="center"
-                        color="text.secondary"
-                        mb={2}
+                        sx={{ mb: 2.5 }}
                       >
-                        <CalendarToday sx={{ fontSize: 18 }} />
-                        <Typography variant="body2">
-                          {booking.checkIn} - {booking.checkOut}
+                        <Box
+                          sx={{
+                            bgcolor: "primary.light",
+                            p: 0.8,
+                            borderRadius: "10px",
+                            display: "flex",
+                            color: "primary.main",
+                          }}
+                        >
+                          <CalendarToday sx={{ fontSize: 16 }} />
+                        </Box>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#666", fontWeight: 500 }}
+                        >
+                          {booking.checkIn} — {booking.checkOut}
                         </Typography>
                       </Stack>
 
-                      <Divider sx={{ my: 2, borderStyle: "dashed" }} />
+                      <Divider sx={{ mb: 2.5, opacity: 0.6 }} />
 
                       <Stack
                         direction="row"
                         justifyContent="space-between"
                         alignItems="center"
                       >
-                        <Typography
-                          variant="h5"
-                          color="primary.main"
-                          fontWeight="900"
-                        >
-                          ₹{booking.amount}
-                        </Typography>
-
                         <Box>
-                          {/* Pay Button agar status pending hai */}
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: "#999",
+                              textTransform: "uppercase",
+                              letterSpacing: 1,
+                            }}
+                          >
+                            Total Amount
+                          </Typography>
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              color: "primary.main",
+                              fontWeight: "900",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                            }}
+                          >
+                            ₹{booking.amount.toLocaleString()}
+                          </Typography>
+                        </Box>
+
+                        <Stack direction="row" spacing={1}>
                           {booking.status === "pending" && (
                             <Button
                               variant="contained"
                               onClick={() => handleOpenPayment(booking)}
-                              sx={{ borderRadius: "12px", px: 3 }}
+                              sx={{
+                                borderRadius: "14px",
+                                px: 3,
+                                textTransform: "none",
+                                fontWeight: "700",
+                                boxShadow: "0 8px 20px rgba(25, 118, 210, 0.3)",
+                                background:
+                                  "linear-gradient(45deg, #1976d2, #42a5f5)",
+                                "&:hover": {
+                                  boxShadow:
+                                    "0 12px 25px rgba(25, 118, 210, 0.4)",
+                                },
+                              }}
                             >
-                              Pay
+                              Pay Now
                             </Button>
                           )}
-                        </Box>
+                        </Stack>
                       </Stack>
                     </CardContent>
                   </Card>
@@ -1568,482 +1749,3 @@ const Bookings = () => {
 };
 
 export default Bookings;
-
-// {
-//   /* Bookings List */
-// }
-// <Container maxWidth="lg" sx={{ py: 4, flex: 1 }}>
-//   {filteredBookings.length > 0 ? (
-//     <Grid container spacing={3}>
-//       {filteredBookings.map((booking, index) => (
-//         <Grid item xs={12} md={6} key={booking._id}>
-//           <motion.div
-//             initial={{ opacity: 0, y: 30 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ delay: index * 0.1 }}
-//           >
-//             <GradientCard moodcolor={moodColor}>
-//               <Grid container>
-//                 {/* Image Section */}
-//                 <Grid item xs={12} md={4}>
-//                   <Box
-//                     sx={{
-//                       position: "relative",
-//                       height: { xs: 200, md: "100%" },
-//                     }}
-//                   >
-//                     <CardMedia
-//                       component="img"
-//                       image={
-//                         booking.hotelImage?.startsWith("http")
-//                           ? booking.hotelImage
-//                           : `http://localhost:5000/${booking.hotelImage}`
-//                       }
-//                       alt={booking.hotelName}
-//                       sx={{
-//                         height: "100%",
-//                         width: "100%",
-//                         objectFit: "cover",
-//                         borderRight: {
-//                           md: `2px solid ${alpha(moodColor, 0.1)}`,
-//                         },
-//                         borderBottom: {
-//                           xs: `2px solid ${alpha(moodColor, 0.1)}`,
-//                           md: "none",
-//                         },
-//                       }}
-//                     />
-
-//                     {/* Overlay */}
-//                     <Box
-//                       sx={{
-//                         position: "absolute",
-//                         top: 0,
-//                         left: 0,
-//                         right: 0,
-//                         bottom: 0,
-//                         background: `linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%)`,
-//                         p: 3,
-//                         display: "flex",
-//                         flexDirection: "column",
-//                         justifyContent: "space-between",
-//                       }}
-//                     >
-//                       <Box>
-//                         <StatusBadge
-//                           moodcolor={moodColor}
-//                           status={booking.status}
-//                           label={
-//                             <Stack
-//                               direction="row"
-//                               alignItems="center"
-//                               spacing={0.5}
-//                             >
-//                               <CheckCircle sx={{ fontSize: "1rem" }} />
-//                               <span>
-//                                 {booking.status.charAt(0).toUpperCase() +
-//                                   booking.status.slice(1)}
-//                               </span>
-//                             </Stack>
-//                           }
-//                         />
-//                       </Box>
-
-//                       <Box>
-//                         <Typography
-//                           variant="caption"
-//                           sx={{ color: "white", display: "block" }}
-//                         >
-//                           BOOKING ID
-//                         </Typography>
-//                         <Typography
-//                           variant="h6"
-//                           sx={{ color: "white", fontWeight: "bold" }}
-//                         >
-//                           {booking._id}
-//                         </Typography>
-//                       </Box>
-//                     </Box>
-//                   </Box>
-//                 </Grid>
-
-//                 {/* Details Section */}
-//                 <Grid item xs={12} md={8}>
-//                   <Box sx={{ p: 3 }}>
-//                     <Stack
-//                       direction="row"
-//                       justifyContent="space-between"
-//                       alignItems="flex-start"
-//                       sx={{ mb: 3 }}
-//                     >
-//                       <Box>
-//                         <Typography
-//                           variant="h5"
-//                           fontWeight="900"
-//                           sx={{ mb: 1 }}
-//                         >
-//                           {booking.hotelName}
-//                         </Typography>
-//                         <Stack
-//                           direction="row"
-//                           alignItems="center"
-//                           spacing={1}
-//                           sx={{ mb: 2 }}
-//                         >
-//                           <LocationOn
-//                             sx={{
-//                               fontSize: "1rem",
-//                               color: moodColor,
-//                             }}
-//                           />
-//                           <Typography variant="body2" color="text.secondary">
-//                             {booking.location}
-//                           </Typography>
-//                           <Star
-//                             sx={{
-//                               fontSize: "1rem",
-//                               color: "#fbbf24",
-//                               ml: 2,
-//                             }}
-//                           />
-//                           <Typography variant="body2" fontWeight="600">
-//                             4.8/5
-//                           </Typography>
-//                         </Stack>
-//                       </Box>
-
-//                       <Stack direction="row" spacing={1}>
-//                         <IconButton
-//                           onClick={() => handleDownloadReceipt(booking)}
-//                           sx={{ color: moodColor }}
-//                         >
-//                           <Download />
-//                         </IconButton>
-//                         <IconButton sx={{ color: moodColor }}>
-//                           <Share />
-//                         </IconButton>
-//                       </Stack>
-//                     </Stack>
-
-//                     {/* Booking Details Grid */}
-//                     <Grid container spacing={2}>
-//                       <Grid item xs={6} sm={3}>
-//                         {/* <Paper
-//                                     elevation={0}
-//                                     sx={{
-//                                       p: 1.5,
-//                                       borderRadius: "12px",
-//                                       background: alpha(moodColor, 0.05),
-//                                       textAlign: "center",
-//                                     }}
-//                                   >
-//                                     <CalendarToday
-//                                       sx={{
-//                                         color: moodColor,
-//                                         fontSize: "1.2rem",
-//                                         mb: 0.5,
-//                                       }}
-//                                     />
-//                                     <Typography
-//                                       variant="caption"
-//                                       color="text.secondary"
-//                                       display="block"
-//                                     >
-//                                       Check-in
-//                                     </Typography>
-//                                     <Typography
-//                                       variant="body2"
-//                                       fontWeight="700"
-//                                     >
-//                                       {formatDate(booking.checkIn)}
-//                                     </Typography>
-//                                   </Paper> */}
-//                         <Paper
-//                           elevation={0}
-//                           sx={{
-//                             p: 3,
-//                             mb: 2,
-//                             borderRadius: "20px",
-//                             border: "1px solid rgba(0,0,0,0.08)",
-//                             background: "#ffffff",
-//                             transition: "all 0.3s ease",
-//                             "&:hover": {
-//                               boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
-//                               borderColor: "#2196f3", // Hover par halka blue border
-//                             },
-//                           }}
-//                         >
-//                           <Grid container spacing={2} alignItems="center">
-//                             {/* Left Side: Hotel Info */}
-//                             <Grid item xs={12} md={6}>
-//                               <Typography
-//                                 variant="h6"
-//                                 sx={{
-//                                   fontWeight: 800,
-//                                   color: "#1A2027",
-//                                 }}
-//                               >
-//                                 {booking.hotelName}
-//                               </Typography>
-//                               <Box
-//                                 sx={{
-//                                   display: "flex",
-//                                   alignItems: "center",
-//                                   mt: 1,
-//                                   color: "text.secondary",
-//                                 }}
-//                               >
-//                                 <Typography variant="body2">
-//                                   📅 {booking.checkIn} to {booking.checkOut}
-//                                 </Typography>
-//                               </Box>
-//                             </Grid>
-
-//                             {/* Right Side: Status & Price */}
-//                             <Grid
-//                               item
-//                               xs={12}
-//                               md={6}
-//                               sx={{
-//                                 textAlign: {
-//                                   xs: "left",
-//                                   md: "right",
-//                                 },
-//                               }}
-//                             >
-//                               <Typography
-//                                 variant="h5"
-//                                 sx={{
-//                                   fontWeight: 900,
-//                                   color: "#2E7D32",
-//                                   mb: 1,
-//                                 }}
-//                               >
-//                                 ₹{booking.amount || "5,000"}
-//                               </Typography>
-
-//                               <Chip
-//                                 label={booking.status || "Pending"}
-//                                 sx={{
-//                                   fontWeight: "bold",
-//                                   px: 2,
-//                                   // API status based dynamic colors
-//                                   bgcolor:
-//                                     booking.status === "Confirmed"
-//                                       ? "#e8f5e9"
-//                                       : "#fff3e0",
-//                                   color:
-//                                     booking.status === "Confirmed"
-//                                       ? "#2e7d32"
-//                                       : "#ed6c02",
-//                                   border: "1px solid currentColor",
-//                                 }}
-//                               />
-//                             </Grid>
-//                           </Grid>
-//                         </Paper>
-//                       </Grid>
-
-//                       <Grid item xs={6} sm={3}>
-//                         <Paper
-//                           elevation={0}
-//                           sx={{
-//                             p: 1.5,
-//                             borderRadius: "12px",
-//                             background: alpha(moodColor, 0.05),
-//                             textAlign: "center",
-//                           }}
-//                         >
-//                           <EventBusy
-//                             sx={{
-//                               color: moodColor,
-//                               fontSize: "1.2rem",
-//                               mb: 0.5,
-//                             }}
-//                           />
-//                           <Typography
-//                             variant="caption"
-//                             color="text.secondary"
-//                             display="block"
-//                           >
-//                             Check-out
-//                           </Typography>
-//                           <Typography variant="body2" fontWeight="700">
-//                             {formatDate(booking.checkOut)}
-//                           </Typography>
-//                         </Paper>
-//                       </Grid>
-
-//                       <Grid item xs={6} sm={3}>
-//                         <Paper
-//                           elevation={0}
-//                           sx={{
-//                             p: 1.5,
-//                             borderRadius: "12px",
-//                             background: alpha(moodColor, 0.05),
-//                             textAlign: "center",
-//                           }}
-//                         >
-//                           <Person
-//                             sx={{
-//                               color: moodColor,
-//                               fontSize: "1.2rem",
-//                               mb: 0.5,
-//                             }}
-//                           />
-//                           <Typography
-//                             variant="caption"
-//                             color="text.secondary"
-//                             display="block"
-//                           >
-//                             Guests
-//                           </Typography>
-//                           <Typography variant="body2" fontWeight="700">
-//                             {booking.guests}{" "}
-//                             {booking.guests > 1 ? "People" : "Person"}
-//                           </Typography>
-//                         </Paper>
-//                       </Grid>
-
-//                       <Grid item xs={6} sm={3}>
-//                         <Paper
-//                           elevation={0}
-//                           sx={{
-//                             p: 1.5,
-//                             borderRadius: "12px",
-//                             background: alpha(moodColor, 0.05),
-//                             textAlign: "center",
-//                           }}
-//                         >
-//                           <NightsStay
-//                             sx={{
-//                               color: moodColor,
-//                               fontSize: "1.2rem",
-//                               mb: 0.5,
-//                             }}
-//                           />
-//                           <Typography
-//                             variant="caption"
-//                             color="text.secondary"
-//                             display="block"
-//                           >
-//                             Nights
-//                           </Typography>
-//                           <Typography variant="body2" fontWeight="700">
-//                             {booking.totalNights} Nights
-//                           </Typography>
-//                         </Paper>
-//                       </Grid>
-//                     </Grid>
-
-//                     <Divider sx={{ my: 3 }} />
-
-//                     {/* Bottom Actions */}
-//                     <Stack
-//                       direction={{ xs: "column", sm: "row" }}
-//                       justifyContent="space-between"
-//                       alignItems={{ xs: "stretch", sm: "center" }}
-//                       spacing={3}
-//                     >
-//                       <PriceTag moodcolor={moodColor}>
-//                         <Typography
-//                           variant="caption"
-//                           color="text.secondary"
-//                           display="block"
-//                         >
-//                           Total Amount
-//                         </Typography>
-//                         <Stack
-//                           direction="row"
-//                           alignItems="baseline"
-//                           spacing={1}
-//                         >
-//                           <Typography
-//                             variant="h5"
-//                             fontWeight="900"
-//                             color={moodColor}
-//                           >
-//                             ${booking.totalPrice}
-//                           </Typography>
-//                           <Typography variant="caption" color="text.secondary">
-//                             via {booking.paymentMethod}
-//                           </Typography>
-//                         </Stack>
-//                       </PriceTag>
-
-//                       <Stack
-//                         direction="row"
-//                         spacing={2}
-//                         sx={{ flexWrap: "wrap" }}
-//                       >
-//                         {booking.status === "pending" && (
-//                           <Button
-//                             variant="contained"
-//                             onClick={() => handleMakePayment(booking)}
-//                             sx={{
-//                               background: `linear-gradient(135deg, ${moodColor}, ${alpha(
-//                                 moodColor,
-//                                 0.8
-//                               )})`,
-//                               borderRadius: "20px",
-//                               px: 3,
-//                               fontWeight: "bold",
-//                               minWidth: "180px",
-//                             }}
-//                           >
-//                             Complete Payment
-//                           </Button>
-//                         )}
-
-//                         <Button
-//                           variant="outlined"
-//                           onClick={() => handleViewDetails(booking)}
-//                           sx={{
-//                             borderColor: moodColor,
-//                             color: moodColor,
-//                             borderRadius: "20px",
-//                             px: 3,
-//                             fontWeight: "bold",
-//                             minWidth: "140px",
-//                           }}
-//                         >
-//                           View Details
-//                         </Button>
-
-//                         {booking.status === "pending" && (
-//                           <Stack direction="row" spacing={2} sx={{ p: 2 }}>
-//                             <Button onClick={() => handleOpenPayment(booking)}>
-//                               Pay Now
-//                             </Button>
-//                             <Button
-//                               color="error"
-//                               onClick={() => handleCancelBooking(booking._id)}
-//                             >
-//                               Cancel
-//                             </Button>
-//                           </Stack>
-//                         )}
-//                       </Stack>
-//                     </Stack>
-//                   </Box>
-//                 </Grid>
-//               </Grid>
-//             </GradientCard>
-//           </motion.div>
-//         </Grid>
-//       ))}
-//     </Grid>
-//   ) : (
-//     <Box sx={{ textAlign: "center", py: 10 }}>
-//       <Hotel sx={{ fontSize: 80, color: alpha(moodColor, 0.2) }} />
-//       <Typography variant="h5" sx={{ mt: 2, fontWeight: 700 }}>
-//         {tabValue === 0 && "No Upcoming Bookings"}
-//         {tabValue === 1 && "No Completed Trips"}
-//         {tabValue === 2 && "No Cancelled Stays"}
-//       </Typography>
-//       <Button onClick={() => history.push("/")} sx={{ mt: 2 }}>
-//         Book Now
-//       </Button>
-//     </Box>
-//   )}
-// </Container>;
