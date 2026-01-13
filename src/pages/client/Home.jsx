@@ -89,7 +89,6 @@ const Home = () => {
 
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-
   const [guests, setGuests] = useState(1);
   const [open, setOpen] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState(null);
@@ -140,29 +139,33 @@ const Home = () => {
       return;
     }
 
+    const formData = new FormData();
+
     setIsBooked(true);
 
-    // 3. API Payload
-    const bookingData = {
-      // Isse replace karein
-      customerName: userData.email,
-      hotelName: selectedHotel?.name,
-      checkIn: checkIn,
-      checkOut: checkOut,
-      amount: Number(finalAmount),
-      status: "pending",
-    };
+    const imageResponse = await fetch(selectedHotel?.img);
+    const imageBlob = await imageResponse.blob();
 
+    formData.append("customerName", userData.displayName || userData.email);
+    formData.append("hotelName", selectedHotel?.name);
+    formData.append("checkIn", checkIn);
+    formData.append("checkOut", checkOut);
+    formData.append("amount", Number(finalAmount));
+    formData.append("status", "pending");
+
+    formData.append("hotelImage", imageBlob, "hotel-image.jpg");
     try {
-      const response = await api.post("/Bookingsystem", bookingData);
+      const response = await api.post("/Bookingssystem", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast.success("Booking Successfully!");
+      setOpen(false);
 
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Booking Successfully!");
-        setOpen(false);
-        setTimeout(() => {
-          window.location.href = "/bookings";
-        }, 1000);
-      }
+      setTimeout(() => {
+        history.push("/bookings");
+      }, 1000);
     } catch (error) {
       console.error("Booking Error:", error.response?.data);
       toast.error(
