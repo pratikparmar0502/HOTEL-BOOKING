@@ -119,52 +119,60 @@ const Home = () => {
   const finalAmount = totalPrice + serviceFee;
 
   const handleQuickBook = async () => {
+    // 1. User check
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (!userData) {
+      toast.error("Please login to book a hotel!");
+      return;
+    }
+
+    // Validation
     if (!checkIn || !checkOut) {
-      alert("Please select both Check-in and Check-out dates!");
+      alert("Please select both dates!");
+      return;
+    }
+
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+
+    if (end <= start) {
+      toast.error("Check-out date must be after Check-in date!");
       return;
     }
 
     setIsBooked(true);
 
-    // 1. API ke liye payload taiyar karein (Postman ke format mein)
+    // 3. API Payload
     const bookingData = {
-      customerName: "Guest User",
-      hotelName: selectedHotel?.name || selectedHotel?.title,
+      // Isse replace karein
+      customerName: userData.email,
+      hotelName: selectedHotel?.name,
       checkIn: checkIn,
       checkOut: checkOut,
-      amount: finalAmount,
-      status: "Pending",
+      amount: Number(finalAmount),
+      status: "pending",
     };
 
     try {
-      // API Call using your axios instance
-      const res = await api.post("/ConfirmBookings", bookingData);
+      const response = await api.post("/Bookingsystem", bookingData);
 
-      if (res.status === 200 || res.status === 201) {
-        toast.success("Booking Successful! 🎉");
-
-        // LocalStorage update for instant UI
-        const existing = JSON.parse(
-          localStorage.getItem("allBookings") || "[]"
-        );
-        localStorage.setItem(
-          "allBookings",
-          JSON.stringify([bookingData, ...existing])
-        );
-
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Booking Successfully!");
+        setOpen(false);
         setTimeout(() => {
-          setIsBooked(false);
-          setOpen(false);
-          history.push("/bookings");
-        }, 1500);
+          window.location.href = "/bookings";
+        }, 1000);
       }
     } catch (error) {
       console.error("Booking Error:", error.response?.data);
-      // Agar "Key does not match" aa raha hai toh headers check karein
-      toast.error(error.response?.data?.message || "Key mismatch or API Error");
+      toast.error(
+        error.response?.data?.message || "Booking failed. Try again."
+      );
+    } finally {
       setIsBooked(false);
     }
   };
+
   const handleClose = () => {
     setOpen(false);
     setIsBooked(false); // Reset for next time
