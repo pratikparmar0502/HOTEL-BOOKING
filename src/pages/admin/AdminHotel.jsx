@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import api from "../../api/axios";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Formik, Form, Field, validateYupSchema } from "formik"; // Formik import
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -8,7 +9,6 @@ import {
   Box,
   Typography,
   Button,
-  TextField,
   Stack,
   Paper,
   Table,
@@ -19,108 +19,144 @@ import {
   TableRow,
   IconButton,
   Modal,
-  Chip,
+  TextField,
 } from "@mui/material";
-import toast from "react-hot-toast";
+import toast from "react-hot-toast"; // Ya react-toastify jo bhi tum use kar rahe ho
+import api from "../../api/axios";
+import * as Yup from "yup";
 
 const AdminHotel = () => {
   const [list, setList] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [search, setSearch] = useState("");
+  const [editData, setEditData] = useState(null); // Edit ke liye object
   const [openModal, setOpenModal] = useState(false);
+  const [search, setSearch] = useState("");
 
-  // POSTMAN ki key "location" hai, toh hum yahan bhi wahi rakhenge taaki confusion na ho
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Hotel name is required"),
+    location: Yup.string().required("Location is required"),
+    price: Yup.number().positive().required("Price is required"),
+    rate: Yup.number().min(1).max(5).required("Rating (1-5) is required"),
+  });
+
+  // Endpoint aur Token constant
+  const API_URL = "https://generateapi.techsnack.online/api/HotelsData";
+  const TOKEN = "ngXSnLPrB0vbLvNA"; // Tumhari nayi key
+
+  // Initial Values for Formik
   const initialValues = {
     name: "",
     location: "",
-    rate: "",
     price: "",
-    status: true,
-    imageFile: null, // File ke liye extra field
+    rate: "",
+    status: "Available",
+    image: null,
   };
-  const [formData, setFormData] = useState(initialValues);
 
   useEffect(() => {
     getData();
   }, []);
 
+  // 1. GET DATA
   const getData = () => {
+    console.log("Fetching data from:", "/HotelsData");
+    // Ab direct 'api' use karo, ye headers khud bhejega
     api
-      .get("/HotelsData") // Pehle /Hotels tha
-      .then((res) => setList(res.data.Data || []))
-      .catch((err) => console.log("Fetch Error:", err));
+      .get("/HotelsData")
+      .then((res) => {
+        console.log("GET Response:", res.data);
+        setList(res.data.Data || []);
+      })
+      .catch((err) => {
+        console.log("GET Error:", err.response?.data || err.message);
+      });
   };
 
-  const handleSubmit = () => {
-    const formDataObj = new FormData();
-    formDataObj.append("name", formData.name);
-    formDataObj.append("location", formData.location);
-    formDataObj.append("price", formData.price);
-    formDataObj.append("rate", formData.rate);
-    formDataObj.append("status", formData.status);
-    formDataObj.append("Authorization", "ngXSnLPrB0vbLvNA");
+  // 2. SUBMIT HANDLE (Formik Logic)
+  const handleSubmit = (values, { resetForm }) => {
+    const toastId = toast.loading("Processing...");
 
-    if (formData.imageFile) {
-      formDataObj.append("image", formData.imageFile);
+    // 1. FormData banayein
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("location", values.location);
+    formData.append("price", values.price);
+    formData.append("rate", values.rate);
+    formData.append("status", values.status);
+
+    // Image logic
+    if (values.image instanceof File) {
+      formData.append("image", values.image);
     }
 
-    // Sahi endpoint: /HotelsData
-    const url = editId ? `/HotelsData/${editId}` : "/HotelsData";
+    const url = editData
+      ? `/HotelsData/${editData._id}?Authorization=${TOKEN}`
+      : `/HotelsData?Authorization=${TOKEN}`;
 
-    api[editId ? "patch" : "post"](url, formDataObj)
+    api({
+      method: editData ? "patch" : "post",
+      url: url,
+      data: formData,
+      // Note: Yahan Content-Type set MAT karna, Axios automatically boundary set karega
+    })
       .then(() => {
-        toast.success("Success!");
-        finalize();
+        toast.success(editData ? "Updated!" : "Added!", { id: toastId });
+        finalize(resetForm);
       })
-      .catch((err) => toast.error("Key mismatch on HotelsData"));
+      .catch((err) => {
+        console.error("Error Response:", err.response?.data);
+        // Agar abhi bhi mismatch aaye toh check karein dashboard mein key reset toh nahi hui
+        toast.error(err.response?.data?.Message || "Key Mismatch", {
+          id: toastId,
+        });
+      });
   };
 
-  const finalize = () => {
-    setEditId(null);
-    setFormData(initialValues);
+  const finalize = (resetForm) => {
+    setEditData(null);
     setOpenModal(false);
     getData();
+    if (resetForm) resetForm();
   };
 
-  const editBtn = (item) => {
-    setEditId(item._id);
-    setFormData({ ...item, location: item.location });
+  // 3. EDIT & DELETE ACTIONS
+  const handleEdit = (item) => {
+    setEditData(item);
     setOpenModal(true);
   };
 
-  const deleteBtn = (id) => {
-    if (window.confirm("Are you sure?")) {
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this hotel?")) {
+      // API instance use kar rahe hain toh sirf endpoint chahiye, poora URL nahi
       api
-        .delete(`/Hotels/${id}`)
+        .delete(`/HotelsData/${id}`)
         .then(() => {
           toast.success("Deleted Successfully!");
-          getData();
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+          getData(); // List refresh karo
         })
-        .catch(() => toast.error("Delete failed"));
+        .catch((err) => {
+          console.log("Delete Error:", err.response?.data);
+          toast.error("Delete Failed");
+        });
     }
   };
-
   return (
     <Box sx={{ p: 3 }}>
+      {/* Header Section */}
       <Stack direction="row" justifyContent="space-between" mb={4}>
         <Typography variant="h4" fontWeight={800}>
           Manage Hotels
         </Typography>
         <Stack direction="row" spacing={2}>
           <TextField
-            placeholder="Search..."
             size="small"
+            placeholder="Search..."
             onChange={(e) => setSearch(e.target.value)}
           />
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => {
-              setEditId(null);
-              setFormData(initialValues);
+              setEditData(null);
               setOpenModal(true);
             }}
           >
@@ -129,6 +165,7 @@ const AdminHotel = () => {
         </Stack>
       </Stack>
 
+      {/* Table Section */}
       <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead sx={{ bgcolor: "#f8fafc" }}>
@@ -153,7 +190,7 @@ const AdminHotel = () => {
                   <TableCell>
                     <Typography fontWeight={600}>{row.name}</Typography>
                   </TableCell>
-                  <TableCell>{row.location || row.loc}</TableCell>
+                  <TableCell>{row.location}</TableCell>
                   <TableCell>₹{row.price}</TableCell>
                   <TableCell>
                     <Stack direction="row" alignItems="center" spacing={0.5}>
@@ -162,7 +199,7 @@ const AdminHotel = () => {
                     </Stack>
                   </TableCell>
                   <TableCell>
-                    {row.image ? (
+                    {row.image && (
                       <Box
                         component="img"
                         src={row.image}
@@ -174,20 +211,50 @@ const AdminHotel = () => {
                           objectFit: "cover",
                         }}
                       />
-                    ) : (
-                      <Typography variant="caption">No Image</Typography>
                     )}
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => editBtn(row)} color="primary">
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => deleteBtn(row._id)}
-                      color="error"
+                    <Stack
+                      direction="row"
+                      spacing={1.5}
+                      justifyContent="flex-end"
                     >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                      {/* EDIT BUTTON */}
+                      <IconButton
+                        onClick={() => handleEdit(row)}
+                        sx={{
+                          bgcolor: "#e0f2fe", // Very light blue
+                          color: "#0284c7", // Dark blue
+                          borderRadius: "10px", // Thoda square-round mix
+                          "&:hover": {
+                            bgcolor: "#0284c7",
+                            color: "#fff",
+                            transform: "translateY(-2px)",
+                          },
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+
+                      {/* DELETE BUTTON */}
+                      <IconButton
+                        onClick={() => handleDelete(row._id)}
+                        sx={{
+                          bgcolor: "#fee2e2", // Very light red
+                          color: "#ef4444", // Dark red
+                          borderRadius: "10px",
+                          "&:hover": {
+                            bgcolor: "#ef4444",
+                            color: "#fff",
+                            transform: "translateY(-2px)",
+                          },
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               ))}
@@ -195,6 +262,7 @@ const AdminHotel = () => {
         </Table>
       </TableContainer>
 
+      {/* Formik Modal */}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
@@ -209,63 +277,100 @@ const AdminHotel = () => {
           }}
         >
           <Typography variant="h6" fontWeight={700} mb={3}>
-            {editId ? "Update Hotel" : "Add Hotel"}
+            {editData ? "Update Hotel" : "Add Hotel"}
           </Typography>
-          <Stack spacing={2}>
-            <TextField
-              label="Hotel Name"
-              fullWidth
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-            <TextField
-              label="Location"
-              fullWidth
-              value={formData.location}
-              onChange={(e) =>
-                setFormData({ ...formData, location: e.target.value })
-              }
-            />
-            <TextField
-              label="Price"
-              type="number"
-              fullWidth
-              value={formData.price}
-              onChange={(e) =>
-                setFormData({ ...formData, price: e.target.value })
-              }
-            />
-            <TextField
-              label="Rating"
-              type="number"
-              fullWidth
-              value={formData.rate}
-              onChange={(e) =>
-                setFormData({ ...formData, rate: e.target.value })
-              }
-            />
 
-            <Typography variant="caption">Upload Hotel Image</Typography>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setFormData({ ...formData, imageFile: e.target.files[0] })
-              }
-            />
+          <Formik
+            initialValues={editData || initialValues}
+            validationSchema={validationSchema} // <-- Ye add kiya
+            enableReinitialize={true}
+            onSubmit={handleSubmit}
+          >
+            {(
+              { setFieldValue, values, errors, touched } // errors aur touched nikaala
+            ) => (
+              <Form>
+                <Stack spacing={2}>
+                  <Field
+                    as={TextField}
+                    name="name"
+                    label="Hotel Name"
+                    fullWidth
+                    size="small"
+                    // Validation UI:
+                    error={touched.name && !!errors.name}
+                    helperText={touched.name && errors.name}
+                  />
+                  <Field
+                    as={TextField}
+                    name="location"
+                    label="Location"
+                    fullWidth
+                    size="small"
+                    error={touched.location && !!errors.location}
+                    helperText={touched.location && errors.location}
+                  />
+                  <Field
+                    as={TextField}
+                    name="price"
+                    label="Price"
+                    type="number"
+                    fullWidth
+                    size="small"
+                    error={touched.price && !!errors.price}
+                    helperText={touched.price && errors.price}
+                  />
+                  <Field
+                    as={TextField}
+                    name="rate"
+                    label="Rating"
+                    type="number"
+                    fullWidth
+                    size="small"
+                    error={touched.rate && !!errors.rate}
+                    helperText={touched.rate && errors.rate}
+                  />
 
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleSubmit}
-              fullWidth
-              sx={{ mt: 2 }}
-            >
-              {editId ? "Update" : "Save"}
-            </Button>
-          </Stack>
+                  {/* Image Preview - Ye thoda mast feature hai */}
+                  <Box
+                    sx={{ border: "1px dashed #ccc", p: 1, borderRadius: 1 }}
+                  >
+                    <Typography variant="caption" display="block" mb={1}>
+                      Hotel Image
+                    </Typography>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        setFieldValue("image", e.currentTarget.files[0])
+                      }
+                    />
+                    {/* Nayi select ki hui photo ka preview */}
+                    {values.image && typeof values.image !== "string" && (
+                      <img
+                        src={URL.createObjectURL(values.image)}
+                        alt="preview"
+                        style={{
+                          width: "100px",
+                          marginTop: "10px",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    )}
+                  </Box>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{ mt: 2, py: 1.5, fontWeight: "bold" }}
+                  >
+                    {editData ? "Update Hotel Details" : "Save New Hotel"}
+                  </Button>
+                </Stack>
+              </Form>
+            )}
+          </Formik>
         </Box>
       </Modal>
     </Box>
