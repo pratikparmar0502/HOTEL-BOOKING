@@ -39,7 +39,7 @@ const AdminHotel = () => {
   });
 
   // Endpoint aur Token constant
-  const API_URL = "https://generateapi.techsnack.online/api/HotelsData";
+  const API_URL = "https://generateapi.techsnack.online/api/HotelData";
   const TOKEN = "ngXSnLPrB0vbLvNA"; // Tumhari nayi key
 
   // Initial Values for Formik
@@ -58,10 +58,10 @@ const AdminHotel = () => {
 
   // 1. GET DATA
   const getData = () => {
-    console.log("Fetching data from:", "/HotelsData");
+    console.log("Fetching data from:", "/HotelData");
     // Ab direct 'api' use karo, ye headers khud bhejega
     api
-      .get("/HotelsData")
+      .get("/HotelData")
       .then((res) => {
         console.log("GET Response:", res.data);
         setList(res.data.Data || []);
@@ -82,6 +82,7 @@ const AdminHotel = () => {
     formData.append("price", values.price);
     formData.append("rate", values.rate);
     formData.append("status", values.status);
+    formData.append("category", values.category);
 
     // Image logic
     if (values.image instanceof File) {
@@ -89,8 +90,8 @@ const AdminHotel = () => {
     }
 
     const url = editData
-      ? `/HotelsData/${editData._id}?Authorization=${TOKEN}`
-      : `/HotelsData?Authorization=${TOKEN}`;
+      ? `/HotelData/${editData._id}?Authorization=${TOKEN}`
+      : `/HotelData?Authorization=${TOKEN}`;
 
     api({
       method: editData ? "patch" : "post",
@@ -128,7 +129,7 @@ const AdminHotel = () => {
     if (window.confirm("Are you sure you want to delete this hotel?")) {
       // API instance use kar rahe hain toh sirf endpoint chahiye, poora URL nahi
       api
-        .delete(`/HotelsData/${id}`)
+        .delete(`/HotelData/${id}`)
         .then(() => {
           toast.success("Deleted Successfully!");
           getData(); // List refresh karo
@@ -175,6 +176,7 @@ const AdminHotel = () => {
               <TableCell sx={{ fontWeight: 700 }}>Price</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Rating</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Image</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Category</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>
                 Actions
               </TableCell>
@@ -191,7 +193,7 @@ const AdminHotel = () => {
                     <Typography fontWeight={600}>{row.name}</Typography>
                   </TableCell>
                   <TableCell>{row.location}</TableCell>
-                  <TableCell>₹{row.price}</TableCell>
+                  <TableCell>$ {row.price}</TableCell>
                   <TableCell>
                     <Stack direction="row" alignItems="center" spacing={0.5}>
                       <StarIcon sx={{ color: "#f59e0b", fontSize: 18 }} />
@@ -212,6 +214,20 @@ const AdminHotel = () => {
                         }}
                       />
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        bgcolor: "#f1f5f9",
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: "20px",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {row.category || "N/A"}
+                    </Typography>
                   </TableCell>
                   <TableCell align="right">
                     <Stack
@@ -287,7 +303,7 @@ const AdminHotel = () => {
             onSubmit={handleSubmit}
           >
             {(
-              { setFieldValue, values, errors, touched } // errors aur touched nikaala
+              { setFieldValue, values, errors, touched, handleChange } // errors aur touched nikaala
             ) => (
               <Form>
                 <Stack spacing={2}>
@@ -330,6 +346,26 @@ const AdminHotel = () => {
                     error={touched.rate && !!errors.rate}
                     helperText={touched.rate && errors.rate}
                   />
+                  <TextField
+                    select
+                    label="Select Mood/Category"
+                    name="category"
+                    // Formik ke values aur handleChange use karo, formData nahi!
+                    value={values.category}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
+                    error={touched.category && !!errors.category}
+                    helperText={touched.category && errors.category}
+                    SelectProps={{ native: true }}
+                  >
+                    <option value="">Select Mood</option>
+                    <option value="nature">Nature</option>
+                    <option value="urban">Urban</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="romantic">Romantic</option>
+                    <option value="royal">Royal</option>
+                  </TextField>
 
                   {/* Image Preview - Ye thoda mast feature hai */}
                   <Box
