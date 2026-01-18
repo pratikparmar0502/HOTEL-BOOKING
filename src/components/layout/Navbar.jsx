@@ -47,7 +47,7 @@ import { ArrowForward } from "@mui/icons-material";
 
 const navItems = [
   { label: "Home", path: "/", icon: <Home /> },
-  { label: "Rooms", path: "/destination", icon: <Place /> },
+  // { label: "Rooms", path: "/destination", icon: <Place /> },
   { label: "My Bookings", path: "/bookings", icon: <Bookmark /> },
   { label: "About", path: "/about", icon: <InfoIcon /> },
 ];
@@ -177,7 +177,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
                     lineHeight: 1.2,
                     fontFamily: "'Inter', sans-serif",
                     background: `linear-gradient(45deg, #111827, ${getMoodColor(
-                      mood
+                      mood,
                     )})`,
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
@@ -289,7 +289,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
                     onClick={() => history.push("/auth", { mode: "signup" })}
                     sx={{
                       background: `linear-gradient(45deg, ${getMoodColor(
-                        mood
+                        mood,
                       )}, ${getMoodColor(mood)}dd)`,
                       color: "white",
                       fontWeight: 700,
@@ -304,7 +304,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
                       "&:hover": {
                         boxShadow: `0 6px 15px ${alpha(
                           getMoodColor(mood),
-                          0.5
+                          0.5,
                         )}`,
                         transform: "translateY(-1.5px)",
                       },
@@ -396,7 +396,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
                         filter: isActive
                           ? `drop-shadow(0 2px 4px ${alpha(
                               getMoodColor(m.id),
-                              0.3
+                              0.3,
                             )})`
                           : "none",
                       }}
@@ -529,7 +529,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
             pb: 5,
             background: `linear-gradient(to top, #fff, ${alpha(
               moodColor,
-              0.02
+              0.02,
             )})`,
             borderTop: `1px solid ${alpha(moodColor, 0.1)}`,
           }}
@@ -574,7 +574,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
                   textTransform: "none",
                   background: `linear-gradient(135deg, ${moodColor} 0%, ${alpha(
                     moodColor,
-                    0.8
+                    0.8,
                   )} 100%)`,
                   boxShadow: `0 8px 20px ${alpha(moodColor, 0.3)}`,
                   "&:hover": {

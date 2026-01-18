@@ -71,7 +71,6 @@ const AppContent = ({ isLoggedIn, isAdmin, handleLogin, handleLogout }) => {
             <Redirect to={isLoggedIn ? "/" : "/auth"} />
           )}
         </Route>
-
         <Route path={["/auth", "/login", "/signup"]}>
           {isLoggedIn ? (
             <Redirect to={isAdmin ? "/admin" : "/"} />
@@ -94,7 +93,7 @@ const AppContent = ({ isLoggedIn, isAdmin, handleLogin, handleLogout }) => {
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isLoggedIn") === "true"
+    localStorage.getItem("isLoggedIn") === "true",
   );
 
   const [isAdmin, setIsAdmin] = useState(() => {

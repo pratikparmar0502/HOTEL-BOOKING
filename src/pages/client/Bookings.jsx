@@ -84,7 +84,7 @@ const Timeline = ({ children, moodcolor }) => (
         width: "3px",
         background: `linear-gradient(to bottom, ${moodcolor}, ${alpha(
           moodcolor,
-          0.3
+          0.3,
         )})`,
         borderRadius: "2px",
       }}
@@ -148,7 +148,7 @@ const TimelineOppositeContent = ({ children, color }) => (
 const GradientCard = styled(Card)(({ theme, moodcolor }) => ({
   background: `linear-gradient(135deg, ${alpha(moodcolor, 0.05)} 0%, ${alpha(
     moodcolor,
-    0.02
+    0.02,
   )} 100%)`,
   borderRadius: "28px",
   border: `2px solid ${alpha(moodcolor, 0.1)}`,
@@ -163,7 +163,7 @@ const GradientCard = styled(Card)(({ theme, moodcolor }) => ({
     height: "6px",
     background: `linear-gradient(90deg, ${moodcolor}, ${alpha(
       moodcolor,
-      0.8
+      0.8,
     )})`,
     borderRadius: "28px 28px 0 0",
   },
@@ -174,10 +174,10 @@ const StatusBadge = styled(Chip)(({ theme, moodcolor, status }) => ({
     status === "confirmed"
       ? `linear-gradient(135deg, ${moodcolor}, ${alpha(moodcolor, 0.8)})`
       : status === "pending"
-      ? `linear-gradient(135deg, #f59e0b, #fbbf24)`
-      : status === "completed"
-      ? `linear-gradient(135deg, #10b981, #34d399)`
-      : `linear-gradient(135deg, #ef4444, #dc2626)`,
+        ? `linear-gradient(135deg, #f59e0b, #fbbf24)`
+        : status === "completed"
+          ? `linear-gradient(135deg, #10b981, #34d399)`
+          : `linear-gradient(135deg, #ef4444, #dc2626)`,
   color: "white",
   fontWeight: "bold",
   padding: theme.spacing(0.5, 2),
@@ -185,9 +185,9 @@ const StatusBadge = styled(Chip)(({ theme, moodcolor, status }) => ({
     status === "confirmed"
       ? moodcolor
       : status === "pending"
-      ? "#f59e0b"
-      : "#10b981",
-    0.3
+        ? "#f59e0b"
+        : "#10b981",
+    0.3,
   )}`,
   animation: status === "confirmed" ? "pulse 2s infinite" : "none",
 }));
@@ -209,7 +209,7 @@ const PriceTag = styled(Box)(({ theme, moodcolor }) => ({
     height: "4px",
     background: `linear-gradient(90deg, ${moodcolor}, ${alpha(
       moodcolor,
-      0.8
+      0.8,
     )})`,
   },
 }));
@@ -243,44 +243,6 @@ const Bookings = () => {
   };
 
   const moodColor = getMoodColor(mood);
-
-  // const fetchMyBookings = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const userData = JSON.parse(localStorage.getItem("user"));
-  //     const userEmail = userData?.email;
-  //     const userName = userData?.displayName;
-
-  //     const response = await api.get("/Bookingssystem");
-  //     console.log("Full Data:", response.data);
-  //     // 1. Data structure fix (Aapka data 'Data' key ke andar hai)
-  //     const allData = response.data.Data || [];
-
-  //     // 2. Filter logic ko behtar karein
-  //     const myData = allData.filter((b) => {
-  //       const dbCustomer = b.customerName?.toLowerCase().trim();
-  //       const currentUserEmail = userData?.email?.toLowerCase().trim();
-  //       const currentUserName = userData?.displayName?.toLowerCase().trim();
-
-  //       // Debugging ke liye console log (Ise check karein browser mein)
-  //       console.log(
-  //         `Checking: DB(${dbCustomer}) vs User(${currentUserEmail} / ${currentUserName})`
-  //       );
-
-  //       // Match check
-  //       return (
-  //         dbCustomer === currentUserEmail || dbCustomer === currentUserName
-  //       );
-  //     });
-  //     console.log("My Filtered Bookings:", myData);
-  //     setBookings(myData);
-  //   } catch (err) {
-  //     console.error("Fetch Error:", err);
-  //     toast.error("Failed to fetch bookings");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const fetchMyBookings = async () => {
     try {
@@ -344,56 +306,6 @@ const Bookings = () => {
     setPaymentStep(0);
   };
 
-  // const handleCompletePayment = async () => {
-  //   setPaymentStep(1); // Stepper loading start
-
-  //   try {
-  //     // 1. FormData banayein (JSON nahi chalega kyunki backend Multer use kar raha hai)
-  //     const formData = new FormData();
-
-  //     // 2. Status Update
-  //     formData.append("status", "confirmed");
-  //     formData.append("paymentMethod", paymentMethod);
-
-  //     // 3. FIX
-  //     formData.append("hotelImage", selectedBooking?.hotelImage || "");
-  //     formData.append("amount", selectedBooking?.amount || 0);
-
-  //     // 4. PATCH Call with Backticks
-  //     const response = await api.patch(
-  //       `/Bookingssystem/${selectedBooking._id}`,
-  //       formData,
-  //       {
-  //         headers: { "Content-Type": "multipart/form-data" },
-  //       }
-  //     );
-
-  //     if (response.data.Status === "Success") {
-  //       // Success Animation Sequence
-  //       setTimeout(() => {
-  //         setPaymentStep(2);
-  //         setShowConfetti(true);
-
-  //         setTimeout(() => {
-  //           setOpenPayment(false);
-  //           setShowConfetti(false);
-
-  //           // List refresh karein
-  //           fetchMyBookings();
-
-  //           toast.success("Payment Successful!");
-  //         }, 2000);
-  //       }, 1500);
-  //     }
-  //   } catch (error) {
-  //     console.error("Payment Update Error:", error.response?.data);
-
-  //     // Agar abhi bhi error aaye toh uska message dikhayein
-  //     const errorMsg = error.response?.data?.Message || "Server Update Failed";
-  //     toast.error(errorMsg);
-  //     setPaymentStep(0);
-  //   }
-  // };
   const handleCompletePayment = async () => {
     setPaymentStep(1);
 
@@ -419,7 +331,7 @@ const Bookings = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       if (response.data.Status === "Success") {
@@ -436,7 +348,7 @@ const Bookings = () => {
       console.error("Backend Error:", error.response?.data);
       // Agar abhi bhi error aaye, toh console mein 'Message' check karein
       toast.error(
-        error.response?.data?.Message || "Server Error: Key mismatch"
+        error.response?.data?.Message || "Server Error: Key mismatch",
       );
       setPaymentStep(0);
     }
@@ -581,7 +493,7 @@ const Bookings = () => {
           minHeight: "100vh",
           background: `linear-gradient(180deg, ${alpha(
             moodColor,
-            0.08
+            0.08,
           )} 0%, #ffffff 100%)`,
           transition: "background 0.5s ease", // for smooth
           pb: 8,
@@ -655,7 +567,7 @@ const Bookings = () => {
           sx={{
             background: `linear-gradient(135deg, ${moodColor} 0%, ${alpha(
               moodColor,
-              0.8
+              0.8,
             )} 100%)`,
             borderRadius: "0 0 32px 32px",
             py: 5,
@@ -733,7 +645,7 @@ const Bookings = () => {
                 {
                   label: "Upcoming",
                   value: bookings.filter((b) =>
-                    ["confirmed", "pending"].includes(b.status)
+                    ["confirmed", "pending"].includes(b.status),
                   ).length,
                   icon: <CalendarToday />,
                 },
@@ -748,7 +660,7 @@ const Bookings = () => {
                     ...new Set(
                       bookings
                         .map((b) => b.location?.split(",")[0] || "")
-                        .filter(Boolean)
+                        .filter(Boolean),
                     ),
                   ].length,
                   icon: <LocationOn />,
@@ -926,14 +838,19 @@ const Bookings = () => {
                       >
                         <Box
                           sx={{
-                            bgcolor: "primary.light",
+                            bgcolor: alpha(moodColor, 0.1),
                             p: 0.8,
                             borderRadius: "10px",
                             display: "flex",
                             color: "primary.main",
                           }}
                         >
-                          <CalendarToday sx={{ fontSize: 16 }} />
+                          <CalendarToday
+                            sx={{
+                              fontSize: 16,
+                              color: moodColor,
+                            }}
+                          />
                         </Box>
                         <Typography
                           variant="body2"
@@ -964,7 +881,8 @@ const Bookings = () => {
                           <Typography
                             variant="h5"
                             sx={{
-                              color: "primary.main",
+                              // color: "primary.main",
+                              color: moodColor,
                               fontWeight: "900",
                               display: "flex",
                               alignItems: "center",
@@ -985,12 +903,14 @@ const Bookings = () => {
                                 px: 3,
                                 textTransform: "none",
                                 fontWeight: "700",
-                                boxShadow: "0 8px 20px rgba(25, 118, 210, 0.3)",
-                                background:
-                                  "linear-gradient(45deg, #1976d2, #42a5f5)",
+                                boxShadow:
+                                  "0 8px 20px  rgba(25, 118, 210, 0.3)",
+                                backgroundColor: moodColor,
+                                color: "white",
                                 "&:hover": {
+                                  backgroundColor: moodColor,
                                   boxShadow:
-                                    "0 12px 25px rgba(25, 118, 210, 0.4)",
+                                    "0 12px 25px rgba(25, 118, 210, 0.4) ",
                                 },
                               }}
                             >
@@ -1019,7 +939,7 @@ const Bookings = () => {
                   borderRadius: "28px",
                   background: `linear-gradient(135deg, ${alpha(
                     moodColor,
-                    0.05
+                    0.05,
                   )} 0%, ${alpha(moodColor, 0.02)} 100%)`,
                   border: `2px dashed ${alpha(moodColor, 0.2)}`,
                 }}
@@ -1034,8 +954,8 @@ const Bookings = () => {
                   {activeTab === 0
                     ? "Your upcoming adventures will appear here!"
                     : activeTab === 1
-                    ? "Your completed stays will show up here!"
-                    : "Cancelled bookings will appear here"}
+                      ? "Your completed stays will show up here!"
+                      : "Cancelled bookings will appear here"}
                 </Typography>
               </Paper>
             </motion.div>
@@ -1168,14 +1088,14 @@ const Bookings = () => {
                                   amenity.status === "Confirmed"
                                     ? "#e8f5e9"
                                     : amenity.status === "Cancelled"
-                                    ? "#ffebee"
-                                    : "#fff3e0",
+                                      ? "#ffebee"
+                                      : "#fff3e0",
                                 color:
                                   amenity.status === "Confirmed"
                                     ? "#2e7d32"
                                     : amenity.status === "Cancelled"
-                                    ? "#d32f2f"
-                                    : "#ed6c02",
+                                      ? "#d32f2f"
+                                      : "#ed6c02",
                                 border: "1px solid",
                                 borderColor: "currentColor",
                               }}
@@ -1204,7 +1124,7 @@ const Bookings = () => {
                             Base Price ({selectedBooking.totalNights} nights × $
                             {Math.round(
                               selectedBooking.basePrice /
-                                selectedBooking.totalNights
+                                selectedBooking.totalNights,
                             )}
                             )
                           </Typography>
@@ -1351,7 +1271,7 @@ const Bookings = () => {
                     px: 4,
                     background: `linear-gradient(135deg, ${moodColor}, ${alpha(
                       moodColor,
-                      0.8
+                      0.8,
                     )})`,
                     fontWeight: "bold",
                   }}
@@ -1382,7 +1302,7 @@ const Bookings = () => {
                 sx={{
                   background: `linear-gradient(135deg, ${moodColor} 0%, ${alpha(
                     moodColor,
-                    0.8
+                    0.8,
                   )} 100%)`,
                   p: 4,
                   textAlign: "center",
@@ -1618,7 +1538,7 @@ const Bookings = () => {
                           borderRadius: "50%",
                           background: `linear-gradient(135deg, ${moodColor}, ${alpha(
                             moodColor,
-                            0.8
+                            0.8,
                           )})`,
                           display: "flex",
                           alignItems: "center",
@@ -1685,7 +1605,7 @@ const Bookings = () => {
                         px: 4,
                         background: `linear-gradient(135deg, ${moodColor}, ${alpha(
                           moodColor,
-                          0.8
+                          0.8,
                         )})`,
                         fontWeight: "bold",
                       }}
@@ -1707,7 +1627,7 @@ const Bookings = () => {
                       px: 4,
                       background: `linear-gradient(135deg, ${moodColor}, ${alpha(
                         moodColor,
-                        0.8
+                        0.8,
                       )})`,
                       fontWeight: "bold",
                     }}
@@ -1729,7 +1649,7 @@ const Bookings = () => {
             right: 32,
             background: `linear-gradient(135deg, ${moodColor}, ${alpha(
               moodColor,
-              0.8
+              0.8,
             )})`,
             width: 56,
             height: 56,

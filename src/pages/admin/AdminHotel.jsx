@@ -35,11 +35,10 @@ const AdminHotel = () => {
     name: Yup.string().required("Hotel name is required"),
     location: Yup.string().required("Location is required"),
     price: Yup.number().positive().required("Price is required"),
-    rate: Yup.number().min(1).max(5).required("Rating (1-5) is required"),
   });
 
   // Endpoint aur Token constant
-  const API_URL = "https://generateapi.techsnack.online/api/HotelData";
+  const API_URL = "https://generateapi.techsnack.online/api/HotelDatas";
   const TOKEN = "ngXSnLPrB0vbLvNA"; // Tumhari nayi key
 
   // Initial Values for Formik
@@ -47,7 +46,6 @@ const AdminHotel = () => {
     name: "",
     location: "",
     price: "",
-    rate: "",
     status: "Available",
     image: null,
   };
@@ -58,10 +56,10 @@ const AdminHotel = () => {
 
   // 1. GET DATA
   const getData = () => {
-    console.log("Fetching data from:", "/HotelData");
+    console.log("Fetching data from:", "/HotelDatas");
     // Ab direct 'api' use karo, ye headers khud bhejega
     api
-      .get("/HotelData")
+      .get("/HotelDatas")
       .then((res) => {
         console.log("GET Response:", res.data);
         setList(res.data.Data || []);
@@ -80,7 +78,6 @@ const AdminHotel = () => {
     formData.append("name", values.name);
     formData.append("location", values.location);
     formData.append("price", values.price);
-    formData.append("rate", values.rate);
     formData.append("status", values.status);
     formData.append("category", values.category);
 
@@ -90,8 +87,8 @@ const AdminHotel = () => {
     }
 
     const url = editData
-      ? `/HotelData/${editData._id}?Authorization=${TOKEN}`
-      : `/HotelData?Authorization=${TOKEN}`;
+      ? `/HotelDatas/${editData._id}?Authorization=${TOKEN}`
+      : `/HotelDatas?Authorization=${TOKEN}`;
 
     api({
       method: editData ? "patch" : "post",
@@ -129,7 +126,7 @@ const AdminHotel = () => {
     if (window.confirm("Are you sure you want to delete this hotel?")) {
       // API instance use kar rahe hain toh sirf endpoint chahiye, poora URL nahi
       api
-        .delete(`/HotelData/${id}`)
+        .delete(`/HotelDatas/${id}`)
         .then(() => {
           toast.success("Deleted Successfully!");
           getData(); // List refresh karo
@@ -174,7 +171,6 @@ const AdminHotel = () => {
               <TableCell sx={{ fontWeight: 700 }}>Hotel Name</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Location</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Price</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Rating</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Image</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Category</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>
@@ -185,7 +181,7 @@ const AdminHotel = () => {
           <TableBody>
             {list
               .filter((i) =>
-                i.name?.toLowerCase().includes(search.toLowerCase())
+                i.name?.toLowerCase().includes(search.toLowerCase()),
               )
               .map((row) => (
                 <TableRow key={row._id} hover>
@@ -194,12 +190,6 @@ const AdminHotel = () => {
                   </TableCell>
                   <TableCell>{row.location}</TableCell>
                   <TableCell>$ {row.price}</TableCell>
-                  <TableCell>
-                    <Stack direction="row" alignItems="center" spacing={0.5}>
-                      <StarIcon sx={{ color: "#f59e0b", fontSize: 18 }} />
-                      <Typography>{row.rate}</Typography>
-                    </Stack>
-                  </TableCell>
                   <TableCell>
                     {row.image && (
                       <Box
@@ -303,7 +293,7 @@ const AdminHotel = () => {
             onSubmit={handleSubmit}
           >
             {(
-              { setFieldValue, values, errors, touched, handleChange } // errors aur touched nikaala
+              { setFieldValue, values, errors, touched, handleChange }, // errors aur touched nikaala
             ) => (
               <Form>
                 <Stack spacing={2}>
@@ -335,16 +325,6 @@ const AdminHotel = () => {
                     size="small"
                     error={touched.price && !!errors.price}
                     helperText={touched.price && errors.price}
-                  />
-                  <Field
-                    as={TextField}
-                    name="rate"
-                    label="Rating"
-                    type="number"
-                    fullWidth
-                    size="small"
-                    error={touched.rate && !!errors.rate}
-                    helperText={touched.rate && errors.rate}
                   />
                   <TextField
                     select

@@ -35,7 +35,7 @@ const AdminDashboard = () => {
     try {
       // 1. Teeno APIs se data ek saath mangwao
       const [hotelRes, custRes, bookRes] = await Promise.all([
-        api.get("/Hotels"),
+        api.get("/HotelDatas"),
         api.get("/Users"),
         api.get("/ConfirmBookings"),
       ]);
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
       const totalRev = bData
         .filter((b) => b.status === "confirmed") // Sirf confirmed bookings ka paisa
         .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
-      
+
       // 4. Stats set karo
       setStats({
         totalHotels: hData.length,
