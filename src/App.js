@@ -58,7 +58,10 @@ const AppContent = ({ isLoggedIn, isAdmin, handleLogin, handleLogout }) => {
           {isLoggedIn && isAdmin ? (
             <AdminLayout onLogout={handleLogout}>
               <Switch>
-                <Route exact path="/admin" component={AdminDashboard} />
+                <Route exact path="/admin">
+                  <Redirect to="/admin/admin" />
+                </Route>
+                <Route path="/admin/admin" component={AdminDashboard} />
                 <Route path="/admin/adminhotel" component={AdminHotel} />
                 <Route path="/admin/adminbooking" component={AdminBooking} />
                 <Route
@@ -92,9 +95,9 @@ const AppContent = ({ isLoggedIn, isAdmin, handleLogin, handleLogout }) => {
 };
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isLoggedIn") === "true",
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem("isLoggedIn") === "true";
+  });
 
   const [isAdmin, setIsAdmin] = useState(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -103,16 +106,14 @@ function App() {
 
   const handleLogin = (user) => {
     setIsLoggedIn(true);
+    localStorage.setItem("isLoggedIn", "true"); // LocalStorage update zaroori hai
     if (user && user.email === "admin07@gmail.com") {
       setIsAdmin(true);
-    } else {
-      setIsAdmin(false);
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("isLoggedIn");
+    localStorage.clear();
     setIsLoggedIn(false);
     setIsAdmin(false);
     toast.success("Logged out successfully!", {

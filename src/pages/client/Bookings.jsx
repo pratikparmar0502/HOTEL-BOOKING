@@ -259,17 +259,10 @@ const Bookings = () => {
 
       // Filter by user
       const myData = allData.filter((b) => {
-        if (!b) return false;
-
         const dbCustomer =
           b.customerName?.toString().toLowerCase().trim() || "";
         const dbEmail = b.email?.toString().toLowerCase().trim() || "";
-
-        return (
-          dbCustomer === userName ||
-          dbCustomer === userEmail ||
-          dbEmail === userEmail
-        );
+        return dbCustomer === userEmail || dbEmail === userEmail;
       });
 
       console.log("Filtered Bookings:", myData);
@@ -315,13 +308,13 @@ const Bookings = () => {
       // 1. Normal Fields
       formData.append("status", "confirmed");
       formData.append("paymentMethod", paymentMethod);
+      formData.append("hotelImage", dummyBlob, "current_image.png");
 
       // 2. MULTER FIX:
       // Backend ko 'hotelImage' key mein FILE chahiye.
       // Hum ek khali Blob (dummy file) bhejenge taaki Multer ko
       // uska expected 'file' format mil jaye aur "Key mismatch" na aaye.
       const dummyBlob = new Blob([""], { type: "image/png" });
-      formData.append("hotelImage", dummyBlob, "current_image.png");
 
       // 3. API Request
       const response = await api.patch(
@@ -598,19 +591,6 @@ const Bookings = () => {
                 >
                   Back to Home
                 </Button>
-              </Box>
-
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <IconButton
-                  sx={{ background: "rgba(255,255,255,0.2)", color: "white" }}
-                >
-                  <Share />
-                </IconButton>
-                <IconButton
-                  sx={{ background: "rgba(255,255,255,0.2)", color: "white" }}
-                >
-                  <Print />
-                </IconButton>
               </Box>
             </Stack>
 
@@ -889,7 +869,7 @@ const Bookings = () => {
                               gap: 0.5,
                             }}
                           >
-                            ₹{booking.amount.toLocaleString()}
+                            ${booking.amount.toLocaleString()}
                           </Typography>
                         </Box>
 

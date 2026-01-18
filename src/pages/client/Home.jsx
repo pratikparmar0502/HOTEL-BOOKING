@@ -208,9 +208,7 @@ const Home = () => {
       formData.append("amount", Number(finalAmount));
       formData.append("status", "pending");
 
-      if (imageBlob) {
-        formData.append("hotelImage", imageBlob, "hotel-image.jpg");
-      }
+      formData.append("hotelImage", imageBlob, "hotel_image.jpg");
 
       await api.post("/Bookingssystem", formData, {
         headers: { "Content-Type": "multipart/form-data" },
