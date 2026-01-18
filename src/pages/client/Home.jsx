@@ -44,6 +44,7 @@ import {
   CircularProgress,
   Backdrop,
   Grid2,
+  duration,
 } from "@mui/material";
 
 import { MoodContext } from "../../context/MoodContext.jsx";
@@ -51,289 +52,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min.js";
 import api from "../../api/axios.js";
 import toast from "react-hot-toast";
-
-// const hotelData = {
-//   nature: [
-//     {
-//       id: 1,
-//       name: "Whispering Pines Sanctuary",
-//       price: "55",
-//       img: nature1,
-//       loc: "Gulmarg, Kashmir",
-//       rating: 4.8,
-//       desc: "A serene escape into the lush green pine forests of Kashmir.",
-//     },
-//     {
-//       id: 2,
-//       name: "The Mist-Clad Valley Lodge",
-//       price: "39",
-//       img: nature2,
-//       loc: "Munnar, Kerala",
-//       rating: 4.5,
-//       desc: "Breathtaking views of tea gardens and misty mountains.",
-//     },
-//     {
-//       id: 3,
-//       name: "Hidden Peak Eco-Retreat",
-//       price: "70",
-//       img: nature3,
-//       loc: "Kasol, Himachal",
-//       rating: 4.7,
-//       desc: "Riverside eco-friendly cabins for true nature lovers.",
-//     },
-//     {
-//       id: 4,
-//       name: "Wildflower Canyon Suites",
-//       price: "48",
-//       img: nature4,
-//       loc: "Dharamshala, India",
-//       rating: 4.3,
-//       desc: "Experience the tranquility of the Himalayas.",
-//     },
-//     {
-//       id: 5,
-//       name: "The Alpine Shadow Resort",
-//       price: "75",
-//       img: nature5,
-//       loc: "Coorg, Karnataka",
-//       rating: 4.6,
-//       desc: "A luxurious stay hidden within coffee plantations.",
-//     },
-//     {
-//       id: 6,
-//       name: "Cedar Creek Riverside Inn",
-//       price: "35",
-//       img: nature6,
-//       loc: "Rishikesh, Uttarakhand",
-//       rating: 4.4,
-//       desc: "Peaceful stay right on the banks of the holy Ganges.",
-//     },
-//   ],
-//   urban: [
-//     {
-//       id: 7,
-//       name: "The Onyx Skyscraper Hotel",
-//       price: "145",
-//       img: urban1,
-//       loc: "South Bombay, Mumbai",
-//       rating: 4.9,
-//       desc: "Luxury sky-high living in the heart of the business district.",
-//     },
-//     {
-//       id: 8,
-//       name: "Luminary Plaza & Suites",
-//       price: "105",
-//       img: urban2,
-//       loc: "Cyber Hub, Gurgaon",
-//       rating: 4.2,
-//       desc: "Modern amenities for the tech-savvy urban traveler.",
-//     },
-//     {
-//       id: 9,
-//       name: "The Velvet Metropolitan",
-//       price: "180",
-//       img: urban3,
-//       loc: "Indiranagar, Bangalore",
-//       rating: 4.6,
-//       desc: "Chic boutique hotel surrounded by the best cafes.",
-//     },
-//     {
-//       id: 10,
-//       name: "Iron & Glass Urban Loft",
-//       price: "110",
-//       img: urban4,
-//       loc: "Banjara Hills, Hyderabad",
-//       rating: 4.1,
-//       desc: "Industrial design meets city convenience.",
-//     },
-//     {
-//       id: 11,
-//       name: "Neon Horizon Boutique",
-//       price: "135",
-//       img: urban5,
-//       loc: "New Town, Kolkata",
-//       rating: 4.7,
-//       desc: "Vibrant stay in the growing tech hub of Kolkata.",
-//     },
-//     {
-//       id: 12,
-//       name: "The Quartz Central Tower",
-//       price: "220",
-//       img: urban6,
-//       loc: "Downtown, Dubai",
-//       rating: 4.8,
-//       desc: "World-class luxury with views of the Dubai skyline.",
-//     },
-//   ],
-//   ocean: [
-//     {
-//       id: 13,
-//       name: "Azure Horizon Beach Club",
-//       price: "215",
-//       img: ocean1,
-//       loc: "North Goa, India",
-//       rating: 4.7,
-//       desc: "Premium beach access and sundowner parties.",
-//     },
-//     {
-//       id: 14,
-//       name: "The Coral Reef Overwater Villa",
-//       price: "175",
-//       img: ocean2,
-//       loc: "Havelock Island, Andaman",
-//       rating: 4.5,
-//       desc: "Sleep right above the ocean with private water access.",
-//     },
-//     {
-//       id: 15,
-//       name: "Saltwater Palms Resort",
-//       price: "110",
-//       img: ocean3,
-//       loc: "Varkala, Kerala",
-//       rating: 4.4,
-//       desc: "Clifftop resort with an infinity view of the Arabian sea.",
-//     },
-//     {
-//       id: 16,
-//       name: "Turquoise Tide Haven",
-//       price: "300",
-//       img: ocean4,
-//       loc: "Maldives",
-//       rating: 4.9,
-//       desc: "The ultimate island paradise for luxury and privacy.",
-//     },
-//     {
-//       id: 17,
-//       name: "Sand & Serenity Island Spa",
-//       price: "130",
-//       img: ocean5,
-//       loc: "Pondicherry, India",
-//       rating: 4.2,
-//       desc: "Peaceful vibes and French-inspired coastal living.",
-//     },
-//     {
-//       id: 18,
-//       name: "The Sapphire Bay Resort",
-//       price: "200",
-//       img: ocean6,
-//       loc: "Gokarna, Karnataka",
-//       rating: 4.6,
-//       desc: "Untouched beaches and total tranquility.",
-//     },
-//   ],
-//   romantic: [
-//     {
-//       id: 19,
-//       name: "The Moonlit Rose Manor",
-//       price: "125",
-//       img: romantic1,
-//       loc: "Lake Pichola, Udaipur",
-//       rating: 4.9,
-//       desc: "Romantic palace stay with candlelit lake-view dinners.",
-//     },
-//     {
-//       id: 20,
-//       name: "Eternal Bloom Boutique Stay",
-//       price: "155",
-//       img: romantic2,
-//       loc: "Nainital, Uttarakhand",
-//       rating: 4.8,
-//       desc: "Cozy rooms for the perfect couple's retreat.",
-//     },
-//     {
-//       id: 21,
-//       name: "Stardust Honeymoon Suites",
-//       price: "99",
-//       img: romantic3,
-//       loc: "Dal Lake, Srinagar",
-//       rating: 4.6,
-//       desc: "Traditional houseboats for a unique romantic experience.",
-//     },
-//     {
-//       id: 22,
-//       name: "The Velvet Heart Retreat",
-//       price: "115",
-//       img: romantic4,
-//       loc: "Ooty, Tamil Nadu",
-//       rating: 4.5,
-//       desc: "Charming stay amidst the Nilgiri hills.",
-//     },
-//     {
-//       id: 23,
-//       name: "Secret Garden Lover's Inn",
-//       price: "170",
-//       img: romantic5,
-//       loc: "Alleppey, Kerala",
-//       rating: 4.7,
-//       desc: "Private backwater escapes for couples.",
-//     },
-//     {
-//       id: 24,
-//       name: "Sunset Serenade Villas",
-//       price: "140",
-//       img: romantic6,
-//       loc: "Shimla, Himachal",
-//       rating: 4.4,
-//       desc: "Mountain views and fireplace nights.",
-//     },
-//   ],
-//   royal: [
-//     {
-//       id: 25,
-//       name: "The Golden Scepter Palace",
-//       price: "540",
-//       img: royal1,
-//       loc: "Jodhpur, Rajasthan",
-//       rating: 5.0,
-//       desc: "Experience Rajasthan's royalty in a true heritage palace.",
-//     },
-//     {
-//       id: 26,
-//       name: "Imperial Heritage Mansion",
-//       price: "265",
-//       img: royal2,
-//       loc: "Udaipur, Rajasthan",
-//       rating: 4.8,
-//       desc: "Vintage luxury with modern comforts.",
-//     },
-//     {
-//       id: 27,
-//       name: "Majestic Crown Regency",
-//       price: "360",
-//       img: royal3,
-//       loc: "Jaipur, Rajasthan",
-//       rating: 4.9,
-//       desc: "Stay in the heart of the Pink City like a King.",
-//     },
-//     {
-//       id: 28,
-//       name: "The Royal Kohinoor Estate",
-//       price: "215",
-//       img: royal4,
-//       loc: "Gwalior, Madhya Pradesh",
-//       rating: 4.6,
-//       desc: "Rich history and grand hospitality.",
-//     },
-//     {
-//       id: 29,
-//       name: "Victoria's Dynasty Suites",
-//       price: "340",
-//       img: royal5,
-//       loc: "Lucknow, Uttar Pradesh",
-//       rating: 4.7,
-//       desc: "Nawabi style meets colonial grandeur.",
-//     },
-//     {
-//       id: 30,
-//       name: "Emerald Throne Heritage Hotel",
-//       price: "420",
-//       img: royal6,
-//       loc: "Mysore, Karnataka",
-//       rating: 4.8,
-//       desc: "Classic luxury near the iconic Mysore Palace.",
-//     },
-//   ],
-// };
 
 const Home = () => {
   const history = useHistory();
@@ -386,32 +104,79 @@ const Home = () => {
 
   useEffect(() => {
     fetchHotels();
+
+    // Jab bhi user is tab par wapas aaye, data refresh ho jaye
+    const handleFocus = () => {
+      fetchHotels();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
   }, []);
 
   // --- 4. Main Logic: Filter Hotels (Ye hai sabse jaruri part) ---
-  const displayedHotels = hotels.filter((hotel) => {
-    // 1. Mood Filter (Default/All ya Specific Category)
-    // Hum check karte hain ki category exist karti hai ya nahi taaki crash na ho
-    const hotelCategory = hotel.category ? hotel.category.toLowerCase() : "";
-    const currentMood = mood ? mood.toLowerCase() : "default";
+  // --- Updated Filter Logic ---
 
-    const matchesMood =
-      currentMood === "default" ||
-      currentMood === "all" ||
-      hotelCategory === currentMood;
-
-    // 2. Search Filter
+  const displayedHotels = (() => {
     const query = searchQuery.toLowerCase();
-    const hotelName = hotel.name ? hotel.name.toLowerCase() : "";
-    const hotelLoc =
-      hotel.location || hotel.loc
-        ? (hotel.location || hotel.loc).toLowerCase()
-        : "";
 
-    const matchesSearch = hotelName.includes(query) || hotelLoc.includes(query);
+    // 1. Pehle Search Filter (Name aur Location dono check honge)
+    const filteredBySearch = hotels.filter((hotel) => {
+      const hotelName = hotel.name?.toLowerCase() || "";
+      const hotelLoc = (hotel.location || hotel.loc)?.toLowerCase() || "";
+      return hotelName.includes(query) || hotelLoc.includes(query);
+    });
 
-    return matchesMood && matchesSearch;
-  });
+    const activeMood = mood.toLowerCase();
+
+    // CASE 1: Default ya All (Yahan humein exactly 6 cards chahiye)
+    if (activeMood === "default" || activeMood === "all") {
+      // Apne categories ke sahi naam yahan check kar lena (Small letters me)
+      const categories = ["nature", "urban", "ocean", "romantic", "royal"];
+      let defaultSelection = [];
+
+      categories.forEach((cat, index) => {
+        // Isme hum check kar rahe hain ki category match ho rahi hai ya nahi
+        const catHotels = filteredBySearch.filter(
+          (h) => h.category?.toLowerCase().trim() === cat,
+        );
+
+        if (index < 4) {
+          // Nature, Urban, Ocean, Romantic se 1-1 photo
+          if (catHotels.length > 0) defaultSelection.push(catHotels[0]);
+        } else {
+          // Royal se 2 photos
+          if (catHotels.length > 0)
+            defaultSelection.push(...catHotels.slice(0, 2));
+        }
+      });
+
+      // --- CRITICAL FIX ---
+      // Agar categories match nahi hui aur list 6 se kam hai, toh random hotels bhar do
+      if (defaultSelection.length < 6) {
+        const remaining = filteredBySearch.filter(
+          (h) => !defaultSelection.find((selected) => selected._id === h._id),
+        );
+        defaultSelection = [
+          ...defaultSelection,
+          ...remaining.slice(0, 6 - defaultSelection.length),
+        ];
+      }
+
+      return defaultSelection.slice(0, 6);
+    }
+
+    // CASE 2: Specific Mood (Nature, Urban, etc.)
+    const moodResult = filteredBySearch.filter(
+      (hotel) => hotel.category?.toLowerCase().trim() === activeMood,
+    );
+
+    // Agar specific mood me kuch na mile, toh khali page ki jagah wahi mood ke search results dikhao
+    return moodResult;
+  })();
 
   // --- 5. Booking Handler ---
   const handleQuickBook = async () => {

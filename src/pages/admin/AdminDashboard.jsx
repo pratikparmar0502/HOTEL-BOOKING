@@ -151,15 +151,13 @@ const AdminDashboard = () => {
         ))}
       </Grid>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+      {/* <Grid container spacing={3}>
+       <Grid item xs={12} md={8}>
           <Paper sx={{ p: 3, borderRadius: "16px", height: 450, minHeight: 0 }}>
             <Typography variant="h6" fontWeight={700} mb={2}>
               Revenue Analytics
             </Typography>
             <Box sx={{ width: "100%", height: 350 }}>
-              {" "}
-              {/* Container with explicit height */}
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={analyticsData}>
                   <CartesianGrid
@@ -182,8 +180,8 @@ const AdminDashboard = () => {
               </ResponsiveContainer>
             </Box>
           </Paper>
-        </Grid>
-      </Grid>
+        </Grid> 
+      </Grid> */}
     </Container>
   );
 };

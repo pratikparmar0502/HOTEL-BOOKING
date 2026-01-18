@@ -10,7 +10,7 @@ import Home from "./pages/client/Home";
 import Destination from "./pages/client/Destination";
 import Bookings from "./pages/client/Bookings";
 import About from "./pages/client/About";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Auth from "./pages/client/Auth";
 import MoodProvider from "./context/MoodContext";
 import Navbar from "./components/layout/Navbar";
@@ -120,6 +120,24 @@ function App() {
       position: "top-center",
     });
   };
+
+  // App.js ke andar App function mein add karein
+  useEffect(() => {
+    // Check if this is a fresh tab session
+    const sessionActive = sessionStorage.getItem("sessionActive");
+
+    if (!sessionActive) {
+      // Agar session active nahi hai (matlab browser/tab naya khula hai)
+      // Toh local storage se purana login data uda do
+      localStorage.removeItem("user");
+      localStorage.removeItem("isLoggedIn");
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+
+      // Ab is session ko active mark kar do taaki page refresh par logout na ho
+      sessionStorage.setItem("sessionActive", "true");
+    }
+  }, []);
 
   return (
     <MoodProvider>
