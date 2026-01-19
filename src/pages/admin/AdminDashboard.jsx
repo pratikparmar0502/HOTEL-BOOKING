@@ -19,12 +19,17 @@ import {
   Paper,
   Avatar,
   Stack,
+  alpha,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
-import { alpha } from "@mui/material";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
 const AdminDashboard = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [stats, setStats] = useState({
     totalHotels: 0,
     totalRevenue: 0,
@@ -33,25 +38,20 @@ const AdminDashboard = () => {
 
   const loadStats = async () => {
     try {
-      // 1. Teeno APIs se data ek saath mangwao
       const [hotelRes, custRes, bookRes] = await Promise.all([
         api.get("/HotelDatas"),
         api.get("/Users"),
         api.get("/ConfirmBookings"),
       ]);
 
-      // 2. Data extract karne ka safe tarika
       const hData = hotelRes.data.Data || hotelRes.data.data || [];
       const cData = custRes.data.Data || custRes.data.data || [];
       const bData = bookRes.data.Data || bookRes.data.data || [];
 
-      // 3. Revenue calculate karo
-      // AdminDashboard.jsx mein:
       const totalRev = bData
-        .filter((b) => b.status === "confirmed") // Sirf confirmed bookings ka paisa
+        .filter((b) => b.status === "confirmed")
         .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
 
-      // 4. Stats set karo
       setStats({
         totalHotels: hData.length,
         totalRevenue: totalRev,
@@ -65,15 +65,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     loadStats();
   }, []);
-
-  const analyticsData = [
-    { month: "Jan", revenue: 4000, bookings: 240 },
-    { month: "Feb", revenue: 3000, bookings: 138 },
-    { month: "Mar", revenue: 9000, bookings: 980 },
-    { month: "Apr", revenue: 3900, bookings: 390 },
-    { month: "May", revenue: 4800, bookings: 480 },
-    { month: "Jun", revenue: 7000, bookings: 560 },
-  ];
 
   const statCards = [
     {
@@ -102,25 +93,44 @@ const AdminDashboard = () => {
     },
   ];
 
+  const analyticsData = [
+    { month: "Jan", revenue: 4000 },
+    { month: "Feb", revenue: 3000 },
+    { month: "Mar", revenue: 9000 },
+    { month: "Apr", revenue: 3900 },
+    { month: "May", revenue: 4800 },
+    { month: "Jun", revenue: 7000 },
+  ];
+
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={800}>
+    <Box sx={{ width: "100%", overflowX: "hidden" }}>
+      <Box sx={{ mb: { xs: 3, md: 5 } }}>
+        <Typography
+          variant={isMobile ? "h5" : "h4"}
+          fontWeight={900}
+          sx={{ color: "#1e293b" }}
+        >
           Welcome Back!
         </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Here's what's happening today.
+        <Typography variant="body2" color="textSecondary">
+          Here's what's happening today in StayFlow.
         </Typography>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      {/* STAT CARDS GRID */}
+      <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
         {statCards.map((stat) => (
           <Grid item xs={12} sm={6} md={3} key={stat.label}>
             <Paper
+              elevation={0}
               sx={{
-                p: 3,
-                borderRadius: "16px",
-                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                p: { xs: 2, md: 3 },
+                borderRadius: "24px",
+                border: "1px solid",
+                borderColor: alpha("#cbd5e1", 0.3),
+                background: "white",
+                transition: "transform 0.2s",
+                "&:hover": { transform: "translateY(-5px)" },
               }}
             >
               <Stack
@@ -130,18 +140,28 @@ const AdminDashboard = () => {
               >
                 <Box>
                   <Typography
-                    variant="body2"
+                    variant="caption"
+                    fontWeight={700}
                     color="textSecondary"
-                    fontWeight={600}
+                    sx={{ textTransform: "uppercase", letterSpacing: 1 }}
                   >
                     {stat.label}
                   </Typography>
-                  <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>
+                  <Typography
+                    variant={isMobile ? "h5" : "h4"}
+                    fontWeight={800}
+                    sx={{ mt: 0.5 }}
+                  >
                     {stat.val}
                   </Typography>
                 </Box>
                 <Avatar
-                  sx={{ bgcolor: alpha(stat.color, 0.1), color: stat.color }}
+                  sx={{
+                    bgcolor: alpha(stat.color, 0.1),
+                    color: stat.color,
+                    width: 56,
+                    height: 56,
+                  }}
                 >
                   {stat.icon}
                 </Avatar>
@@ -151,38 +171,67 @@ const AdminDashboard = () => {
         ))}
       </Grid>
 
-      {/* <Grid container spacing={3}>
-       <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, borderRadius: "16px", height: 450, minHeight: 0 }}>
-            <Typography variant="h6" fontWeight={700} mb={2}>
+      {/* CHART SECTION (Now Active and Responsive) */}
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Paper
+            sx={{
+              p: { xs: 2, md: 4 },
+              borderRadius: "24px",
+              border: "1px solid",
+              borderColor: alpha("#cbd5e1", 0.3),
+            }}
+          >
+            <Typography variant="h6" fontWeight={800} mb={3}>
               Revenue Analytics
             </Typography>
-            <Box sx={{ width: "100%", height: 350 }}>
+            <Box sx={{ width: "100%", height: isMobile ? 250 : 350 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={analyticsData}>
+                  <defs>
+                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
                     stroke="#f1f5f9"
                   />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
+                  <XAxis
+                    dataKey="month"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: "#64748b" }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: "#64748b" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "none",
+                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                    }}
+                  />
                   <Area
                     type="monotone"
                     dataKey="revenue"
                     stroke="#3b82f6"
-                    fillOpacity={0.1}
-                    fill="#3b82f6"
-                    strokeWidth={3}
+                    strokeWidth={4}
+                    fillOpacity={1}
+                    fill="url(#colorRev)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </Box>
           </Paper>
-        </Grid> 
-      </Grid> */}
-    </Container>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

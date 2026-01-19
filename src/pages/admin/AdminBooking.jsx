@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { InfoOutlined } from "@mui/icons-material";
 import {
   Box,
   Typography,
@@ -21,6 +20,8 @@ import {
   Avatar,
   Grid,
   Tooltip,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -42,6 +43,10 @@ const AdminBooking = () => {
   const [tabValue, setTabValue] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   const MY_AUTH_KEY = "ngXSnLPrB0vbLvNA";
 
@@ -76,22 +81,20 @@ const AdminBooking = () => {
       .length,
   };
 
-  // --- DELETE FUNCTION ---
   const deleteBooking = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this booking?"))
-      return;
-    const toastId = toast.loading("Booking delete ho rahi hai...");
+    if (!window.confirm("Delete this booking?")) return;
+    const toastId = toast.loading("Deleting...");
     try {
       await api.delete(`/Bookingssystem/${id}?Authorization=${MY_AUTH_KEY}`);
-      toast.success("Booking Deleted!", { id: toastId });
-      fetchData(); // List refresh karne ke liye
+      toast.success("Deleted!", { id: toastId });
+      fetchData();
     } catch (err) {
-      toast.error("Delete fail ho gaya", { id: toastId });
+      toast.error("Delete failed", { id: toastId });
     }
   };
 
-    const updateStatus = async (id, newStatus, rowData) => {
-    const toastId = toast.loading(`Booking ${newStatus} ho rahi hai...`);
+  const updateStatus = async (id, newStatus, rowData) => {
+    const toastId = toast.loading(`Updating to ${newStatus}...`);
     try {
       const formData = new FormData();
       formData.append("status", newStatus.toLowerCase());
@@ -101,28 +104,24 @@ const AdminBooking = () => {
       formData.append("checkOut", rowData.checkOut);
       formData.append("amount", Math.round(Number(rowData.amount || 0)));
 
-      // IMAGE FIX: Admin side par bhi purani image ko fetch karke wapas bhej rahe hain
       if (rowData.hotelImage) {
         const imgUrl = rowData.hotelImage.startsWith("http")
           ? rowData.hotelImage
           : `https://api.techsnack.online${rowData.hotelImage}`;
-
         const imgRes = await fetch(imgUrl);
         const blob = await imgRes.blob();
-        const file = new File([blob], "hotel.png", { type: blob.type });
-        formData.append("hotelImage", file);
+        formData.append(
+          "hotelImage",
+          new File([blob], "hotel.png", { type: blob.type }),
+        );
       }
 
-      const res = await api.patch(
+      await api.patch(
         `/Bookingssystem/${id}?Authorization=${MY_AUTH_KEY}`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
       );
-
-      if (res.status === 200 || res.data.Status === "Success") {
-        toast.success(`Booking ${newStatus}!`, { id: toastId });
-        fetchData();
-      }
+      toast.success(`Success!`, { id: toastId });
+      fetchData();
     } catch (err) {
       toast.error("Update Failed", { id: toastId });
     }
@@ -135,22 +134,38 @@ const AdminBooking = () => {
       const bDate = new Date(b.checkIn).getTime();
       const start = new Date(startDate).getTime();
       const end = new Date(endDate).getTime();
-      if (bDate < start || bDate > end) return false;
+      return bDate >= start && bDate <= end;
     }
     return true;
   });
 
   if (loading)
-    return <CircularProgress sx={{ display: "block", m: "auto", mt: 10 }} />;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
 
   return (
-    <Box sx={{ p: 3, bgcolor: "#f1f5f9", minHeight: "100vh" }}>
-      <Typography variant="h4" fontWeight={900} mb={4} color="#1e293b">
-        Admin Dashboard
+    <Box sx={{ p: { xs: 1, sm: 3 }, bgcolor: "#f1f5f9", minHeight: "100vh" }}>
+      <Typography
+        variant={isMobile ? "h5" : "h4"}
+        fontWeight={900}
+        mb={4}
+        color="#1e293b"
+      >
+        Bookings Management
       </Typography>
 
-      {/* Stats Section */}
-      <Grid container spacing={3} mb={4}>
+      {/* STATS CARDS */}
+      <Grid container spacing={2} mb={4}>
         {[
           {
             label: "Total",
@@ -177,21 +192,32 @@ const AdminBooking = () => {
             icon: <DoDisturbOn />,
           },
         ].map((s, i) => (
-          <Grid item xs={12} sm={6} md={3} key={i}>
+          <Grid item xs={6} md={3} key={i}>
             <Paper
               sx={{
                 p: 2,
-                borderRadius: 2,
+                borderRadius: 3,
                 display: "flex",
                 alignItems: "center",
-                gap: 2,
+                gap: 1.5,
               }}
             >
-              <Avatar sx={{ bgcolor: `${s.col}20`, color: s.col }}>
+              <Avatar
+                sx={{
+                  bgcolor: `${s.col}15`,
+                  color: s.col,
+                  width: 40,
+                  height: 40,
+                }}
+              >
                 {s.icon}
               </Avatar>
               <Box>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", lineHeight: 1 }}
+                >
                   {s.label}
                 </Typography>
                 <Typography variant="h6" fontWeight={800}>
@@ -203,21 +229,28 @@ const AdminBooking = () => {
         ))}
       </Grid>
 
-      {/* Filters Section */}
-      <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+      {/* FILTERS & TABS */}
+      <Paper sx={{ p: 2, mb: 3, borderRadius: 3 }}>
         <Stack
-          direction={{ xs: "column", md: "row" }}
+          direction={{ xs: "column", lg: "row" }}
           spacing={2}
           justifyContent="space-between"
-          alignItems="center"
+          alignItems={{ xs: "stretch", lg: "center" }}
         >
-          <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)}>
+          <Tabs
+            value={tabValue}
+            onChange={(e, v) => setTabValue(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{ borderBottom: { xs: 1, lg: 0 }, borderColor: "divider" }}
+          >
             <Tab label="All" value="all" />
             <Tab label="Pending" value="pending" />
             <Tab label="Confirmed" value="confirmed" />
             <Tab label="Cancelled" value="cancelled" />
           </Tabs>
-          <Stack direction="row" spacing={2}>
+
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <TextField
               type="date"
               label="From"
@@ -225,6 +258,7 @@ const AdminBooking = () => {
               InputLabelProps={{ shrink: true }}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
+              fullWidth
             />
             <TextField
               type="date"
@@ -233,13 +267,16 @@ const AdminBooking = () => {
               InputLabelProps={{ shrink: true }}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
+              fullWidth
             />
             <Button
-              size="small"
+              variant="outlined"
+              color="inherit"
               onClick={() => {
                 setStartDate("");
                 setEndDate("");
               }}
+              sx={{ borderRadius: 2 }}
             >
               Clear
             </Button>
@@ -247,15 +284,23 @@ const AdminBooking = () => {
         </Stack>
       </Paper>
 
-      {/* Table Section */}
-      <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-        <Table>
+      {/* RESPONSIVE TABLE */}
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 3,
+          boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
+          overflowX: "auto",
+        }}
+      >
+        <Table sx={{ minWidth: 900 }}>
+          {" "}
+          {/* Forces scroll on mobile */}
           <TableHead sx={{ bgcolor: "#f8fafc" }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Hotel Image</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Hotel Name</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Hotel</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Customer</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Check In/Out</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Dates</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Amount</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>
@@ -271,80 +316,55 @@ const AdminBooking = () => {
               );
               return (
                 <TableRow key={row._id} hover>
-                  {/* REAL IMAGE DISPLAY */}
                   <TableCell>
-                    <Box
-                      sx={{
-                        width: 80,
-                        height: 60,
-                        borderRadius: 1,
-                        overflow: "hidden",
-                        border: "1px solid #e2e8f0",
-                        bgcolor: "#f8fafc",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {row.hotelImage ? (
-                        <img
-                          // FIX: Agar image URL "http" se start nahi hota toh API ka base URL lagayein
-                          src={
-                            row.hotelImage.startsWith("http")
-                              ? row.hotelImage
-                              : `https://api.techsnack.com${row.hotelImage}`
-                          }
-                          alt="hotel"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                          onError={(e) => {
-                            // Try one more time without API prefix if it fails
-                            e.target.onerror = null;
-                            e.target.src =
-                              "https://via.placeholder.com/80x60?text=No+Image";
-                          }}
-                        />
-                      ) : (
-                        <ImageNotSupported color="disabled" />
-                      )}
-                    </Box>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Avatar
+                        variant="rounded"
+                        src={
+                          row.hotelImage?.startsWith("http")
+                            ? row.hotelImage
+                            : `https://api.techsnack.com${row.hotelImage}`
+                        }
+                        sx={{ width: 60, height: 45, bgcolor: "#f1f5f9" }}
+                      >
+                        <ImageNotSupported />
+                      </Avatar>
+                      <Typography variant="body2" fontWeight={700}>
+                        {row.hotelName}
+                      </Typography>
+                    </Stack>
                   </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={600}>
-                      {row.hotelName}
-                    </Typography>
-                  </TableCell>
-
                   <TableCell>
                     <Typography variant="body2" fontWeight={600}>
                       {userMatch?.displayName ||
-                        (row.customerName === "admin07@gmail.com"
-                          ? "Admin"
-                          : "Guest")}
+                        row.customerName?.split("@")[0]}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {row.customerName}
                     </Typography>
                   </TableCell>
-
                   <TableCell>
-                    <Typography variant="caption" display="block">
-                      {row.checkIn}
-                    </Typography>
-                    <Typography variant="caption" display="block">
-                      to {row.checkOut}
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: 600, color: "#475569" }}
+                    >
+                      {row.checkIn} — {row.checkOut}
                     </Typography>
                   </TableCell>
-
-                  <TableCell sx={{ fontWeight: 700 }}>$ {row.amount}</TableCell>
-
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={800}>
+                      ${row.amount}
+                    </Typography>
+                  </TableCell>
                   <TableCell>
                     <Chip
                       label={row.status || "pending"}
                       size="small"
+                      sx={{
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        fontSize: "10px",
+                      }}
                       color={
                         row.status === "confirmed"
                           ? "success"
@@ -354,7 +374,6 @@ const AdminBooking = () => {
                       }
                     />
                   </TableCell>
-
                   <TableCell align="right">
                     <Stack
                       direction="row"
@@ -363,30 +382,33 @@ const AdminBooking = () => {
                     >
                       <Tooltip title="Confirm">
                         <IconButton
+                          size="small"
                           onClick={() =>
                             updateStatus(row._id, "confirmed", row)
                           }
                           color="success"
                         >
-                          <CheckCircle />
+                          <CheckCircle fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Cancel">
                         <IconButton
+                          size="small"
                           onClick={() =>
                             updateStatus(row._id, "cancelled", row)
                           }
                           color="warning"
                         >
-                          <Cancel />
+                          <Cancel fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete">
                         <IconButton
+                          size="small"
                           onClick={() => deleteBooking(row._id)}
                           color="error"
                         >
-                          <DeleteForever />
+                          <DeleteForever fontSize="small" />
                         </IconButton>
                       </Tooltip>
                     </Stack>
