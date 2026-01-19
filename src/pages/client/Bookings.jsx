@@ -260,7 +260,7 @@ const BookingCard = ({
 
         <Button
           fullWidth
-          variant="contained" 
+          variant="contained"
           onClick={() => onViewDetails(booking)}
           sx={{
             mt: 1,
@@ -367,54 +367,54 @@ const Bookings = () => {
     rzp.open();
   };
 
- const handleUpdateStatus = async (booking, newStatus) => {
-   const toastId = toast.loading(`Processing ${newStatus}...`);
+  const handleUpdateStatus = async (booking, newStatus) => {
+    const toastId = toast.loading(`Processing ${newStatus}...`);
 
-   try {
-     const formData = new FormData();
-     formData.append("customerName", booking.customerName || "");
-     formData.append("hotelName", booking.hotelName || "");
-     formData.append("checkIn", booking.checkIn || "");
-     formData.append("checkOut", booking.checkOut || "");
-     formData.append("amount", Number(booking.amount) || 0);
-     formData.append("status", newStatus);
+    try {
+      const formData = new FormData();
+      formData.append("customerName", booking.customerName || "");
+      formData.append("hotelName", booking.hotelName || "");
+      formData.append("checkIn", booking.checkIn || "");
+      formData.append("checkOut", booking.checkOut || "");
+      formData.append("amount", Number(booking.amount) || 0);
+      formData.append("status", newStatus);
 
-     // IMAGE FIX: Purani image fetch karke correct filename ke saath bhejna
-     if (booking.hotelImage) {
-       try {
-         const imgUrl = booking.hotelImage.startsWith("http")
-           ? booking.hotelImage
-           : `https://api.techsnack.online${booking.hotelImage}`;
+      // IMAGE FIX: Purani image fetch karke correct filename ke saath bhejna
+      if (booking.hotelImage) {
+        try {
+          const imgUrl = booking.hotelImage.startsWith("http")
+            ? booking.hotelImage
+            : `https://api.techsnack.online${booking.hotelImage}`;
 
-         const response = await fetch(imgUrl);
-         const blob = await response.blob();
-         // Hum blob se ek valid File object bana rahe hain
-         const file = new File([blob], "booking_image.png", {
-           type: blob.type,
-         });
-         formData.append("hotelImage", file);
-       } catch (e) {
-         // Fallback agar image fetch fail ho jaye (API validation ke liye)
-         const dummyBlob = new Blob([""], { type: "image/png" });
-         formData.append("hotelImage", dummyBlob, "image.png");
-       }
-     }
+          const response = await fetch(imgUrl);
+          const blob = await response.blob();
+          // Hum blob se ek valid File object bana rahe hain
+          const file = new File([blob], "booking_image.png", {
+            type: blob.type,
+          });
+          formData.append("hotelImage", file);
+        } catch (e) {
+          // Fallback agar image fetch fail ho jaye (API validation ke liye)
+          const dummyBlob = new Blob([""], { type: "image/png" });
+          formData.append("hotelImage", dummyBlob, "image.png");
+        }
+      }
 
-     const response = await api.patch(
-       `/Bookingssystem/${booking._id}?Authorization=ngXSnLPrB0vbLvNA`,
-       formData,
-       { headers: { "Content-Type": "multipart/form-data" } },
-     );
+      const response = await api.patch(
+        `/Bookingssystem/${booking._id}?Authorization=ngXSnLPrB0vbLvNA`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } },
+      );
 
-     if (response.status === 200 || response.data.Status === "Success") {
-       toast.success(`Booking ${newStatus} Done!`, { id: toastId });
-       fetchMyBookings();
-     }
-   } catch (error) {
-     console.error("Update Error:", error);
-     toast.error("Update failed", { id: toastId });
-   }
- };
+      if (response.status === 200 || response.data.Status === "Success") {
+        toast.success(`Booking ${newStatus} Done!`, { id: toastId });
+        fetchMyBookings();
+      }
+    } catch (error) {
+      console.error("Update Error:", error);
+      toast.error("Update failed", { id: toastId });
+    }
+  };
 
   // Cancel function ko chhota kar dein kyunki ab handleUpdateStatus sab sambhaal lega
   const handleCancelBooking = async (booking) => {

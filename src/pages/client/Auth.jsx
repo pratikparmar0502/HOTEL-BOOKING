@@ -37,14 +37,22 @@ const Auth = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    // 1. Pehle location.state check karein (jo Navbar se aa raha hai)
     const modeFromNavbar = location.state?.mode;
 
-    if (modeFromNavbar === "signup") {
-      setIsLogin(false); // Signup form dikhao
+    // 2. Phir actual URL path check karein
+    const path = location.pathname;
+
+    if (modeFromNavbar === "signup" || path === "/signup") {
+      setIsLogin(false);
     } else {
-      setIsLogin(true); // Default ya "login" state par Login form dikhao
+      setIsLogin(true);
     }
-  }, [location.state]);
+
+    // Form reset karein jab bhi mode badle
+    formik.resetForm();
+  }, [location.state, location.pathname]);
+  
   const moodColor =
     {
       nature: "#2e7d32",
