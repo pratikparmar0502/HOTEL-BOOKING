@@ -347,7 +347,7 @@ const Bookings = () => {
     }
 
     const options = {
-      key: "rzp_test_YOUR_KEY", // Replace with your real key
+      key: "rzp_test_S5mTrHDSQVtseq", // Replace with your real key
       amount: booking.amount * 100,
       currency: "INR",
       name: "StayFlow Hotels",
