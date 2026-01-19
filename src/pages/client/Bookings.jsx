@@ -82,27 +82,27 @@ const StatusChip = ({ status, moodColor }) => {
   const statusConfig = {
     pending: {
       label: "Pending",
-      color: "#f59e0b",
-      bgColor: alpha("#f59e0b", 0.1),
-      icon: <AccessTime fontSize="small" />,
+      color: "#b45309", // Darker Orange for text
+      bgColor: "#fef3c7", // Light Amber background
+      icon: <AccessTime fontSize="small" style={{ color: "#b45309" }} />,
     },
     confirmed: {
       label: "Confirmed",
-      color: "#00c853", // Vibrant Green
-      bgColor: alpha("#00c853", 0.1),
-      icon: <CheckCircle fontSize="small" />,
+      color: "#065f46", // Darker Green for text
+      bgColor: "#d1fae5", // Light Emerald background
+      icon: <CheckCircle fontSize="small" style={{ color: "#065f46" }} />,
     },
     cancelled: {
       label: "Cancelled",
-      color: "#ef4444",
-      bgColor: alpha("#ef4444", 0.1),
-      icon: <Cancel fontSize="small" />,
+      color: "#991b1b", // Darker Red for text
+      bgColor: "#fee2e2", // Light Red background
+      icon: <Cancel fontSize="small" style={{ color: "#991b1b" }} />,
     },
     completed: {
       label: "Completed",
-      color: moodColor,
-      bgColor: alpha(moodColor, 0.1),
-      icon: <Verified fontSize="small" />,
+      color: "#ffffff", // White text
+      bgColor: moodColor, // Solid mood color
+      icon: <Verified fontSize="small" style={{ color: "#ffffff" }} />,
     },
   };
 
@@ -116,9 +116,16 @@ const StatusChip = ({ status, moodColor }) => {
       sx={{
         bgcolor: config.bgColor,
         color: config.color,
-        fontWeight: 700,
-        px: 1,
-        "& .MuiChip-icon": { color: config.color },
+        fontWeight: 800,
+        fontSize: "0.8rem",
+        borderRadius: "8px",
+        px: 0.5,
+        border:
+          status === "completed"
+            ? "none"
+            : `1px solid ${alpha(config.color, 0.2)}`,
+        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+        "& .MuiChip-label": { px: 1 },
       }}
     />
   );
@@ -253,11 +260,20 @@ const BookingCard = ({
 
         <Button
           fullWidth
-          variant="text"
+          variant="contained" 
           onClick={() => onViewDetails(booking)}
-          sx={{ mt: 1, textTransform: "none", color: "text.secondary" }}
+          sx={{
+            mt: 1,
+            bgcolor: alpha(moodColor, 0.1),
+            color: moodColor,
+            fontWeight: 800,
+            boxShadow: "none",
+            "&:hover": { bgcolor: alpha(moodColor, 0.2), boxShadow: "none" },
+            borderRadius: "12px",
+            textTransform: "none",
+          }}
         >
-          View Details
+          View Full Details
         </Button>
       </CardContent>
     </Card>
@@ -351,56 +367,55 @@ const Bookings = () => {
     rzp.open();
   };
 
-  const handleUpdateStatus = async (booking, newStatus) => {
-    const toastId = toast.loading(`Processing ${newStatus}...`);
+ const handleUpdateStatus = async (booking, newStatus) => {
+   const toastId = toast.loading(`Processing ${newStatus}...`);
 
-    try {
-      const formData = new FormData();
+   try {
+     const formData = new FormData();
+     formData.append("customerName", booking.customerName || "");
+     formData.append("hotelName", booking.hotelName || "");
+     formData.append("checkIn", booking.checkIn || "");
+     formData.append("checkOut", booking.checkOut || "");
+     formData.append("amount", Number(booking.amount) || 0);
+     formData.append("status", newStatus);
 
-      // 1. Postman exact fields
-      formData.append("customerName", booking.customerName || "");
-      formData.append("hotelName", booking.hotelName || "");
-      formData.append("checkIn", booking.checkIn || "");
-      formData.append("checkOut", booking.checkOut || "");
-      formData.append("amount", Number(booking.amount) || 0); // Pure number
-      formData.append("status", newStatus);
+     // IMAGE FIX: Purani image fetch karke correct filename ke saath bhejna
+     if (booking.hotelImage) {
+       try {
+         const imgUrl = booking.hotelImage.startsWith("http")
+           ? booking.hotelImage
+           : `https://api.techsnack.online${booking.hotelImage}`;
 
-      // 2. FINAL FIX FOR "EMPTY FILE" ERROR
-      // Hum ek 1x1 pixel ki valid transparent PNG file create kar rahe hain
-      const base64Image =
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==";
-      const byteCharacters = atob(base64Image);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const pixelFile = new Blob([byteArray], { type: "image/png" });
+         const response = await fetch(imgUrl);
+         const blob = await response.blob();
+         // Hum blob se ek valid File object bana rahe hain
+         const file = new File([blob], "booking_image.png", {
+           type: blob.type,
+         });
+         formData.append("hotelImage", file);
+       } catch (e) {
+         // Fallback agar image fetch fail ho jaye (API validation ke liye)
+         const dummyBlob = new Blob([""], { type: "image/png" });
+         formData.append("hotelImage", dummyBlob, "image.png");
+       }
+     }
 
-      // Ab ye "Empty file" nahi rahi, ye ek valid image file hai
-      formData.append("hotelImage", pixelFile, "booking_img.png");
+     const response = await api.patch(
+       `/Bookingssystem/${booking._id}?Authorization=ngXSnLPrB0vbLvNA`,
+       formData,
+       { headers: { "Content-Type": "multipart/form-data" } },
+     );
 
-      // 3. API Call
-      const response = await api.patch(
-        `/Bookingssystem/${booking._id}?Authorization=ngXSnLPrB0vbLvNA`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
+     if (response.status === 200 || response.data.Status === "Success") {
+       toast.success(`Booking ${newStatus} Done!`, { id: toastId });
+       fetchMyBookings();
+     }
+   } catch (error) {
+     console.error("Update Error:", error);
+     toast.error("Update failed", { id: toastId });
+   }
+ };
 
-      if (response.status === 200 || response.data.Status === "Success") {
-        toast.success(`Booking ${newStatus} Done!`, { id: toastId });
-        fetchMyBookings();
-      }
-    } catch (error) {
-      console.error("DEBUG ERROR:", error.response?.data);
-      const serverMsg = error.response?.data?.Message || "Something went wrong";
-      toast.error(serverMsg, { id: toastId });
-    }
-  };
   // Cancel function ko chhota kar dein kyunki ab handleUpdateStatus sab sambhaal lega
   const handleCancelBooking = async (booking) => {
     if (!booking || !booking._id) {

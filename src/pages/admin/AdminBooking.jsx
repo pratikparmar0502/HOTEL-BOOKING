@@ -78,9 +78,7 @@ const AdminBooking = () => {
 
   // --- DELETE FUNCTION ---
   const deleteBooking = async (id) => {
-    if (
-      !window.confirm("Are you sure you want to delete this booking?")
-    )
+    if (!window.confirm("Are you sure you want to delete this booking?"))
       return;
     const toastId = toast.loading("Booking delete ho rahi hai...");
     try {
@@ -92,14 +90,7 @@ const AdminBooking = () => {
     }
   };
 
-  const updateStatus = async (id, newStatus, rowData) => {
-    if (rowData.status?.toLowerCase() === newStatus.toLowerCase()) {
-      toast(`Booking already ${newStatus}!`, {
-        icon: <InfoOutlined style={{ color: "#3b82f6" }} />,
-      });
-      return;
-    }
-
+    const updateStatus = async (id, newStatus, rowData) => {
     const toastId = toast.loading(`Booking ${newStatus} ho rahi hai...`);
     try {
       const formData = new FormData();
@@ -108,22 +99,25 @@ const AdminBooking = () => {
       formData.append("hotelName", rowData.hotelName);
       formData.append("checkIn", rowData.checkIn);
       formData.append("checkOut", rowData.checkOut);
-      formData.append(
-        "amount",
-        Math.round(Number(rowData.amount || rowData.totalPrice || 0)),
+      formData.append("amount", Math.round(Number(rowData.amount || 0)));
+
+      // IMAGE FIX: Admin side par bhi purani image ko fetch karke wapas bhej rahe hain
+      if (rowData.hotelImage) {
+        const imgUrl = rowData.hotelImage.startsWith("http")
+          ? rowData.hotelImage
+          : `https://api.techsnack.online${rowData.hotelImage}`;
+
+        const imgRes = await fetch(imgUrl);
+        const blob = await imgRes.blob();
+        const file = new File([blob], "hotel.png", { type: blob.type });
+        formData.append("hotelImage", file);
+      }
+
+      const res = await api.patch(
+        `/Bookingssystem/${id}?Authorization=${MY_AUTH_KEY}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
-
-      const transparentPixel =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-      const response = await fetch(transparentPixel);
-      const blob = await response.blob();
-      const file = new File([blob], "status_update.png", { type: "image/png" });
-      formData.append("hotelImage", file);
-
-      const url = `/Bookingssystem/${id}?Authorization=${MY_AUTH_KEY}`;
-      const res = await api.patch(url, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
 
       if (res.status === 200 || res.data.Status === "Success") {
         toast.success(`Booking ${newStatus}!`, { id: toastId });
