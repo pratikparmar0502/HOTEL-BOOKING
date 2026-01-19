@@ -15,7 +15,6 @@ import {
   Box,
   Typography,
   Grid,
-  Container,
   Paper,
   Avatar,
   Stack,
@@ -36,31 +35,89 @@ const AdminDashboard = () => {
     totalCustomer: 0,
   });
 
-  const loadStats = async () => {
-    try {
-      const [hotelRes, custRes, bookRes] = await Promise.all([
-        api.get("/HotelDatas"),
-        api.get("/Users"),
-        api.get("/ConfirmBookings"),
-      ]);
+  // Analytics ke liye state
+  const [analyticsData, setAnalyticsData] = useState([]);
 
-      const hData = hotelRes.data.Data || hotelRes.data.data || [];
-      const cData = custRes.data.Data || custRes.data.data || [];
-      const bData = bookRes.data.Data || bookRes.data.data || [];
+ const loadStats = async () => {
+   try {
+     const [hotelRes, custRes, bookRes] = await Promise.all([
+       api.get("/HotelDatas"),
+       api.get("/Users"),
+       api.get("/Bookingssystem"),
+     ]);
 
-      const totalRev = bData
-        .filter((b) => b.status === "confirmed")
-        .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+     const bData =
+       bookRes.data.Data ||
+       bookRes.data.data ||
+       (Array.isArray(bookRes.data) ? bookRes.data : []);
+     const confirmedBookings = bData.filter(
+       (b) => b.status?.toLowerCase() === "confirmed",
+     );
 
-      setStats({
-        totalHotels: hData.length,
-        totalRevenue: totalRev,
-        totalCustomer: cData.length,
-      });
-    } catch (err) {
-      console.error("Dashboard Fetch Error:", err);
-    }
-  };
+     // Monthly Logic with Sorting
+     const monthOrder = [
+       "Jan",
+       "Feb",
+       "Mar",
+       "Apr",
+       "May",
+       "Jun",
+       "Jul",
+       "Aug",
+       "Sep",
+       "Oct",
+       "Nov",
+       "Dec",
+     ];
+
+     const monthlyGroup = confirmedBookings.reduce((acc, curr) => {
+       const dateStr = curr.createdAt || curr.checkIn;
+       const month = new Date(dateStr).toLocaleString("default", {
+         month: "short",
+       });
+
+       if (!acc[month]) acc[month] = { revenue: 0, bookings: 0 };
+       acc[month].revenue += Number(curr.amount || curr.price || 0);
+       acc[month].bookings += 1;
+       return acc;
+     }, {});
+
+     const chartData = Object.keys(monthlyGroup)
+       .sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b))
+       .map((month) => ({
+         month,
+         revenue: monthlyGroup[month].revenue,
+         bookings: monthlyGroup[month].bookings,
+       }));
+
+     setAnalyticsData(
+       chartData.length > 0
+         ? chartData
+         : [{ month: "No Data", revenue: 0, bookings: 0 }],
+     );
+
+     setStats({
+       totalHotels: (
+         hotelRes.data.Data ||
+         hotelRes.data.data ||
+         hotelRes.data ||
+         []
+       ).length,
+       totalRevenue: confirmedBookings.reduce(
+         (sum, b) => sum + Number(b.amount || b.price || 0),
+         0,
+       ),
+       totalCustomer: (
+         custRes.data.Data ||
+         custRes.data.data ||
+         custRes.data ||
+         []
+       ).length,
+     });
+   } catch (err) {
+     console.error("Dashboard Error:", err);
+   }
+ };
 
   useEffect(() => {
     loadStats();
@@ -93,15 +150,6 @@ const AdminDashboard = () => {
     },
   ];
 
-  const analyticsData = [
-    { month: "Jan", revenue: 4000 },
-    { month: "Feb", revenue: 3000 },
-    { month: "Mar", revenue: 9000 },
-    { month: "Apr", revenue: 3900 },
-    { month: "May", revenue: 4800 },
-    { month: "Jun", revenue: 7000 },
-  ];
-
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
       <Box sx={{ mb: { xs: 3, md: 5 } }}>
@@ -117,7 +165,7 @@ const AdminDashboard = () => {
         </Typography>
       </Box>
 
-      {/* STAT CARDS GRID */}
+      {/* STAT CARDS */}
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
         {statCards.map((stat) => (
           <Grid item xs={12} sm={6} md={3} key={stat.label}>
@@ -129,7 +177,7 @@ const AdminDashboard = () => {
                 border: "1px solid",
                 borderColor: alpha("#cbd5e1", 0.3),
                 background: "white",
-                transition: "transform 0.2s",
+                transition: "0.2s",
                 "&:hover": { transform: "translateY(-5px)" },
               }}
             >
@@ -143,7 +191,7 @@ const AdminDashboard = () => {
                     variant="caption"
                     fontWeight={700}
                     color="textSecondary"
-                    sx={{ textTransform: "uppercase", letterSpacing: 1 }}
+                    sx={{ textTransform: "uppercase" }}
                   >
                     {stat.label}
                   </Typography>
@@ -171,7 +219,7 @@ const AdminDashboard = () => {
         ))}
       </Grid>
 
-      {/* CHART SECTION (Now Active and Responsive) */}
+      {/* CHART SECTION */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Paper
@@ -187,11 +235,22 @@ const AdminDashboard = () => {
             </Typography>
             <Box sx={{ width: "100%", height: isMobile ? 250 : 350 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={analyticsData}>
+                <AreaChart
+                  data={analyticsData}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
                   <defs>
                     <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      <stop
+                        offset="5%"
+                        stopColor={theme.palette.primary.main}
+                        stopOpacity={0.3}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={theme.palette.primary.main}
+                        stopOpacity={0}
+                      />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
@@ -203,28 +262,36 @@ const AdminDashboard = () => {
                     dataKey="month"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 12, fill: "#64748b" }}
+                    tick={{ fontSize: 12, fontWeight: 600, fill: "#64748b" }}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 12, fill: "#64748b" }}
+                    tickFormatter={(value) => `$${value}`}
                   />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "12px",
                       border: "none",
-                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                      boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
                     }}
+                    formatter={(value, name) => [
+                      name === "revenue" ? `$${value.toLocaleString()}` : value,
+                      name.toUpperCase(),
+                    ]}
                   />
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    stroke="#3b82f6"
-                    strokeWidth={4}
+                    name="revenue"
+                    stroke={theme.palette.primary.main}
+                    strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorRev)"
+                    activeDot={{ r: 8, strokeWidth: 0 }}
                   />
+                  {/* Optional: Agar aap bookings bhi dikhana chahein toh ek aur Area ya Line add kar sakte hain */}
                 </AreaChart>
               </ResponsiveContainer>
             </Box>

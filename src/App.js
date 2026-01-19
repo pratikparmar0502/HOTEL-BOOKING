@@ -55,6 +55,7 @@ const AppContent = ({ isLoggedIn, isAdmin, handleLogin, handleLogout }) => {
 
       <Switch>
         <Route path="/admin">
+          0
           {isLoggedIn && isAdmin ? (
             <AdminLayout onLogout={handleLogout}>
               <Switch>
