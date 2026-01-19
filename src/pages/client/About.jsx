@@ -175,7 +175,7 @@ const About = () => {
                 mb: 2,
                 background: `linear-gradient(90deg, #fff 40%, ${alpha(
                   accentColor,
-                  0.5
+                  0.5,
                 )} 100%)`,
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -290,7 +290,7 @@ const About = () => {
                 height: "100%",
                 background: `linear-gradient(to bottom, ${accentColor}, ${alpha(
                   accentColor,
-                  0.1
+                  0.1,
                 )})`,
               }}
             />
@@ -450,7 +450,7 @@ const About = () => {
                         >
                           {icon}
                         </IconButton>
-                      )
+                      ),
                     )}
                   </Stack>
                 </Card>
@@ -459,28 +459,6 @@ const About = () => {
           </Grid>
         </Box>
       </Container>
-
-      {/* Footer Branding */}
-      <Box
-        sx={{
-          py: 6,
-          textAlign: "center",
-          borderTop: `1px solid ${alpha(accentColor, 0.1)}`,
-          mt: 10,
-        }}
-      >
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ letterSpacing: 1 }}
-        >
-          © 2026 StayFlow • Infused with{" "}
-          <span style={{ color: accentColor, fontWeight: "bold" }}>
-            {mood.toUpperCase()}
-          </span>{" "}
-          energy
-        </Typography>
-      </Box>
     </Box>
   );
 };
