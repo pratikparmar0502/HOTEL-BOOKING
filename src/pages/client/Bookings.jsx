@@ -49,6 +49,7 @@ import { styled, alpha } from "@mui/material";
 import { MoodContext } from "../../context/MoodContext";
 import api from "../../api/axios";
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
 
 // ========== HELPER FUNCTIONS ==========
 const formatDate = (dateStr) => {
@@ -427,15 +428,87 @@ const Bookings = () => {
       await handleUpdateStatus(booking, "cancelled");
     }
   };
+
   const handleDownloadReceipt = (booking) => {
-    const content = `STAYFLOW RECEIPT\nHotel: ${booking.hotelName}\nAmount: ₹${booking.amount}\nStatus: ${booking.status}`;
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Receipt-${booking._id}.txt`;
-    a.click();
-    toast.success("Receipt downloaded!");
+    const doc = new jsPDF();
+    const themeColor = moodColor; // Aapke app ka dynamic color
+
+    // --- PDF Header ---
+    doc.setFontSize(22);
+    doc.setTextColor(themeColor);
+    doc.text("STAYFLOW HOTEL", 105, 20, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("Official Booking Receipt", 105, 28, { align: "center" });
+
+    // Divider Line
+    doc.setDrawColor(themeColor);
+    doc.line(20, 35, 190, 35);
+
+    // --- Booking Details ---
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+
+    // Left Column
+    doc.setFont("helvetica", "bold");
+    doc.text("Booking ID:", 20, 50);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${booking._id || "N/A"}`, 60, 50);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Customer Name:", 20, 60);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${booking.customerName}`, 60, 60);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Hotel Name:", 20, 70);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${booking.hotelName}`, 60, 70);
+
+    // --- Dates Section ---
+    doc.setFont("helvetica", "bold");
+    doc.text("Check-In:", 20, 85);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${formatDate(booking.checkIn)}`, 60, 85);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Check-Out:", 20, 95);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${formatDate(booking.checkOut)}`, 60, 95);
+
+    // --- Payment Section ---
+    doc.setFillColor(245, 247, 250); // Light gray background
+    doc.rect(20, 110, 170, 30, "F");
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("TOTAL AMOUNT PAID:", 30, 128);
+
+    doc.setTextColor(themeColor);
+    doc.setFontSize(16);
+    doc.text(`INR ${booking.amount}`, 140, 128);
+
+    // --- Status Stamp ---
+    doc.setFontSize(10);
+    doc.setTextColor(0, 150, 0); // Green color
+    doc.text(`Payment Status: ${booking.status.toUpperCase()}`, 105, 155, {
+      align: "center",
+    });
+
+    // --- Footer ---
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Thank you for choosing StayFlow Hotels!", 105, 180, {
+      align: "center",
+    });
+    doc.text("Visit again for a comfortable stay.", 105, 186, {
+      align: "center",
+    });
+
+    // Save the PDF
+    doc.save(`StayFlow_Receipt_${booking.hotelName.replace(/\s+/g, "_")}.pdf`);
+    toast.success("PDF Receipt Downloaded!");
   };
 
   const filtered = bookings.filter((b) => {
@@ -531,44 +604,238 @@ const Bookings = () => {
         )}
       </Container>
 
-      {/* Detail Dialog */}
+      {/* Improved "Badiya" Detail Dialog */}
       <Dialog
         open={openDetail}
         onClose={() => setOpenDetail(false)}
         maxWidth="sm"
         fullWidth
+        TransitionComponent={motion.div} // Animation ke liye
+        PaperProps={{
+          sx: { borderRadius: "24px", overflow: "hidden" },
+        }}
       >
         {selectedBooking && (
-          <>
-            <DialogTitle sx={{ fontWeight: 800 }}>
-              {selectedBooking.hotelName}
-            </DialogTitle>
-            <DialogContent dividers>
-              <Stack spacing={2}>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography color="text.secondary">Customer:</Typography>
-                  <Typography fontWeight={700}>
-                    {selectedBooking.customerName}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography color="text.secondary">Dates:</Typography>
-                  <Typography fontWeight={700}>
-                    {selectedBooking.checkIn} - {selectedBooking.checkOut}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography color="text.secondary">Amount:</Typography>
-                  <Typography fontWeight={700} color={moodColor}>
-                    $ {selectedBooking.amount}
-                  </Typography>
-                </Box>
-              </Stack>
+          <Box sx={{ position: "relative" }}>
+            {/* 1. Header Image Section */}
+            <Box sx={{ position: "relative", height: "200px" }}>
+              <CardMedia
+                component="img"
+                image={
+                  selectedBooking.hotelImage ||
+                  "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800"
+                }
+                sx={{ height: "100%", width: "100%", objectFit: "cover" }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background:
+                    "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%)",
+                }}
+              />
+              <IconButton
+                onClick={() => setOpenDetail(false)}
+                sx={{
+                  position: "absolute",
+                  top: 12,
+                  right: 12,
+                  bgcolor: "rgba(255,255,255,0.3)",
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.5)" },
+                }}
+              >
+                <Cancel sx={{ color: "white" }} />
+              </IconButton>
+
+              <Box sx={{ position: "absolute", bottom: 16, left: 20 }}>
+                <Typography variant="h5" color="white" fontWeight={900}>
+                  {selectedBooking.hotelName}
+                </Typography>
+                <Stack direction="row" spacing={1} mt={0.5}>
+                  <StatusChip
+                    status={selectedBooking.status}
+                    moodColor={moodColor}
+                  />
+                </Stack>
+              </Box>
+            </Box>
+
+            <DialogContent sx={{ p: 3, bgcolor: "#f8fafc" }}>
+              <Grid container spacing={2}>
+                {/* 2. Guest Information Card */}
+                <Grid item xs={12}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      borderRadius: "16px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                      mb={2}
+                    >
+                      <Box
+                        sx={{
+                          bgcolor: alpha(moodColor, 0.1),
+                          p: 1,
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <Verified sx={{ color: moodColor }} />
+                      </Box>
+                      <Typography variant="subtitle1" fontWeight={800}>
+                        Guest Details
+                      </Typography>
+                    </Stack>
+
+                    <Stack spacing={1.5}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Typography color="text.secondary" variant="body2">
+                          Primary Guest
+                        </Typography>
+                        <Typography fontWeight={600}>
+                          {selectedBooking.customerName}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Typography color="text.secondary" variant="body2">
+                          Booking ID
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            bgcolor: "#f1f5f9",
+                            px: 1,
+                            borderRadius: "4px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          #{selectedBooking._id?.slice(-8).toUpperCase()}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Paper>
+                </Grid>
+
+                {/* 3. Stay Information Card */}
+                <Grid item xs={12}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      borderRadius: "16px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                      mb={2}
+                    >
+                      <Box
+                        sx={{
+                          bgcolor: alpha("#3b82f6", 0.1),
+                          p: 1,
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <CalendarToday sx={{ color: "#3b82f6" }} />
+                      </Box>
+                      <Typography variant="subtitle1" fontWeight={800}>
+                        Stay Duration
+                      </Typography>
+                    </Stack>
+
+                    <Grid
+                      container
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Grid item>
+                        <Typography variant="caption" color="text.secondary">
+                          Check-In
+                        </Typography>
+                        <Typography variant="body1" fontWeight={700}>
+                          {formatDate(selectedBooking.checkIn)}
+                        </Typography>
+                      </Grid>
+                      <ChevronRight sx={{ color: "#cbd5e1" }} />
+                      <Grid item sx={{ textAlign: "right" }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Check-Out
+                        </Typography>
+                        <Typography variant="body1" fontWeight={700}>
+                          {formatDate(selectedBooking.checkOut)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+
+                {/* 4. Payment Summary */}
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      p: 2.5,
+                      borderRadius: "16px",
+                      background: `linear-gradient(135deg, ${moodColor} 0%, ${alpha(moodColor, 0.8)} 100%)`,
+                      color: "white",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        Total Amount Paid
+                      </Typography>
+                      <Typography variant="h4" fontWeight={900}>
+                        $ {selectedBooking.amount}
+                      </Typography>
+                    </Box>
+                    <Diamond sx={{ fontSize: 40, opacity: 0.3 }} />
+                  </Box>
+                </Grid>
+              </Grid>
             </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenDetail(false)}>Close</Button>
+
+            <DialogActions sx={{ p: 2.5, bgcolor: "#f8fafc" }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={() => setOpenDetail(false)}
+                sx={{
+                  borderRadius: "12px",
+                  py: 1.5,
+                  fontWeight: 800,
+                  borderColor: "#e2e8f0",
+                  color: "text.primary",
+                  "&:hover": { borderColor: moodColor, bgcolor: "white" },
+                }}
+              >
+                Dismiss Details
+              </Button>
             </DialogActions>
-          </>
+          </Box>
         )}
       </Dialog>
     </Box>
