@@ -18,6 +18,7 @@ import {
   IconButton,
   Modal,
   TextField,
+  MenuItem, // Added MenuItem
   useTheme,
   useMediaQuery,
 } from "@mui/material";
@@ -38,6 +39,7 @@ const AdminHotel = () => {
     name: Yup.string().required("Hotel name is required"),
     location: Yup.string().required("Location is required"),
     price: Yup.number().positive().required("Price is required"),
+    category: Yup.string().required("Category is required"), // Added validation for category
   });
 
   const TOKEN = "ngXSnLPrB0vbLvNA";
@@ -107,7 +109,6 @@ const AdminHotel = () => {
 
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
-      {/* HEADER SECTION - Responsive Stack */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={2}
@@ -144,7 +145,6 @@ const AdminHotel = () => {
         </Stack>
       </Stack>
 
-      {/* TABLE SECTION - Horizontal Scroll Fix */}
       <TableContainer
         component={Paper}
         sx={{
@@ -154,8 +154,6 @@ const AdminHotel = () => {
         }}
       >
         <Table sx={{ minWidth: 700 }}>
-          {" "}
-          {/* Desktop par pura dikhega, mobile par scroll karega */}
           <TableHead sx={{ bgcolor: "#f8fafc" }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 700 }}>Hotel Image</TableCell>
@@ -192,8 +190,8 @@ const AdminHotel = () => {
                       {row.name}
                     </Typography>
                   </TableCell>
-                  <TableCell variant="body2">{row.location}</TableCell>
-                  <TableCell fontWeight={700}>${row.price}</TableCell>
+                  <TableCell>{row.location}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>${row.price}</TableCell>
                   <TableCell>
                     <Box
                       sx={{
@@ -245,7 +243,6 @@ const AdminHotel = () => {
         </Table>
       </TableContainer>
 
-      {/* MODAL - Fully Responsive Fix */}
       <Modal
         open={openModal}
         onClose={() => setOpenModal(false)}
@@ -310,22 +307,26 @@ const AdminHotel = () => {
                     helperText={touched.price && errors.price}
                   />
 
+                  {/* FIXED CATEGORY SELECT SECTION */}
                   <TextField
                     select
-                    label="Category"
+                    label="Category (Mood)"
                     name="category"
                     value={values.category}
                     onChange={handleChange}
                     fullWidth
                     size="small"
-                    SelectProps={{ native: true }}
+                    error={touched.category && !!errors.category}
+                    helperText={touched.category && errors.category}
                   >
-                    <option value="">Select Mood</option>
+                    <MenuItem value="" disabled>
+                      Select Mood
+                    </MenuItem>
                     {["nature", "urban", "ocean", "romantic", "royal"].map(
                       (opt) => (
-                        <option key={opt} value={opt}>
+                        <MenuItem key={opt} value={opt}>
                           {opt.toUpperCase()}
-                        </option>
+                        </MenuItem>
                       ),
                     )}
                   </TextField>

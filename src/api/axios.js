@@ -14,7 +14,7 @@ api.interceptors.request.use(
     config.headers.Authorization = "ngXSnLPrB0vbLvNA";
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default api;

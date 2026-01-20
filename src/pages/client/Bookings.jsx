@@ -199,21 +199,45 @@ const BookingCard = ({
 
         <Divider sx={{ mb: 2 }} />
 
-        {/* Total Amount Section (Alag Line) */}
-        <Box sx={{ mb: 2.5 }}>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ textTransform: "uppercase" }}
-          >
-            Total Amount
-          </Typography>
-          <Typography variant="h5" fontWeight={900} color={moodColor}>
-            $ {booking.amount || 0}
-          </Typography>
-        </Box>
+        {/* Amount aur View Details Button - Ek hi line mein */}
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 2.5 }}
+        >
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textTransform: "uppercase" }}
+            >
+              Total Amount
+            </Typography>
+            <Typography variant="h5" fontWeight={900} color={moodColor}>
+              $ {booking.amount || 0}
+            </Typography>
+          </Box>
 
-        {/* Buttons Side by Side */}
+          <Button
+            variant="contained"
+            onClick={() => onViewDetails(booking)}
+            sx={{
+              bgcolor: alpha(moodColor, 0.1),
+              color: moodColor,
+              fontWeight: 800,
+              boxShadow: "none",
+              px: 2,
+              borderRadius: "10px",
+              textTransform: "none",
+              "&:hover": { bgcolor: alpha(moodColor, 0.2), boxShadow: "none" },
+            }}
+          >
+            View Details
+          </Button>
+        </Stack>
+
+        {/* Action Buttons (Pay/Cancel/Download) */}
         {status === "pending" && (
           <Stack direction="row" spacing={2}>
             <Button
@@ -258,24 +282,6 @@ const BookingCard = ({
             Download Receipt
           </Button>
         )}
-
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={() => onViewDetails(booking)}
-          sx={{
-            mt: 1,
-            bgcolor: alpha(moodColor, 0.1),
-            color: moodColor,
-            fontWeight: 800,
-            boxShadow: "none",
-            "&:hover": { bgcolor: alpha(moodColor, 0.2), boxShadow: "none" },
-            borderRadius: "12px",
-            textTransform: "none",
-          }}
-        >
-          View Full Details
-        </Button>
       </CardContent>
     </Card>
   );
