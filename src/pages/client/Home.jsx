@@ -1127,7 +1127,7 @@ const Home = () => {
                                   bgcolor: "white",
                                   border: "1px solid #f1f5f9",
                                   textAlign: "center",
-                                  cursor: "pointer",
+                                  // cursor: "pointer",
                                   transition:
                                     "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                                   "&:hover": {
@@ -1151,24 +1151,6 @@ const Home = () => {
                             </Grid>
                           ))}
                         </Grid>
-                      </Box>
-
-                      {/* 5. DESCRIPTION */}
-                      <Box sx={{ mb: 4 }}>
-                        <Typography
-                          variant="h6"
-                          fontWeight="800"
-                          sx={{ mb: 1 }}
-                        >
-                          About this stay
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          sx={{ lineHeight: 1.8 }}
-                        >
-                          {selectedHotel.desc}
-                        </Typography>
                       </Box>
                     </Box>
                   </Box>
