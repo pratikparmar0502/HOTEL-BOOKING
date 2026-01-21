@@ -85,7 +85,7 @@ const AdminBooking = () => {
     if (!window.confirm("Delete this booking?")) return;
     const toastId = toast.loading("Deleting...");
     try {
-      await api.delete(`/Bookingssystem/${id}?Authorization=${MY_AUTH_KEY}`);
+      await api.delete(`/Bookingssystem/₹{id}?Authorization=₹{MY_AUTH_KEY}`);
       toast.success("Deleted!", { id: toastId });
       fetchData();
     } catch (err) {
@@ -94,7 +94,7 @@ const AdminBooking = () => {
   };
 
   const updateStatus = async (id, newStatus, rowData) => {
-    const toastId = toast.loading(`Updating to ${newStatus}...`);
+    const toastId = toast.loading(`Updating to ₹{newStatus}...`);
     try {
       const formData = new FormData();
       formData.append("status", newStatus.toLowerCase());
@@ -107,7 +107,7 @@ const AdminBooking = () => {
       if (rowData.hotelImage) {
         const imgUrl = rowData.hotelImage.startsWith("http")
           ? rowData.hotelImage
-          : `https://api.techsnack.online${rowData.hotelImage}`;
+          : `https://api.techsnack.online₹{rowData.hotelImage}`;
         const imgRes = await fetch(imgUrl);
         const blob = await imgRes.blob();
         formData.append(
@@ -117,7 +117,7 @@ const AdminBooking = () => {
       }
 
       await api.patch(
-        `/Bookingssystem/${id}?Authorization=${MY_AUTH_KEY}`,
+        `/Bookingssystem/₹{id}?Authorization=₹{MY_AUTH_KEY}`,
         formData,
       );
       toast.success(`Success!`, { id: toastId });
@@ -204,7 +204,7 @@ const AdminBooking = () => {
             >
               <Avatar
                 sx={{
-                  bgcolor: `${s.col}15`,
+                  bgcolor: `₹{s.col}15`,
                   color: s.col,
                   width: 40,
                   height: 40,
@@ -323,7 +323,7 @@ const AdminBooking = () => {
                         src={
                           row.hotelImage?.startsWith("http")
                             ? row.hotelImage
-                            : `https://api.techsnack.com${row.hotelImage}`
+                            : `https://api.techsnack.com₹{row.hotelImage}`
                         }
                         sx={{ width: 60, height: 45, bgcolor: "#f1f5f9" }}
                       >
@@ -353,7 +353,7 @@ const AdminBooking = () => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" fontWeight={800}>
-                      ${row.amount}
+                      ₹{row.amount}
                     </Typography>
                   </TableCell>
                   <TableCell>

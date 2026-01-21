@@ -124,7 +124,7 @@ const StatusChip = ({ status, moodColor }) => {
         border:
           status === "completed"
             ? "none"
-            : `1px solid ${alpha(config.color, 0.2)}`,
+            : `1px solid ₹{alpha(config.color, 0.2)}`,
         boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
         "& .MuiChip-label": { px: 1 },
       }}
@@ -152,7 +152,7 @@ const BookingCard = ({
         borderRadius: "20px",
         overflow: "hidden",
         height: "100%",
-        border: `1px solid ${alpha(moodColor, 0.1)}`,
+        border: `1px solid ₹{alpha(moodColor, 0.1)}`,
         boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
       }}
     >
@@ -215,7 +215,7 @@ const BookingCard = ({
               Total Amount
             </Typography>
             <Typography variant="h5" fontWeight={900} color={moodColor}>
-              $ {booking.amount || 0}
+              ₹ {booking.amount || 0}
             </Typography>
           </Box>
 
@@ -354,11 +354,11 @@ const Bookings = () => {
     }
 
     const options = {
-      key: "rzp_test_S5mTrHDSQVtseq", // Replace with your real key
+      key: "rzp_test_S5mTrHDSQVtseq",
       amount: booking.amount * 100,
       currency: "INR",
       name: "StayFlow Hotels",
-      description: `Payment for ${booking.hotelName}`,
+      description: `Payment for ₹{booking.hotelName}`,
       handler: async (response) => {
         await handleUpdateStatus(
           booking,
@@ -375,7 +375,7 @@ const Bookings = () => {
   };
 
   const handleUpdateStatus = async (booking, newStatus) => {
-    const toastId = toast.loading(`Processing ${newStatus}...`);
+    const toastId = toast.loading(`Processing ₹{newStatus}...`);
 
     try {
       const formData = new FormData();
@@ -391,7 +391,7 @@ const Bookings = () => {
         try {
           const imgUrl = booking.hotelImage.startsWith("http")
             ? booking.hotelImage
-            : `https://api.techsnack.online${booking.hotelImage}`;
+            : `https://api.techsnack.online₹{booking.hotelImage}`;
 
           const response = await fetch(imgUrl);
           const blob = await response.blob();
@@ -408,13 +408,13 @@ const Bookings = () => {
       }
 
       const response = await api.patch(
-        `/Bookingssystem/${booking._id}?Authorization=ngXSnLPrB0vbLvNA`,
+        `/Bookingssystem/₹{booking._id}?Authorization=ngXSnLPrB0vbLvNA`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       if (response.status === 200 || response.data.Status === "Success") {
-        toast.success(`Booking ${newStatus} Done!`, { id: toastId });
+        toast.success(`Booking ₹{newStatus} Done!`, { id: toastId });
         fetchMyBookings();
       }
     } catch (error) {
@@ -460,28 +460,28 @@ const Bookings = () => {
     doc.setFont("helvetica", "bold");
     doc.text("Booking ID:", 20, 50);
     doc.setFont("helvetica", "normal");
-    doc.text(`${booking._id || "N/A"}`, 60, 50);
+    doc.text(`₹{booking._id || "N/A"}`, 60, 50);
 
     doc.setFont("helvetica", "bold");
     doc.text("Customer Name:", 20, 60);
     doc.setFont("helvetica", "normal");
-    doc.text(`${booking.customerName}`, 60, 60);
+    doc.text(`₹{booking.customerName}`, 60, 60);
 
     doc.setFont("helvetica", "bold");
     doc.text("Hotel Name:", 20, 70);
     doc.setFont("helvetica", "normal");
-    doc.text(`${booking.hotelName}`, 60, 70);
+    doc.text(`₹{booking.hotelName}`, 60, 70);
 
     // --- Dates Section ---
     doc.setFont("helvetica", "bold");
     doc.text("Check-In:", 20, 85);
     doc.setFont("helvetica", "normal");
-    doc.text(`${formatDate(booking.checkIn)}`, 60, 85);
+    doc.text(`₹{formatDate(booking.checkIn)}`, 60, 85);
 
     doc.setFont("helvetica", "bold");
     doc.text("Check-Out:", 20, 95);
     doc.setFont("helvetica", "normal");
-    doc.text(`${formatDate(booking.checkOut)}`, 60, 95);
+    doc.text(`₹{formatDate(booking.checkOut)}`, 60, 95);
 
     // --- Payment Section ---
     doc.setFillColor(245, 247, 250); // Light gray background
@@ -493,12 +493,12 @@ const Bookings = () => {
 
     doc.setTextColor(themeColor);
     doc.setFontSize(16);
-    doc.text(`INR ${booking.amount}`, 140, 128);
+    doc.text(`INR ₹{booking.amount}`, 140, 128);
 
     // --- Status Stamp ---
     doc.setFontSize(10);
     doc.setTextColor(0, 150, 0); // Green color
-    doc.text(`Payment Status: ${booking.status.toUpperCase()}`, 105, 155, {
+    doc.text(`Payment Status: ₹{booking.status.toUpperCase()}`, 105, 155, {
       align: "center",
     });
 
@@ -513,7 +513,7 @@ const Bookings = () => {
     });
 
     // Save the PDF
-    doc.save(`StayFlow_Receipt_${booking.hotelName.replace(/\s+/g, "_")}.pdf`);
+    doc.save(`StayFlow_Receipt_₹{booking.hotelName.replace(/\s+/g, "_")}.pdf`);
     toast.success("PDF Receipt Downloaded!");
   };
 
@@ -552,7 +552,7 @@ const Bookings = () => {
 
       <Box
         sx={{
-          background: `linear-gradient(135deg, ${moodColor} 0%, ${alpha(moodColor, 0.8)} 100%)`,
+          background: `linear-gradient(135deg, ₹{moodColor} 0%, ₹{alpha(moodColor, 0.8)} 100%)`,
           py: 6,
           color: "white",
           borderRadius: "0 0 30px 30px",
@@ -803,7 +803,7 @@ const Bookings = () => {
                     sx={{
                       p: 2.5,
                       borderRadius: "16px",
-                      background: `linear-gradient(135deg, ${moodColor} 0%, ${alpha(moodColor, 0.8)} 100%)`,
+                      background: `linear-gradient(135deg, ₹{moodColor} 0%, ₹{alpha(moodColor, 0.8)} 100%)`,
                       color: "white",
                       display: "flex",
                       justifyContent: "space-between",
@@ -815,7 +815,7 @@ const Bookings = () => {
                         Total Amount Paid
                       </Typography>
                       <Typography variant="h4" fontWeight={900}>
-                        $ {selectedBooking.amount}
+                        ₹ {selectedBooking.amount}
                       </Typography>
                     </Box>
                     <Diamond sx={{ fontSize: 40, opacity: 0.3 }} />

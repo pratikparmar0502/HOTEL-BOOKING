@@ -59,7 +59,7 @@ const Footer = () => {
       style: {
         background: getMoodColor(mood),
         color: "#fff",
-        border: `1px solid ${getMoodColor(mood)}`,
+        border: `1px solid ₹{getMoodColor(mood)}`,
         borderRadius: "8px",
         fontFamily: "'Roboto', sans-serif",
       },
@@ -140,7 +140,7 @@ const Footer = () => {
             left: 0,
             right: 0,
             height: "1px",
-            background: `linear-gradient(90deg, transparent, ${getMoodColor(
+            background: `linear-gradient(90deg, transparent, ₹{getMoodColor(
               mood
             )}, transparent)`,
           },
@@ -151,7 +151,7 @@ const Footer = () => {
             left: 0,
             right: 0,
             height: "1px",
-            background: `linear-gradient(90deg, transparent, ${getMoodColor(
+            background: `linear-gradient(90deg, transparent, ₹{getMoodColor(
               mood
             )}50, transparent)`,
           },
@@ -166,10 +166,10 @@ const Footer = () => {
             right: 0,
             bottom: 0,
             background: `
-        radial-gradient(circle at 15% 20%, ${getMoodColor(
+        radial-gradient(circle at 15% 20%, ₹{getMoodColor(
           mood
         )}10 0%, transparent 40%),
-        radial-gradient(circle at 85% 80%, ${getMoodColor(
+        radial-gradient(circle at 85% 80%, ₹{getMoodColor(
           mood
         )}08 0%, transparent 40%),
         radial-gradient(circle at 50% 50%, transparent 0%, #0a0a0a 70%)
@@ -188,16 +188,16 @@ const Footer = () => {
               width: i * 100,
               height: i * 100,
               borderRadius: "50%",
-              background: `radial-gradient(circle, ${getMoodColor(
+              background: `radial-gradient(circle, ₹{getMoodColor(
                 mood
               )}05 0%, transparent 70%)`,
-              top: `${20 * i}%`,
-              left: `${10 * i}%`,
+              top: `₹{20 * i}%`,
+              left: `₹{10 * i}%`,
               filter: "blur(40px)",
               opacity: 0.2,
               zIndex: 0,
-              animation: `float ${6 + i * 2}s ease-in-out infinite`,
-              animationDelay: `${i * 1}s`,
+              animation: `float ₹{6 + i * 2}s ease-in-out infinite`,
+              animationDelay: `₹{i * 1}s`,
               "@keyframes float": {
                 "0%, 100%": { transform: "translateY(0px) translateX(0px)" },
                 "50%": { transform: "translateY(-20px) translateX(20px)" },
@@ -223,7 +223,7 @@ const Footer = () => {
                       fontWeight: "900",
                       fontFamily: "'Playfair Display', serif",
                       letterSpacing: "-1px",
-                      background: `linear-gradient(45deg, ${getMoodColor(
+                      background: `linear-gradient(45deg, ₹{getMoodColor(
                         mood
                       )}, #ffffff)`,
                       backgroundClip: "text",
@@ -273,11 +273,11 @@ const Footer = () => {
                           fontSize: "0.9rem",
                           transition: "all 0.3s ease",
                           "&:hover": {
-                            borderColor: `${getMoodColor(mood)}50`,
+                            borderColor: `₹{getMoodColor(mood)}50`,
                           },
                           "&.Mui-focused": {
                             borderColor: getMoodColor(mood),
-                            boxShadow: `0 0 0 2px ${getMoodColor(mood)}30`,
+                            boxShadow: `0 0 0 2px ₹{getMoodColor(mood)}30`,
                           },
                         },
                         "& .MuiInputBase-input::placeholder": {
@@ -306,7 +306,7 @@ const Footer = () => {
                           bgcolor: getMoodColor(mood),
                           filter: "brightness(1.2)",
                           transform: "translateY(-2px)",
-                          boxShadow: `0 8px 25px ${getMoodColor(mood)}50`,
+                          boxShadow: `0 8px 25px ₹{getMoodColor(mood)}50`,
                         },
                       }}
                     >
@@ -339,7 +339,7 @@ const Footer = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           showToast(
-                            `🚀 ${social.name} integration coming soon!`,
+                            `🚀 ₹{social.name} integration coming soon!`,
                             "info"
                           );
                         }}
@@ -353,7 +353,7 @@ const Footer = () => {
                             borderColor: getMoodColor(mood),
                             transform: "translateY(-4px) scale(1.1)",
                             color: "#fff",
-                            boxShadow: `0 8px 20px ${getMoodColor(mood)}40`,
+                            boxShadow: `0 8px 20px ₹{getMoodColor(mood)}40`,
                           },
                         }}
                       >
@@ -376,7 +376,7 @@ const Footer = () => {
                           opacity: 0,
                           transition: "all 0.3s ease",
                           mb: 1,
-                          border: `1px solid ${getMoodColor(mood)}30`,
+                          border: `1px solid ₹{getMoodColor(mood)}30`,
                           "&::after": {
                             content: '""',
                             position: "absolute",
@@ -448,16 +448,16 @@ const Footer = () => {
                       left: 0,
                       width: "40px",
                       height: "2px",
-                      background: `linear-gradient(90deg, ${getMoodColor(
+                      background: `linear-gradient(90deg, ₹{getMoodColor(
                         mood
                       )}, transparent)`,
                       transition: "all 0.3s ease",
                     },
                     "&:hover::after": {
                       width: "60px",
-                      background: `linear-gradient(90deg, ${getMoodColor(
+                      background: `linear-gradient(90deg, ₹{getMoodColor(
                         mood
-                      )}, ${getMoodColor(mood)}80)`,
+                      )}, ₹{getMoodColor(mood)}80)`,
                     },
                   }}
                 >
@@ -484,7 +484,7 @@ const Footer = () => {
                         },
                       }}
                       onClick={() => {
-                        showToast(`🌍 ${item} page is coming soon!`, "info");
+                        showToast(`🌍 ₹{item} page is coming soon!`, "info");
                       }}
                     >
                       <Typography
@@ -557,7 +557,7 @@ const Footer = () => {
                   cursor: "pointer",
                   "&:hover": {
                     filter: "brightness(1.3)",
-                    textShadow: `0 0 10px ${getMoodColor(mood)}40`,
+                    textShadow: `0 0 10px ₹{getMoodColor(mood)}40`,
                   },
                 }}
               >
@@ -576,7 +576,7 @@ const Footer = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         showToast(
-                          `📄 ${item} page is under development. Coming soon!`,
+                          `📄 ₹{item} page is under development. Coming soon!`,
                           "warning"
                         );
                       }}

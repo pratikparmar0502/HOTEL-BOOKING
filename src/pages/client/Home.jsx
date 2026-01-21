@@ -358,7 +358,7 @@ const Home = () => {
           transition={{ duration: 0.8 }}
           sx={{
             height: { xs: "60vh", md: "80vh" },
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(₹{
               moodImages[mood] || moodImages.default
             })`,
             backgroundSize: "cover",
@@ -502,7 +502,7 @@ const Home = () => {
               fontWeight="900"
               sx={{
                 mb: 2,
-                background: `linear-gradient(45deg, #1a1a1a, ${getMoodColor(
+                background: `linear-gradient(45deg, #1a1a1a, ₹{getMoodColor(
                   mood,
                 )})`,
                 WebkitBackgroundClip: "text",
@@ -532,9 +532,9 @@ const Home = () => {
               sx={{
                 width: "100px",
                 height: "4px",
-                background: `linear-gradient(90deg, ${getMoodColor(
+                background: `linear-gradient(90deg, ₹{getMoodColor(
                   mood,
-                )}, ${getMoodColor(mood)}80, transparent)`,
+                )}, ₹{getMoodColor(mood)}80, transparent)`,
                 borderRadius: "2px",
                 mx: "auto",
                 mt: 4,
@@ -606,13 +606,13 @@ const Home = () => {
                       overflow: "hidden",
                       boxShadow: "0 12px 40px rgba(0,0,0,0.06)",
                       border: "1px solid rgba(0,0,0,0.04)",
-                      borderColor: `${getMoodColor(mood)}20`,
+                      borderColor: `₹{getMoodColor(mood)}20`,
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": {
-                        boxShadow: `0 20px 40px ${getMoodColor(mood)}15`,
+                        boxShadow: `0 20px 40px ₹{getMoodColor(mood)}15`,
                       },
                     }}
                   >
@@ -737,7 +737,7 @@ const Home = () => {
                             fontWeight="900"
                             sx={{ color: getMoodColor(mood) }}
                           >
-                            ${hotel.price}
+                            ₹{hotel.price}
                           </Typography>
                           <Typography
                             variant="caption"
@@ -770,7 +770,7 @@ const Home = () => {
                             px: 3,
                             py: 1,
                             // Default State: Halki colored shadow
-                            boxShadow: `0 4px 14px ${getMoodColor(mood)}50`,
+                            boxShadow: `0 4px 14px ₹{getMoodColor(mood)}50`,
                             transition: "all 0.3s ease", // Smooth animation
 
                             "&:hover": {
@@ -778,7 +778,7 @@ const Home = () => {
                               // Button thoda upar uthega
                               transform: "translateY(-2px)",
                               // Shadow strong aur glow karegi
-                              boxShadow: `0 8px 20px ${getMoodColor(mood)}70`,
+                              boxShadow: `0 8px 20px ₹{getMoodColor(mood)}70`,
                             },
                             "&:active": {
                               transform: "translateY(0)", // Click karne wapas niche
@@ -1187,7 +1187,7 @@ const Home = () => {
                               fontWeight="900"
                               sx={{ color: "#1a202c" }}
                             >
-                              ${finalAmount}
+                              ₹{finalAmount}
                             </Typography>
                             <Typography
                               variant="body2"
@@ -1207,7 +1207,7 @@ const Home = () => {
                               textDecoration: "underline",
                             }}
                           >
-                            Includes ${serviceFee} service fee
+                            Includes ₹{serviceFee} service fee
                           </Typography>
                         </Stack>
                       </Grid>
@@ -1234,7 +1234,7 @@ const Home = () => {
                             borderRadius: "14px",
                             py: 1.8,
                             fontWeight: "800",
-                            boxShadow: `0 10px 20px -5px ${themeColor}60`,
+                            boxShadow: `0 10px 20px -5px ₹{themeColor}60`,
                             "&:hover": {
                               bgcolor: themeColor,
                               transform: "translateY(-2px)",
@@ -1292,7 +1292,7 @@ const Home = () => {
             fontWeight="900"
             sx={{
               mb: 2,
-              background: `linear-gradient(45deg, #1a1a1a, ${getMoodColor(
+              background: `linear-gradient(45deg, #1a1a1a, ₹{getMoodColor(
                 mood
               )})`,
               WebkitBackgroundClip: "text",
@@ -1320,9 +1320,9 @@ const Home = () => {
             sx={{
               width: "100px",
               height: "4px",
-              background: `linear-gradient(90deg, ${getMoodColor(
+              background: `linear-gradient(90deg, ₹{getMoodColor(
                 mood
-              )}, ${getMoodColor(mood)}80, transparent)`,
+              )}, ₹{getMoodColor(mood)}80, transparent)`,
               borderRadius: "2px",
               mx: "auto",
               mt: 4,
@@ -1368,8 +1368,8 @@ const Home = () => {
                   background: "#fff",
                   transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                   "&:hover": {
-                    boxShadow: `0 24px 60px ${item.color}30`,
-                    borderColor: `${item.color}30`,
+                    boxShadow: `0 24px 60px ₹{item.color}30`,
+                    borderColor: `₹{item.color}30`,
                     "& .destination-img": {
                       transform: "scale(1.08)",
                       filter: "brightness(1.1) saturate(1.2)",
@@ -1433,7 +1433,7 @@ const Home = () => {
                       borderRadius: "50px",
                       fontSize: "0.8rem",
                       fontWeight: "bold",
-                      boxShadow: `0 6px 20px ${item.color}50`,
+                      boxShadow: `0 6px 20px ₹{item.color}50`,
                       zIndex: 2,
                       display: "flex",
                       alignItems: "center",
@@ -1496,11 +1496,11 @@ const Home = () => {
                         opacity: 0,
                         transform: "translateY(0)",
                         transition: "all 0.3s ease 0.1s",
-                        boxShadow: `0 8px 25px ${item.color}50`,
+                        boxShadow: `0 8px 25px ₹{item.color}50`,
                         "&:hover": {
                           bgcolor: item.color,
                           filter: "brightness(1.1)",
-                          boxShadow: `0 12px 35px ${item.color}70`,
+                          boxShadow: `0 12px 35px ₹{item.color}70`,
                         },
                       }}
                       endIcon={<ArrowForward sx={{ fontSize: "1rem" }} />}
@@ -1529,9 +1529,9 @@ const Home = () => {
               borderWidth: "2px",
               "&:hover": {
                 borderColor: getMoodColor(mood),
-                backgroundColor: `${getMoodColor(mood)}10`,
+                backgroundColor: `₹{getMoodColor(mood)}10`,
                 transform: "translateY(-3px)",
-                boxShadow: `0 12px 30px ${getMoodColor(mood)}20`,
+                boxShadow: `0 12px 30px ₹{getMoodColor(mood)}20`,
               },
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
@@ -1551,7 +1551,7 @@ const Home = () => {
               sx={{
                 mb: 3,
                 fontSize: { xs: "2.5rem", md: "3.5rem" },
-                background: `linear-gradient(45deg, ${getMoodColor(
+                background: `linear-gradient(45deg, ₹{getMoodColor(
                   mood,
                 )}, #1a1a1a)`,
                 WebkitBackgroundClip: "text",
@@ -1660,9 +1660,9 @@ const Home = () => {
                     transition:
                       "box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease",
                     "&:hover": {
-                      boxShadow: `0 20px 40px ${feature.color}15`,
-                      borderColor: `${feature.color}30`,
-                      background: `linear-gradient(145deg, #ffffff, ${feature.color}05)`,
+                      boxShadow: `0 20px 40px ₹{feature.color}15`,
+                      borderColor: `₹{feature.color}30`,
+                      background: `linear-gradient(145deg, #ffffff, ₹{feature.color}05)`,
                     },
                   }}
                 >
@@ -1674,7 +1674,7 @@ const Home = () => {
                       width: "70px",
                       height: "70px",
                       borderRadius: "20px",
-                      background: `${feature.color}15`,
+                      background: `₹{feature.color}15`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -1732,7 +1732,7 @@ const Home = () => {
                 sx={{
                   mb: 3,
                   fontSize: { xs: "2.5rem", md: "3.5rem" },
-                  background: `linear-gradient(45deg, #1a1a1a, ${getMoodColor(
+                  background: `linear-gradient(45deg, #1a1a1a, ₹{getMoodColor(
                     mood,
                   )})`,
                   WebkitBackgroundClip: "text",
@@ -1924,10 +1924,10 @@ const Home = () => {
                 mt: 10,
                 p: 4,
                 borderRadius: "20px",
-                background: `linear-gradient(135deg, ${getMoodColor(
+                background: `linear-gradient(135deg, ₹{getMoodColor(
                   mood,
-                )}15, ${getMoodColor(mood)}05)`,
-                border: `1px solid ${getMoodColor(mood)}20`,
+                )}15, ₹{getMoodColor(mood)}05)`,
+                border: `1px solid ₹{getMoodColor(mood)}20`,
                 display: "flex",
                 justifyContent: "space-around",
                 flexWrap: "wrap",

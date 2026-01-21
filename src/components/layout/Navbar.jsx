@@ -115,7 +115,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
           bgcolor: trigger ? "rgba(255, 255, 255, 0.98)" : "white",
           backdropFilter: trigger ? "blur(20px)" : "none",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          borderBottom: `1px solid ${alpha(moodColor, 0.1)}`,
+          borderBottom: `1px solid ₹{alpha(moodColor, 0.1)}`,
         }}
       >
         <Container maxWidth="xl">
@@ -157,7 +157,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
                 sx={{
                   ml: 1.5,
                   fontWeight: 900,
-                  background: `linear-gradient(45deg, #111827, ${moodColor})`,
+                  background: `linear-gradient(45deg, #111827, ₹{moodColor})`,
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   fontFamily: "'Inter', sans-serif",
@@ -273,7 +273,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
             sx={{
               pb: 1,
               px: { xs: 1, sm: 1.5 },
-              borderTop: `1px solid ${alpha(moodColor, 0.05)}`,
+              borderTop: `1px solid ₹{alpha(moodColor, 0.05)}`,
             }}
           >
             <Stack
@@ -348,7 +348,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
                 width,
                 height: "100%",
                 backgroundColor: moodColor,
-                boxShadow: `0 0 10px ${moodColor}`,
+                boxShadow: `0 0 10px ₹{moodColor}`,
               }}
             />
           </Box>

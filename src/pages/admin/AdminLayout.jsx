@@ -115,8 +115,8 @@ const AdminLayout = ({ children, onLogout }) => {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          width: { sm: `calc(100% - ₹{drawerWidth}px)` },
+          ml: { sm: `₹{drawerWidth}px` },
           display: { sm: "none" },
           bgcolor: "white",
           color: "black",
@@ -178,7 +178,7 @@ const AdminLayout = ({ children, onLogout }) => {
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 4 },
-          width: { xs: "100%", sm: `calc(100% - ${drawerWidth}px)` }, // Width calculation fix
+          width: { xs: "100%", sm: `calc(100% - ₹{drawerWidth}px)` }, // Width calculation fix
           minWidth: 0, // Content ko shrink hone ke liye allow karta hai
           mt: { xs: 8, sm: 0 },
           bgcolor: "#f8fafc",

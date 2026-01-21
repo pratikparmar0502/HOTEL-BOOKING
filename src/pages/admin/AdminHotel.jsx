@@ -75,8 +75,8 @@ const AdminHotel = () => {
     });
 
     const url = editData
-      ? `/HotelDatas/${editData._id}?Authorization=${TOKEN}`
-      : `/HotelDatas?Authorization=${TOKEN}`;
+      ? `/HotelDatas/₹{editData._id}?Authorization=₹{TOKEN}`
+      : `/HotelDatas?Authorization=₹{TOKEN}`;
 
     api({ method: editData ? "patch" : "post", url, data: formData })
       .then(() => {
@@ -100,7 +100,7 @@ const AdminHotel = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Delete this hotel?")) {
-      api.delete(`/HotelDatas/${id}`).then(() => {
+      api.delete(`/HotelDatas/₹{id}`).then(() => {
         toast.success("Deleted!");
         getData();
       });
@@ -191,7 +191,7 @@ const AdminHotel = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>{row.location}</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>${row.price}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>₹{row.price}</TableCell>
                   <TableCell>
                     <Box
                       sx={{
@@ -299,7 +299,7 @@ const AdminHotel = () => {
                   <Field
                     as={TextField}
                     name="price"
-                    label="Price per Night ($)"
+                    label="Price per Night (₹)"
                     type="number"
                     fullWidth
                     size="small"

@@ -149,11 +149,11 @@ const Auth = ({ onLogin }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: `radial-gradient(circle at 20% 30%, ${alpha(
+        background: `radial-gradient(circle at 20% 30%, ₹{alpha(
           moodColor,
           0.15
         )} 0%, transparent 40%),
-                   linear-gradient(135deg, ${moodColor} 0%, #121212 100%)`,
+                   linear-gradient(135deg, ₹{moodColor} 0%, #121212 100%)`,
       }}
     >
       <Container maxWidth="xs">

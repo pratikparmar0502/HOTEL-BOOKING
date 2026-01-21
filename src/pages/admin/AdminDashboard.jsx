@@ -126,7 +126,7 @@ const AdminDashboard = () => {
   const statCards = [
     {
       label: "Revenue",
-      val: `$${stats.totalRevenue.toLocaleString()}`,
+      val: `₹₹{stats.totalRevenue.toLocaleString()}`,
       color: "#10b981",
       icon: <MoneyIcon />,
     },
@@ -268,7 +268,7 @@ const AdminDashboard = () => {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 12, fill: "#64748b" }}
-                    tickFormatter={(value) => `$${value}`}
+                    tickFormatter={(value) => `₹₹{value}`}
                   />
                   <Tooltip
                     contentStyle={{
@@ -277,7 +277,7 @@ const AdminDashboard = () => {
                       boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
                     }}
                     formatter={(value, name) => [
-                      name === "revenue" ? `$${value.toLocaleString()}` : value,
+                      name === "revenue" ? `₹₹{value.toLocaleString()}` : value,
                       name.toUpperCase(),
                     ]}
                   />
