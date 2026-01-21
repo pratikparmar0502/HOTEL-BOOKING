@@ -38,86 +38,86 @@ const AdminDashboard = () => {
   // Analytics ke liye state
   const [analyticsData, setAnalyticsData] = useState([]);
 
- const loadStats = async () => {
-   try {
-     const [hotelRes, custRes, bookRes] = await Promise.all([
-       api.get("/HotelDatas"),
-       api.get("/Users"),
-       api.get("/Bookingssystem"),
-     ]);
+  const loadStats = async () => {
+    try {
+      const [hotelRes, custRes, bookRes] = await Promise.all([
+        api.get("/HotelDatas"),
+        api.get("/Users"),
+        api.get("/Bookingssystem"),
+      ]);
 
-     const bData =
-       bookRes.data.Data ||
-       bookRes.data.data ||
-       (Array.isArray(bookRes.data) ? bookRes.data : []);
-     const confirmedBookings = bData.filter(
-       (b) => b.status?.toLowerCase() === "confirmed",
-     );
+      const bData =
+        bookRes.data.Data ||
+        bookRes.data.data ||
+        (Array.isArray(bookRes.data) ? bookRes.data : []);
+      const confirmedBookings = bData.filter(
+        (b) => b.status?.toLowerCase() === "confirmed",
+      );
 
-     // Monthly Logic with Sorting
-     const monthOrder = [
-       "Jan",
-       "Feb",
-       "Mar",
-       "Apr",
-       "May",
-       "Jun",
-       "Jul",
-       "Aug",
-       "Sep",
-       "Oct",
-       "Nov",
-       "Dec",
-     ];
+      // Monthly Logic with Sorting
+      const monthOrder = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
 
-     const monthlyGroup = confirmedBookings.reduce((acc, curr) => {
-       const dateStr = curr.createdAt || curr.checkIn;
-       const month = new Date(dateStr).toLocaleString("default", {
-         month: "short",
-       });
+      const monthlyGroup = confirmedBookings.reduce((acc, curr) => {
+        const dateStr = curr.createdAt || curr.checkIn;
+        const month = new Date(dateStr).toLocaleString("default", {
+          month: "short",
+        });
 
-       if (!acc[month]) acc[month] = { revenue: 0, bookings: 0 };
-       acc[month].revenue += Number(curr.amount || curr.price || 0);
-       acc[month].bookings += 1;
-       return acc;
-     }, {});
+        if (!acc[month]) acc[month] = { revenue: 0, bookings: 0 };
+        acc[month].revenue += Number(curr.amount || curr.price || 0);
+        acc[month].bookings += 1;
+        return acc;
+      }, {});
 
-     const chartData = Object.keys(monthlyGroup)
-       .sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b))
-       .map((month) => ({
-         month,
-         revenue: monthlyGroup[month].revenue,
-         bookings: monthlyGroup[month].bookings,
-       }));
+      const chartData = Object.keys(monthlyGroup)
+        .sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b))
+        .map((month) => ({
+          month,
+          revenue: monthlyGroup[month].revenue,
+          bookings: monthlyGroup[month].bookings,
+        }));
 
-     setAnalyticsData(
-       chartData.length > 0
-         ? chartData
-         : [{ month: "No Data", revenue: 0, bookings: 0 }],
-     );
+      setAnalyticsData(
+        chartData.length > 0
+          ? chartData
+          : [{ month: "No Data", revenue: 0, bookings: 0 }],
+      );
 
-     setStats({
-       totalHotels: (
-         hotelRes.data.Data ||
-         hotelRes.data.data ||
-         hotelRes.data ||
-         []
-       ).length,
-       totalRevenue: confirmedBookings.reduce(
-         (sum, b) => sum + Number(b.amount || b.price || 0),
-         0,
-       ),
-       totalCustomer: (
-         custRes.data.Data ||
-         custRes.data.data ||
-         custRes.data ||
-         []
-       ).length,
-     });
-   } catch (err) {
-     console.error("Dashboard Error:", err);
-   }
- };
+      setStats({
+        totalHotels: (
+          hotelRes.data.Data ||
+          hotelRes.data.data ||
+          hotelRes.data ||
+          []
+        ).length,
+        totalRevenue: confirmedBookings.reduce(
+          (sum, b) => sum + Number(b.amount || b.price || 0),
+          0,
+        ),
+        totalCustomer: (
+          custRes.data.Data ||
+          custRes.data.data ||
+          custRes.data ||
+          []
+        ).length,
+      });
+    } catch (err) {
+      console.error("Dashboard Error:", err);
+    }
+  };
 
   useEffect(() => {
     loadStats();
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
   const statCards = [
     {
       label: "Revenue",
-      val: `₹₹{stats.totalRevenue.toLocaleString()}`,
+      val: `₹${stats.totalRevenue.toLocaleString()}`,
       color: "#10b981",
       icon: <MoneyIcon />,
     },
