@@ -77,7 +77,8 @@ const AdminDashboard = () => {
         });
 
         if (!acc[month]) acc[month] = { revenue: 0, bookings: 0 };
-        acc[month].revenue += Number(curr.amount || curr.price || 0);
+        const price = Number(curr.amount || curr.price || 0) * 90;
+        acc[month].revenue += price;
         acc[month].bookings += 1;
         return acc;
       }, {});
@@ -104,7 +105,7 @@ const AdminDashboard = () => {
           []
         ).length,
         totalRevenue: confirmedBookings.reduce(
-          (sum, b) => sum + Number(b.amount || b.price || 0),
+          (sum, b) => sum + (Number(b.amount || b.price || 0) * 90),
           0,
         ),
         totalCustomer: (
@@ -126,7 +127,7 @@ const AdminDashboard = () => {
   const statCards = [
     {
       label: "Revenue",
-      val: `₹${stats.totalRevenue.toLocaleString()}`,
+      val: `₹ ${stats.totalRevenue.toLocaleString("en-IN")}`,
       color: "#10b981",
       icon: <MoneyIcon />,
     },
@@ -268,7 +269,7 @@ const AdminDashboard = () => {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 12, fill: "#64748b" }}
-                    tickFormatter={(value) => `₹₹{value}`}
+                    tickFormatter={(value) => `₹${value}`}
                   />
                   <Tooltip
                     contentStyle={{
@@ -277,7 +278,7 @@ const AdminDashboard = () => {
                       boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
                     }}
                     formatter={(value, name) => [
-                      name === "revenue" ? `₹₹{value.toLocaleString()}` : value,
+                      name === "revenue" ? `₹${value.toLocaleString()}` : value,
                       name.toUpperCase(),
                     ]}
                   />

@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
+import { formatPrice } from "../../formatter";
 import { useHistory } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -329,7 +330,7 @@ const Destination = () => {
   const calculatedNights =
     checkIn && checkOut
       ? Math.ceil(
-          (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)
+          (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24),
         )
       : 0;
   const serviceFee = 25;
@@ -396,13 +397,13 @@ const Destination = () => {
       const isFav = prev.includes(id);
       if (isFav) {
         toast.info("Removed from favorites", {
-          toastId: `remove-₹{id}`, // Double toast preventer
+          toastId: `remove-${id}`, // Double toast preventer
           position: "bottom-right",
         });
         return prev.filter((favId) => favId !== id);
       } else {
         toast.success("Added to favorites!", {
-          toastId: `add-₹{id}`, // Double toast preventer
+          toastId: `add-${id}`, // Double toast preventer
           position: "bottom-right",
         });
         return [...prev, id];
@@ -471,7 +472,7 @@ const Destination = () => {
           pb: { xs: 10, md: 15 },
           overflow: "hidden",
           // Dynamic Background Image
-          backgroundImage: `url(₹{MOOD_IMAGES[mood] || MOOD_IMAGES.default})`,
+          backgroundImage: `url(${MOOD_IMAGES[mood] || MOOD_IMAGES.default})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           transition: "background-image 0.8s ease-in-out",
@@ -504,7 +505,7 @@ const Destination = () => {
             >
               {mood === "default"
                 ? "EXPLORE WORLDWIDE"
-                : `YOUR ₹{mood.toUpperCase()} JOURNEY`}
+                : `YOUR ${mood.toUpperCase()} JOURNEY`}
             </Typography>
 
             <Typography
@@ -515,8 +516,8 @@ const Destination = () => {
                 fontSize: { xs: "2.8rem", md: "4.5rem" },
                 lineHeight: 1.1,
                 textShadow: "0 4px 20px rgba(0,0,0,0.4)",
-                background: `linear-gradient(45deg, #ffffff, ₹{getMoodColor(
-                  mood
+                background: `linear-gradient(45deg, #ffffff, ${getMoodColor(
+                  mood,
                 )})`,
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
@@ -525,13 +526,13 @@ const Destination = () => {
             >
               {mood === "default"
                 ? "Find Your Perfect Escape"
-                : `Luxury ₹{mood} Stays`}
+                : `Luxury ${mood} Stays`}
             </Typography>
 
             <Box sx={{ maxWidth: "700px", mx: "auto", mt: 5 }}>
               <TextField
                 fullWidth
-                placeholder={`Search in ₹{
+                placeholder={`Search in ${
                   mood === "default" ? "all vibes" : mood
                 }...`}
                 value={searchTerm}
@@ -545,7 +546,7 @@ const Destination = () => {
                     border: "1px solid rgba(255, 255, 255, 0.2)",
                     "&.Mui-focused": {
                       borderColor: getMoodColor(mood),
-                      boxShadow: `0 0 25px ₹{getMoodColor(mood)}40`,
+                      boxShadow: `0 0 25px ${getMoodColor(mood)}40`,
                     },
                   },
                 }}
@@ -580,8 +581,8 @@ const Destination = () => {
               fontWeight="900"
               sx={{
                 mb: 2,
-                background: `linear-gradient(45deg, #1a1a1a, ₹{getMoodColor(
-                  mood
+                background: `linear-gradient(45deg, #1a1a1a, ${getMoodColor(
+                  mood,
                 )})`,
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -610,9 +611,9 @@ const Destination = () => {
               sx={{
                 width: "100px",
                 height: "4px",
-                background: `linear-gradient(90deg, ₹{getMoodColor(
-                  mood
-                )}, ₹{getMoodColor(mood)}80, transparent)`,
+                background: `linear-gradient(90deg, ${getMoodColor(
+                  mood,
+                )}, ${getMoodColor(mood)}80, transparent)`,
                 borderRadius: "2px",
                 mx: "auto",
                 mt: 4,
@@ -637,8 +638,8 @@ const Destination = () => {
                       transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                       "&:hover": {
                         transform: "translateY(-12px)",
-                        boxShadow: `0 30px 60px ₹{getMoodColor(
-                          property.mood
+                        boxShadow: `0 30px 60px ${getMoodColor(
+                          property.mood,
                         )}20`,
                         borderColor: getMoodColor(property.mood),
                       },
@@ -682,7 +683,7 @@ const Destination = () => {
                             textTransform: "uppercase",
                             fontSize: "0.7rem",
                             letterSpacing: "0.5px",
-                            border: `2px solid ₹{getMoodColor(property.mood)}`,
+                            border: `2px solid ${getMoodColor(property.mood)}`,
                           }}
                         />
                       </Box>
@@ -742,12 +743,12 @@ const Destination = () => {
                           borderRadius: "12px",
                           fontWeight: 900,
                           fontSize: "1.2rem",
-                          boxShadow: `0 8px 20px ₹{getMoodColor(
-                            property.mood
+                          boxShadow: `0 8px 20px ${getMoodColor(
+                            property.mood,
                           )}40`,
                         }}
                       >
-                        ₹{property.price}
+                        {formatPrice(property.price)}
                         <Typography
                           component="span"
                           variant="caption"
@@ -882,8 +883,8 @@ const Destination = () => {
                           "&:hover": {
                             bgcolor: getMoodColor(property.mood),
                             transform: "translateY(-2px)",
-                            boxShadow: `0 10px 25px ₹{getMoodColor(
-                              property.mood
+                            boxShadow: `0 10px 25px ${getMoodColor(
+                              property.mood,
                             )}40`,
                           },
                         }}
@@ -940,7 +941,7 @@ const Destination = () => {
                   color: getMoodColor(mood),
                   fontWeight: 600,
                   "&:hover": {
-                    bgcolor: `₹{getMoodColor(mood)}10`,
+                    bgcolor: `${getMoodColor(mood)}10`,
                     borderColor: getMoodColor(mood),
                   },
                 }}
@@ -1347,7 +1348,7 @@ const Destination = () => {
                             fontWeight="900"
                             sx={{ color: "#1a202c" }}
                           >
-                            ₹{finalAmount}
+                            ${finalAmount}
                           </Typography>
                           <Typography
                             variant="body2"
@@ -1367,7 +1368,7 @@ const Destination = () => {
                             textDecoration: "underline",
                           }}
                         >
-                          Includes ₹{serviceFee} service fee
+                          Includes ${serviceFee} service fee
                         </Typography>
                       </Stack>
                     </Grid>
@@ -1392,7 +1393,7 @@ const Destination = () => {
                           borderRadius: "14px",
                           py: 1.8,
                           fontWeight: "800",
-                          boxShadow: `0 10px 20px -5px ₹{themeColor}60`,
+                          boxShadow: `0 10px 20px -5px ${themeColor}60`,
                           "&:hover": {
                             bgcolor: themeColor,
                             transform: "translateY(-2px)",
@@ -1446,7 +1447,7 @@ const Destination = () => {
             color: "white",
             width: 56,
             height: 56,
-            boxShadow: `0 8px 25px ₹{getMoodColor(mood)}40`,
+            boxShadow: `0 8px 25px ${getMoodColor(mood)}40`,
             "&:hover": {
               bgcolor: getMoodColor(mood),
               transform: "translateY(-4px)",

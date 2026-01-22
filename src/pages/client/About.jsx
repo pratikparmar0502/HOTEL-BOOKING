@@ -147,8 +147,8 @@ const About = () => {
         <motion.div
           animate={{
             background: [
-              `linear-gradient(135deg, ₹{themeColor} 0%, ₹{accentColor} 100%)`,
-              `linear-gradient(135deg, ₹{accentColor} 0%, ₹{themeColor} 100%)`,
+              `linear-gradient(135deg, ${themeColor} 0%, ${accentColor} 100%)`,
+              `linear-gradient(135deg, ${accentColor} 0%, ${themeColor} 100%)`,
             ],
           }}
           transition={{ duration: 6, repeat: Infinity, repeatType: "mirror" }}
@@ -173,7 +173,7 @@ const About = () => {
               sx={{
                 fontSize: { xs: "2.8rem", md: "5rem" },
                 mb: 2,
-                background: `linear-gradient(90deg, #fff 40%, ₹{alpha(
+                background: `linear-gradient(90deg, #fff 40%, ${alpha(
                   accentColor,
                   0.5,
                 )} 100%)`,
@@ -233,13 +233,13 @@ const About = () => {
                   p: 4,
                   textAlign: "center",
                   borderRadius: "24px",
-                  border: `1px solid ₹{alpha(accentColor, 0.1)}`,
+                  border: `1px solid ${alpha(accentColor, 0.1)}`,
                   bgcolor: "white",
-                  boxShadow: `0 20px 40px ₹{alpha(themeColor, 0.05)}`,
+                  boxShadow: `0 20px 40px ${alpha(themeColor, 0.05)}`,
                   transition: "0.4s",
                   "&:hover": {
                     transform: "translateY(-10px)",
-                    border: `1px solid ₹{accentColor}`,
+                    border: `1px solid ${accentColor}`,
                   },
                 }}
               >
@@ -288,7 +288,7 @@ const About = () => {
                 transform: "translateX(-50%)",
                 width: "2px",
                 height: "100%",
-                background: `linear-gradient(to bottom, ₹{accentColor}, ₹{alpha(
+                background: `linear-gradient(to bottom, ${accentColor}, ${alpha(
                   accentColor,
                   0.1,
                 )})`,
@@ -310,7 +310,7 @@ const About = () => {
                     p: 4,
                     width: { xs: "100%", md: "42%" },
                     borderRadius: "24px",
-                    border: `1px solid ₹{alpha(accentColor, 0.1)}`,
+                    border: `1px solid ${alpha(accentColor, 0.1)}`,
                     position: "relative",
                     "&::before": {
                       content: '""',
@@ -320,7 +320,7 @@ const About = () => {
                       width: 20,
                       height: 20,
                       bgcolor: "white",
-                      border: `3px solid ₹{accentColor}`,
+                      border: `3px solid ${accentColor}`,
                       borderRadius: "50%",
                       transform: "translateY(-50%)",
                       display: { xs: "none", md: "block" },
@@ -378,11 +378,11 @@ const About = () => {
                     p: 4,
                     borderRadius: "32px",
                     bgcolor: "white",
-                    border: `1px solid ₹{alpha(accentColor, 0.08)}`,
+                    border: `1px solid ${alpha(accentColor, 0.08)}`,
                     transition: "0.5s",
                     "&:hover": {
                       transform: "translateY(-12px)",
-                      boxShadow: `0 30px 60px ₹{alpha(accentColor, 0.12)}`,
+                      boxShadow: `0 30px 60px ${alpha(accentColor, 0.12)}`,
                       borderColor: accentColor,
                     },
                   }}
@@ -394,7 +394,7 @@ const About = () => {
                       height: 120,
                       mb: 3,
                       mx: "auto",
-                      border: `4px solid ₹{accentColor}`,
+                      border: `4px solid ${accentColor}`,
                     }}
                   />
                   <Typography
@@ -432,7 +432,7 @@ const About = () => {
                     sx={{
                       mt: 4,
                       pt: 3,
-                      borderTop: `1px solid ₹{alpha(accentColor, 0.05)}`,
+                      borderTop: `1px solid ${alpha(accentColor, 0.05)}`,
                     }}
                   >
                     {[<LinkedIn />, <Twitter />, <Instagram />].map(

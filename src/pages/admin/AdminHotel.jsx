@@ -63,20 +63,23 @@ const AdminHotel = () => {
       .catch((err) => console.log("GET Error:", err.message));
   };
 
+  const displayPrice = (p) => Number(p || 0) * 90;
+
   const handleSubmit = (values, { resetForm }) => {
     const toastId = toast.loading("Processing...");
     const formData = new FormData();
+
     Object.keys(values).forEach((key) => {
-      if (key === "image" && values[key] instanceof File) {
-        formData.append(key, values[key]);
-      } else if (key !== "image") {
-        formData.append(key, values[key]);
+      if (key === "image") {
+        if (values[key] instanceof File) formData.append(key, values[key]);
+      } else {
+        formData.append(key, values[key] || "");
       }
     });
 
     const url = editData
-      ? `/HotelDatas/₹{editData._id}?Authorization=₹{TOKEN}`
-      : `/HotelDatas?Authorization=₹{TOKEN}`;
+      ? `/HotelDatas/${editData._id}?Authorization=${TOKEN}`
+      : `/HotelDatas?Authorization=${TOKEN}`;
 
     api({ method: editData ? "patch" : "post", url, data: formData })
       .then(() => {
@@ -100,7 +103,7 @@ const AdminHotel = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Delete this hotel?")) {
-      api.delete(`/HotelDatas/₹{id}`).then(() => {
+      api.delete(`/HotelDatas/${id}`).then(() => {
         toast.success("Deleted!");
         getData();
       });
@@ -191,7 +194,9 @@ const AdminHotel = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>{row.location}</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>₹{row.price}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>
+                    ₹ {displayPrice(row.price).toLocaleString("en-IN")}
+                  </TableCell>
                   <TableCell>
                     <Box
                       sx={{
@@ -299,14 +304,14 @@ const AdminHotel = () => {
                   <Field
                     as={TextField}
                     name="price"
-                    label="Price per Night (₹)"
+                    label="Base Price ($)" // Label simple rakhein
                     type="number"
                     fullWidth
                     size="small"
+                    // Helper text se user ko clarity milegi
+                    helperText="Enter amount in USD. It will be converted to INR (Rate: 1$ = ₹90) for customers."
                     error={touched.price && !!errors.price}
-                    helperText={touched.price && errors.price}
                   />
-
                   {/* FIXED CATEGORY SELECT SECTION */}
                   <TextField
                     select
