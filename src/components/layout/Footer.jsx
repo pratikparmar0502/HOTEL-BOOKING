@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Container,
+  duration,
   Grid,
   IconButton,
   Stack,
@@ -24,10 +25,8 @@ import {
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 
-
 const Footer = () => {
-  // const { mood, setMood } = useContext(MoodContext);
-  const { mood } = useContext(MoodContext);
+  const { mood, setMood } = useContext(MoodContext);
 
   const getMoodColor = (currentMood) => {
     switch (currentMood) {
@@ -49,9 +48,9 @@ const Footer = () => {
   const showToast = (message, type = "info") => {
     const toastOptions = {
       position: "bottom-right",
-      autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
+      duration: 3000,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
@@ -73,11 +72,11 @@ const Footer = () => {
         toast.error(message, toastOptions);
         break;
       case "warning":
-        toast.warning(message, toastOptions);
+        toast(message, { ...toastOptions, icon: "⚠️" });
         break;
       case "info":
       default:
-        toast.info(message, toastOptions);
+        toast(message, { ...toastOptions, icon: "ℹ️" });
         break;
     }
   };
@@ -107,20 +106,6 @@ const Footer = () => {
 
   return (
     <>
-      {/* Toast Container - App ke root mein add karna */}
-      {/* <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      /> */}
-
       {/* --- DARK FOOTER --- */}
       <Box
         component="footer"
@@ -141,7 +126,7 @@ const Footer = () => {
             right: 0,
             height: "1px",
             background: `linear-gradient(90deg, transparent, ${getMoodColor(
-              mood
+              mood,
             )}, transparent)`,
           },
           "&::after": {
@@ -152,7 +137,7 @@ const Footer = () => {
             right: 0,
             height: "1px",
             background: `linear-gradient(90deg, transparent, ${getMoodColor(
-              mood
+              mood,
             )}50, transparent)`,
           },
         }}
@@ -167,10 +152,10 @@ const Footer = () => {
             bottom: 0,
             background: `
         radial-gradient(circle at 15% 20%, ${getMoodColor(
-          mood
+          mood,
         )}10 0%, transparent 40%),
         radial-gradient(circle at 85% 80%, ${getMoodColor(
-          mood
+          mood,
         )}08 0%, transparent 40%),
         radial-gradient(circle at 50% 50%, transparent 0%, #0a0a0a 70%)
       `,
@@ -189,7 +174,7 @@ const Footer = () => {
               height: i * 100,
               borderRadius: "50%",
               background: `radial-gradient(circle, ${getMoodColor(
-                mood
+                mood,
               )}05 0%, transparent 70%)`,
               top: `${20 * i}%`,
               left: `${10 * i}%`,
@@ -224,7 +209,7 @@ const Footer = () => {
                       fontFamily: "'Playfair Display', serif",
                       letterSpacing: "-1px",
                       background: `linear-gradient(45deg, ${getMoodColor(
-                        mood
+                        mood,
                       )}, #ffffff)`,
                       backgroundClip: "text",
                       WebkitBackgroundClip: "text",
@@ -291,7 +276,7 @@ const Footer = () => {
                       onClick={() => {
                         showToast(
                           "🎉 Welcome to our travel community!",
-                          "success"
+                          "success",
                         );
                       }}
                       sx={{
@@ -340,7 +325,7 @@ const Footer = () => {
                           e.preventDefault();
                           showToast(
                             `🚀 ${social.name} integration coming soon!`,
-                            "info"
+                            "info",
                           );
                         }}
                         sx={{
@@ -449,14 +434,14 @@ const Footer = () => {
                       width: "40px",
                       height: "2px",
                       background: `linear-gradient(90deg, ${getMoodColor(
-                        mood
+                        mood,
                       )}, transparent)`,
                       transition: "all 0.3s ease",
                     },
                     "&:hover::after": {
                       width: "60px",
                       background: `linear-gradient(90deg, ${getMoodColor(
-                        mood
+                        mood,
                       )}, ${getMoodColor(mood)}80)`,
                     },
                   }}
@@ -577,7 +562,7 @@ const Footer = () => {
                         e.preventDefault();
                         showToast(
                           `📄 ${item} page is under development. Coming soon!`,
-                          "warning"
+                          "warning",
                         );
                       }}
                       variant="body2"
@@ -610,7 +595,7 @@ const Footer = () => {
                       {item}
                     </Typography>
                   </Box>
-                )
+                ),
               )}
             </Stack>
           </Box>
