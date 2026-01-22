@@ -52,7 +52,7 @@ const Auth = ({ onLogin }) => {
     // Form reset karein jab bhi mode badle
     formik.resetForm();
   }, [location.state, location.pathname]);
-  
+
   const moodColor =
     {
       nature: "#2e7d32",
@@ -76,7 +76,7 @@ const Auth = ({ onLogin }) => {
     }),
     onSubmit: async (values) => {
       const loadToast = toast.loading(
-        isLogin ? "Signing in..." : "Creating account..."
+        isLogin ? "Signing in..." : "Creating account...",
       );
       try {
         // Sabse pehle saare users ko fetch karo check karne ke liye
@@ -86,7 +86,7 @@ const Auth = ({ onLogin }) => {
         if (isLogin) {
           // --- LOGIN LOGIC ---
           const user = users.find(
-            (u) => u.email === values.email && u.password === values.password
+            (u) => u.email === values.email && u.password === values.password,
           );
           if (user) {
             localStorage.setItem("user", JSON.stringify(user));
@@ -151,7 +151,7 @@ const Auth = ({ onLogin }) => {
         justifyContent: "center",
         background: `radial-gradient(circle at 20% 30%, ${alpha(
           moodColor,
-          0.15
+          0.15,
         )} 0%, transparent 40%),
                    linear-gradient(135deg, ${moodColor} 0%, #121212 100%)`,
       }}

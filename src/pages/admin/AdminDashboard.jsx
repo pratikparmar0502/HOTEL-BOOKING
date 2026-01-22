@@ -21,6 +21,8 @@ import {
   alpha,
   useTheme,
   useMediaQuery,
+  MenuItem, // Add this
+  TextField, // Add this
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
@@ -35,8 +37,33 @@ const AdminDashboard = () => {
     totalCustomer: 0,
   });
 
-  // Analytics ke liye state
+  // 1. Nayi States: Month aur Year ke liye
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [allBookings, setAllBookings] = useState([]); // Saari bookings store karne ke liye
   const [analyticsData, setAnalyticsData] = useState([]);
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const startYear = 2024;
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let y = startYear; y <= currentYear + 1; y++) {
+    years.push(y);
+  }
 
   const loadStats = async () => {
     try {
@@ -54,49 +81,9 @@ const AdminDashboard = () => {
         (b) => b.status?.toLowerCase() === "confirmed",
       );
 
-      // Monthly Logic with Sorting
-      const monthOrder = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
+      setAllBookings(confirmedBookings); // Filtered bookings ko state mein rakhein
 
-      const monthlyGroup = confirmedBookings.reduce((acc, curr) => {
-        const dateStr = curr.createdAt || curr.checkIn;
-        const month = new Date(dateStr).toLocaleString("default", {
-          month: "short",
-        });
-
-        if (!acc[month]) acc[month] = { revenue: 0, bookings: 0 };
-        const price = Number(curr.amount || curr.price || 0) * 90;
-        acc[month].revenue += price;
-        acc[month].bookings += 1;
-        return acc;
-      }, {});
-
-      const chartData = Object.keys(monthlyGroup)
-        .sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b))
-        .map((month) => ({
-          month,
-          revenue: monthlyGroup[month].revenue,
-          bookings: monthlyGroup[month].bookings,
-        }));
-
-      setAnalyticsData(
-        chartData.length > 0
-          ? chartData
-          : [{ month: "No Data", revenue: 0, bookings: 0 }],
-      );
-
+      // Stats update karein
       setStats({
         totalHotels: (
           hotelRes.data.Data ||
@@ -105,7 +92,7 @@ const AdminDashboard = () => {
           []
         ).length,
         totalRevenue: confirmedBookings.reduce(
-          (sum, b) => sum + (Number(b.amount || b.price || 0) * 90),
+          (sum, b) => sum + Number(b.amount || b.price || 0) * 90,
           0,
         ),
         totalCustomer: (
@@ -119,6 +106,39 @@ const AdminDashboard = () => {
       console.error("Dashboard Error:", err);
     }
   };
+
+  // 2. Logic: Selected Month ke hisaab se Chart Data banana
+  useEffect(() => {
+    if (allBookings.length >= 0) {
+      // Us mahine mein kitne din hain (e.g., Feb has 28)
+      const daysInMonth = new Date(
+        selectedYear,
+        selectedMonth + 1,
+        0,
+      ).getDate();
+
+      // Har din ke liye default 0 revenue ka array
+      const dailyData = Array.from({ length: daysInMonth }, (_, i) => ({
+        date: i + 1,
+        revenue: 0,
+      }));
+
+      // Bookings ko scan karke revenue add karein
+      allBookings.forEach((curr) => {
+        const dateObj = new Date(curr.createdAt || curr.checkIn);
+        if (
+          dateObj.getMonth() === selectedMonth &&
+          dateObj.getFullYear() === selectedYear
+        ) {
+          const day = dateObj.getDate();
+          const price = Number(curr.amount || curr.price || 0) * 90;
+          dailyData[day - 1].revenue += price;
+        }
+      });
+
+      setAnalyticsData(dailyData);
+    }
+  }, [selectedMonth, selectedYear, allBookings]);
 
   useEffect(() => {
     loadStats();
@@ -153,20 +173,62 @@ const AdminDashboard = () => {
 
   return (
     <Box sx={{ width: "100%", overflowX: "hidden" }}>
-      <Box sx={{ mb: { xs: 3, md: 5 } }}>
-        <Typography
-          variant={isMobile ? "h5" : "h4"}
-          fontWeight={900}
-          sx={{ color: "#1e293b" }}
-        >
-          Welcome Back!
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Here's what's happening today in StayFlow.
-        </Typography>
-      </Box>
+      <Stack
+        direction={isMobile ? "column" : "row"}
+        justifyContent="space-between"
+        alignItems={isMobile ? "flex-start" : "center"}
+        sx={{ mb: 4 }}
+        spacing={2}
+      >
+        <Box>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            fontWeight={900}
+            sx={{ color: "#1e293b" }}
+          >
+            Welcome Back!
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Here's what's happening in {months[selectedMonth]}.
+          </Typography>
+        </Box>
 
-      {/* STAT CARDS */}
+        <Stack direction="row" spacing={2} sx={{ mb: 4 }}>
+          {/* Month Dropdown */}
+          <TextField
+            select
+            size="small"
+            label="Month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            sx={{ minWidth: 140, bgcolor: "white", borderRadius: "8px" }}
+          >
+            {months.map((m, index) => (
+              <MenuItem key={m} value={index}>
+                {m}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          {/* Year Dropdown - 2024 se Start */}
+          <TextField
+            select
+            size="small"
+            label="Year"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            sx={{ minWidth: 100, bgcolor: "white", borderRadius: "8px" }}
+          >
+            {years.map((y) => (
+              <MenuItem key={y} value={y}>
+                {y}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Stack>
+      </Stack>
+
+      {/* STAT CARDS (Same as your code) */}
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
         {statCards.map((stat) => (
           <Grid item xs={12} sm={6} md={3} key={stat.label}>
@@ -232,7 +294,7 @@ const AdminDashboard = () => {
             }}
           >
             <Typography variant="h6" fontWeight={800} mb={3}>
-              Revenue Analytics
+              Daily Revenue - {months[selectedMonth]} {selectedYear}
             </Typography>
             <Box sx={{ width: "100%", height: isMobile ? 250 : 350 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -260,10 +322,15 @@ const AdminDashboard = () => {
                     stroke="#f1f5f9"
                   />
                   <XAxis
-                    dataKey="month"
+                    dataKey="date"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 12, fontWeight: 600, fill: "#64748b" }}
+                    label={{
+                      value: "Date",
+                      position: "insideBottomRight",
+                      offset: -5,
+                    }}
                   />
                   <YAxis
                     axisLine={false}
@@ -277,22 +344,23 @@ const AdminDashboard = () => {
                       border: "none",
                       boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
                     }}
-                    formatter={(value, name) => [
-                      name === "revenue" ? `₹${value.toLocaleString()}` : value,
-                      name.toUpperCase(),
+                    formatter={(value) => [
+                      `₹${value.toLocaleString()}`,
+                      "REVENUE",
                     ]}
+                    labelFormatter={(label) =>
+                      `Date: ${label} ${months[selectedMonth]}`
+                    }
                   />
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    name="revenue"
                     stroke={theme.palette.primary.main}
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorRev)"
                     activeDot={{ r: 8, strokeWidth: 0 }}
                   />
-                  {/* Optional: Agar aap bookings bhi dikhana chahein toh ek aur Area ya Line add kar sakte hain */}
                 </AreaChart>
               </ResponsiveContainer>
             </Box>

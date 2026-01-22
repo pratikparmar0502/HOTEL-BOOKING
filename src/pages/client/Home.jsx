@@ -45,7 +45,6 @@ import {
   CircularProgress,
   Backdrop,
   Grid2,
-  duration,
 } from "@mui/material";
 
 import { MoodContext } from "../../context/MoodContext.jsx";

@@ -20,6 +20,7 @@ import {
   TextField,
   MenuItem, // Added MenuItem
   useTheme,
+  Skeleton,
   useMediaQuery,
 } from "@mui/material";
 import toast from "react-hot-toast";
@@ -31,6 +32,7 @@ const AdminHotel = () => {
   const [editData, setEditData] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -57,10 +59,17 @@ const AdminHotel = () => {
   }, []);
 
   const getData = () => {
+    setLoading(true); // Fetch shuru hote hi true
     api
       .get("/HotelDatas")
-      .then((res) => setList(res.data.Data || []))
-      .catch((err) => console.log("GET Error:", err.message));
+      .then((res) => {
+        setList(res.data.Data || []);
+        setLoading(false); // Data milne par false
+      })
+      .catch((err) => {
+        console.log("GET Error:", err.message);
+        setLoading(false); // Error aaye tab bhi false taaki skeleton hate
+      });
   };
 
   const displayPrice = (p) => Number(p || 0) * 90;
@@ -170,80 +179,115 @@ const AdminHotel = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {list
-              .filter((i) =>
-                i.name?.toLowerCase().includes(search.toLowerCase()),
-              )
-              .map((row) => (
-                <TableRow key={row._id} hover>
-                  <TableCell>
-                    <Box
-                      component="img"
-                      src={row.image}
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: "10px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Typography fontWeight={600} variant="body2">
-                      {row.name}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{row.location}</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>
-                    ₹ {displayPrice(row.price).toLocaleString("en-IN")}
-                  </TableCell>
-                  <TableCell>
-                    <Box
-                      sx={{
-                        px: 1.5,
-                        py: 0.5,
-                        bgcolor: "#f1f5f9",
-                        borderRadius: "12px",
-                        display: "inline-block",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.category || "N/A"}
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      justifyContent="flex-end"
-                    >
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEdit(row)}
-                        sx={{
-                          bgcolor: "#e0f2fe",
-                          color: "#0284c7",
-                          borderRadius: "8px",
-                        }}
+            {loading
+              ? [...Array(5)].map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton
+                        variant="rectangular"
+                        width={50}
+                        height={50}
+                        sx={{ borderRadius: "10px" }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width="80%" height={25} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width="60%" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width="40%" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="rounded" width={80} height={25} />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="flex-end"
                       >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDelete(row._id)}
-                        sx={{
-                          bgcolor: "#fee2e2",
-                          color: "#ef4444",
-                          borderRadius: "8px",
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <Skeleton variant="circular" width={30} height={30} />
+                        <Skeleton variant="circular" width={30} height={30} />
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))
+              : list
+                  .filter((i) =>
+                    i.name?.toLowerCase().includes(search.toLowerCase()),
+                  )
+                  .map((row) => (
+                    <TableRow key={row._id} hover>
+                      <TableCell>
+                        <Box
+                          component="img"
+                          src={row.image}
+                          sx={{
+                            width: 50,
+                            height: 50,
+                            borderRadius: "10px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography fontWeight={600} variant="body2">
+                          {row.name}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{row.location}</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>
+                        ₹ {displayPrice(row.price).toLocaleString("en-IN")}
+                      </TableCell>
+                      <TableCell>
+                        <Box
+                          sx={{
+                            px: 1.5,
+                            py: 0.5,
+                            bgcolor: "#f1f5f9",
+                            borderRadius: "12px",
+                            display: "inline-block",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {row.category || "N/A"}
+                        </Box>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          justifyContent="flex-end"
+                        >
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEdit(row)}
+                            sx={{
+                              bgcolor: "#e0f2fe",
+                              color: "#0284c7",
+                              borderRadius: "8px",
+                            }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDelete(row._id)}
+                            sx={{
+                              bgcolor: "#fee2e2",
+                              color: "#ef4444",
+                              borderRadius: "8px",
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))}
           </TableBody>
         </Table>
       </TableContainer>
