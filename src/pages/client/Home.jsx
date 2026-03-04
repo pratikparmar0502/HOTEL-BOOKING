@@ -599,7 +599,7 @@ const Home = () => {
                           transition: "opacity 0.5s",
                         }}
                       />
-                      <Box
+                      {/* <Box
                         sx={{
                           position: "absolute",
                           top: 15,
@@ -611,7 +611,7 @@ const Home = () => {
                           display: "flex",
                           alignItems: "center",
                         }}
-                      ></Box>
+                      ></Box> */}
                     </Box>
 
                     <CardContent
