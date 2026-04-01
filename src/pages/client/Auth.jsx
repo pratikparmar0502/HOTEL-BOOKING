@@ -56,7 +56,7 @@ const Auth = ({ onLogin }) => {
   const moodColor =
     {
       nature: "#2e7d32",
-      urban: "#6200ea",
+      urban: "#EF4444",
       ocean: "#00bcd4",
       romantic: "#d81b60",
       royal: "#ffab00",
